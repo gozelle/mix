@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gozelle/testify/require"
 	"os"
 	"path/filepath"
@@ -13,6 +15,9 @@ func TestParser(t *testing.T) {
 	
 	file := filepath.Join(wd, "../test/rpc.go")
 	
-	err = ParseFile(file)
+	v := ParseFile(file)
+	d, err := json.MarshalIndent(v, "", "\t")
 	require.NoError(t, err)
+	
+	fmt.Println(string(d))
 }

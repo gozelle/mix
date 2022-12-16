@@ -1,7 +1,6 @@
-package parser
+package origin
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -118,47 +117,6 @@ func typeName(e ast.Expr, pkg string) (string, error) {
 	default:
 		return "", xerrors.Errorf("unknown type")
 	}
-}
-
-func ParseFile(file string) (err error) {
-	fset := token.NewFileSet()
-	
-	pfile, err := parser.ParseFile(fset, file, nil, parser.AllErrors|parser.ParseComments)
-	if err != nil {
-		return
-	}
-	for _, v := range pfile.Imports {
-		fmt.Println(v.Name, v.Path.Value)
-	}
-	v := &Visitor{make(map[string]map[string]*methodMeta), map[string][]string{}}
-	ast.Walk(v, pfile)
-	
-	d, err := json.Marshal(v.Methods)
-	if err != nil {
-		return
-	}
-	for kk, vv := range v.Methods {
-		fmt.Println(kk)
-		for kkk, vvv := range vv {
-			fmt.Println(kkk, vvv)
-			for _, vvvv := range vvv.ftype.Params.List {
-				fmt.Println(vvvv.Names, vvvv.Type)
-			}
-			for _, vvvv := range vvv.ftype.Results.List {
-				fmt.Println(vvvv.Names, vvvv.Type)
-			}
-		}
-	}
-	
-	fmt.Println("Interface", string(d))
-	
-	d, err = json.Marshal(v.Include)
-	if err != nil {
-		return
-	}
-	fmt.Println("Include", string(d))
-	
-	return
 }
 
 func generate(path, pkg, outpkg, outfile string) error {
