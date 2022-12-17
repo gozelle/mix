@@ -1,0 +1,410 @@
+package parser
+
+import (
+	"fmt"
+	"github.com/gozelle/fs"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"reflect"
+	"strings"
+)
+
+type File struct {
+	Name    string
+	Content string
+}
+
+type Maker interface {
+	Make(methods []*Method, typer *Typer, packager *Packager) (files []*File, err error)
+}
+
+type InterfaceContext struct {
+	Name     string
+	Methods  []*Method
+	Typer    *Typer
+	Packager *Packager
+}
+
+type Typer struct {
+	Types   []*Type
+	mapping map[string]*Type
+}
+
+func (t Typer) Get(name string) (r *Type, ok bool) {
+	if t.mapping == nil {
+		return
+	}
+	r, ok = t.mapping[name]
+	return
+}
+
+type Packager struct {
+	Packages []*Package
+	mapping  map[string]*Package
+}
+
+func (p Packager) Get(name string) (pkg *Package, ok bool) {
+	if p.mapping == nil {
+		return
+	}
+	pkg, ok = p.mapping[name]
+	return
+}
+
+type Interface struct {
+	Name     string    `json:"Name,omitempty"`
+	Methods  []*Method `json:"Methods,omitempty"`
+	includes []*Interface
+	t        *ast.InterfaceType
+}
+
+type Method struct {
+	Name   string   `json:"Name,omitempty"`
+	Params []*Field `json:"Params,omitempty"`
+	Return []*Field `json:"Return,omitempty"`
+}
+
+type Field struct {
+	Name string `json:"Name,omitempty"`
+	Type *Type  `json:"Type,omitempty"`
+}
+
+type Type struct {
+	Name     string  `json:"Name,omitempty"`
+	Type     string  `json:"Type,omitempty"`
+	Tags     string  `json:"Tags,omitempty"`
+	Reserved bool    `json:"Reserved"`
+	Children []*Type `json:"Children,omitempty"` // only for struct
+}
+
+type Package struct {
+	Name       string                `json:"Name,omitempty"`
+	Alias      string                `json:"Alias,omitempty"`
+	Path       string                `json:"Path,omitempty"`
+	Imports    map[string]*Package   `json:"Imports,omitempty"`
+	Interfaces map[string]*Interface `json:"Interfaces,omitempty"`
+	Types      map[string]*Type      `json:"Types,omitempty"`
+	mod        *Mod
+	loaded     bool
+}
+
+type Dist struct {
+	Dir     string
+	Package string
+}
+
+func (d Dist) IsPackageEmpty() bool {
+	return strings.TrimSpace(d.Package) == ""
+}
+
+func (d Dist) Valid() error {
+	ok, _ := fs.IsDir(d.Dir)
+	if !ok {
+		return fmt.Errorf("dist dir: '%s' not exist", d.Dir)
+	}
+	return nil
+}
+
+func (p *Package) Make(target string, maker Maker) error {
+	i := p.getInterface(target)
+	if i == nil {
+		return fmt.Errorf("interface: '%s' not found", target)
+	}
+	maker.Make(i.Methods, &Typer{}, &Packager{})
+	return nil
+}
+
+func (p *Package) addImports(name string, item *Package) *Package {
+	if p.Imports == nil {
+		p.Imports = map[string]*Package{}
+	}
+	if v, ok := p.Imports[name]; ok {
+		return v
+	}
+	p.Imports[name] = item
+	return item
+}
+
+func (p *Package) addType(name string, item *Type) *Type {
+	if p.Types == nil {
+		p.Types = map[string]*Type{}
+	}
+	if v, ok := p.Types[name]; ok {
+		return v
+	}
+	p.Types[name] = item
+	return item
+}
+
+func (p *Package) addInterface(name string, item *Interface) *Interface {
+	if p.Interfaces == nil {
+		p.Interfaces = map[string]*Interface{}
+	}
+	if v, ok := p.Interfaces[name]; ok {
+		return v
+	}
+	p.Interfaces[name] = item
+	return item
+}
+
+func (p *Package) getInterface(name string) *Interface {
+	if p.Interfaces == nil {
+		return nil
+	}
+	v, ok := p.Interfaces[name]
+	if ok {
+		return v
+	}
+	return nil
+}
+
+type Parser struct {
+	mod *Mod
+}
+
+func NewParser() (parser *Parser, err error) {
+	
+	mod, err := FindModFile()
+	if err != nil {
+		return
+	}
+	
+	parser = &Parser{
+		mod: mod,
+	}
+	
+	return
+}
+
+func (r Parser) LoadPackage(dir string) (p *Package, err error) {
+	ok, err := fs.IsDir(dir)
+	if err != nil || !ok {
+		err = fmt.Errorf("only accept dir")
+		return
+	}
+	files, err := fs.Files(dir, ".go")
+	if err != nil {
+		return
+	}
+	p = &Package{
+		mod: r.mod,
+	}
+	err = p.loadPackage(files)
+	if err != nil {
+		return
+	}
+	
+	return
+}
+
+func (p *Package) ParseInterface(name string) (c *InterfaceContext, err error) {
+	i := p.getInterface(name)
+	if i == nil {
+		err = fmt.Errorf("interface: '%s' not found", name)
+		return
+	}
+	
+	for _, m := range i.t.Methods.List {
+		switch mt := m.Type.(type) {
+		case *ast.Ident:
+		// TODO parse include
+		case *ast.FuncType:
+			i.Methods = append(i.Methods, p.parseMethod(m.Names[0].Name, mt))
+		}
+	}
+	
+	c = &InterfaceContext{
+		Name:    i.Name,
+		Methods: i.Methods,
+	}
+	
+	return
+}
+
+func (p *Package) loadPackage(files []string) (err error) {
+	for _, v := range files {
+		if !strings.HasSuffix(v, "_test.go") {
+			err = p.parseFile(v)
+			if err != nil {
+				return
+			}
+		}
+	}
+	p.loaded = true
+	return
+}
+
+func (p *Package) parseFile(file string) (err error) {
+	//defer func() {
+	//	if e := recover(); e != nil {
+	//		err = fmt.Errorf("%v", e)
+	//		return
+	//	}
+	//}()
+	
+	set := token.NewFileSet()
+	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
+	if err != nil {
+		return
+	}
+	
+	p.Name = f.Name.String()
+	for _, i := range f.Imports {
+		v := p.parseImport(i)
+		p.addImports(v.Name, v)
+	}
+	ast.Walk(p, f)
+	
+	//for _, v := range p.Interfaces {
+	//	p.parseInterface(v)
+	//}
+	
+	return
+}
+
+func (p *Package) parseImport(i *ast.ImportSpec) *Package {
+	
+	r := &Package{
+		Alias: strings.Trim(i.Name.String(), "<>"),
+		Path:  strings.Trim(i.Path.Value, "\""),
+		mod:   p.mod,
+	}
+	var err error
+	r.Name, err = r.mod.GetPackageRealName(r.Path)
+	if err != nil {
+		panic(fmt.Errorf("get %s package name error: %s", r.Path, err))
+	}
+	
+	return r
+}
+
+func (p *Package) GetTypePackage(t *Type) *Package {
+	return nil
+}
+
+func (p *Package) Visit(node ast.Node) ast.Visitor {
+	s, ok := node.(*ast.TypeSpec)
+	if !ok {
+		return p
+	}
+	
+	switch t := s.Type.(type) {
+	
+	case *ast.InterfaceType:
+		p.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), t: t})
+	case *ast.FuncType:
+		return p
+	case *ast.StructType, *ast.Ident:
+		p.addType(s.Name.String(), p.parseType(s.Name.String(), s.Type))
+	case *ast.MapType:
+		// TODO
+	case *ast.SliceExpr:
+		// TODO
+	case *ast.ArrayType:
+	// TODO
+	case *ast.SelectorExpr:
+		fmt.Println("selector:", s.Name, t.X.(*ast.Ident).Name, t.Sel.Name)
+	default:
+		
+		fmt.Println("package:", t, reflect.TypeOf(t).String())
+	}
+	
+	return p
+}
+
+func (p *Package) getPackageType(name string, t *ast.SelectorExpr) {
+	//v, ok := t.X.(*ast.Ident)
+	//if !ok {
+	//	panic(fmt.Errorf("invalid param '%s' type", name))
+	//}
+	//
+}
+
+func (p *Package) getPackage(name string) *Package {
+	if p.Imports == nil {
+		p.Imports = map[string]*Package{}
+	}
+	v, ok := p.Imports[name]
+	if !ok {
+		return nil
+	}
+	if !v.loaded {
+		files, err := p.mod.OpenPackage(v.Path)
+		if err != nil {
+			panic(fmt.Errorf("open package '%s' error: %s", v.Path, err))
+		}
+		err = v.loadPackage(files)
+		if err != nil {
+			panic(fmt.Errorf("load package '%s' error: %s", v.Path, err))
+		}
+	}
+	
+	return v
+}
+
+func (p *Package) parseMethod(name string, t *ast.FuncType) (r *Method) {
+	r = &Method{Name: name}
+	
+	for _, f := range t.Params.List {
+		r.Params = append(r.Params, p.parseField(p.parseNames(f.Names), f)...)
+	}
+	
+	for _, f := range t.Results.List {
+		r.Return = append(r.Return, p.parseField(p.parseNames(f.Names), f)...)
+	}
+	
+	return
+}
+
+func (p *Package) parseNames(idents []*ast.Ident) []string {
+	names := make([]string, 0)
+	for _, i := range idents {
+		names = append(names, i.Name)
+	}
+	return names
+}
+
+func (p *Package) parseField(names []string, t *ast.Field) (r []*Field) {
+	
+	for _, n := range names {
+		f := &Field{
+			Name: n,
+			Type: p.parseType("", t.Type), // TODO 复用, 定义基本类型
+		}
+		r = append(r, f)
+	}
+	
+	return
+}
+
+func (p *Package) parseType(name string, t ast.Expr) (r *Type) {
+	
+	// TODO Cache package.Type
+	r = &Type{
+		Name: name,
+	}
+	
+	switch e := t.(type) {
+	case *ast.Ident:
+		r.Type = e.Name
+		r.Reserved = true
+	case *ast.StructType:
+		r.Type = "struct"
+		for _, f := range e.Fields.List {
+			st := p.parseType(p.parseNames(f.Names)[0], f.Type)
+			if f.Tag != nil {
+				st.Tags = f.Tag.Value
+			}
+			r.Children = append(r.Children, st)
+		}
+	case *ast.SelectorExpr:
+		// TODO 处理包引用类型
+		r.Type = fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name)
+	default:
+		// TODO 报错，未知的类型
+		fmt.Println(e)
+	}
+	
+	return
+}

@@ -1,6 +1,8 @@
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/flosch/pongo2/v6 v6.0.0 h1:lsGru8IAzHgIAw6H2m4PCyleO58I40ow6apih0WprMU=
+github.com/flosch/pongo2/v6 v6.0.0/go.mod h1:CuDpFm47R0uGGE7z13/tTlt1Y6zdxvr2RLT5LJhsHEU=
 github.com/gozelle/fs v0.0.0-20221216093437-b3dbc154ce16 h1:g0fBrwv3PgR38V7AkeLNmbsFzFKYDPH7aNuCwhZKlk8=
 github.com/gozelle/fs v0.0.0-20221216093437-b3dbc154ce16/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
 github.com/gozelle/go-difflib v1.0.0 h1:BIQXTH387TRKUtDGMTaPmoFKKWZQMRR4mSxxcPLOjXQ=

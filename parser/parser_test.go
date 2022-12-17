@@ -13,10 +13,13 @@ func TestParser(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 	
-	file := filepath.Join(wd, "../test/rpc.go")
+	parser, err := NewParser(filepath.Join(wd, "../test"), "TestRpc")
+	require.NoError(t, err)
 	
-	v := ParseFile(file)
-	d, err := json.MarshalIndent(v, "", "\t")
+	p, err := parser.Parse()
+	require.NoError(t, err)
+	
+	d, err := json.MarshalIndent(p, "", "\t")
 	require.NoError(t, err)
 	
 	fmt.Println(string(d))

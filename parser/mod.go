@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 	"github.com/gozelle/fs"
+	"go/parser"
+	"go/token"
 	"golang.org/x/mod/modfile"
 	"io"
 	"io/ioutil"
@@ -90,6 +92,34 @@ func (m Mod) GetPackagePath(pkg string) string {
 	}
 	
 	return ""
+}
+
+func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
+	
+	files, err := m.OpenPackage(pkg)
+	if err != nil {
+		return
+	}
+	set := token.NewFileSet()
+	
+	file := ""
+	for _, v := range files {
+		if !strings.HasSuffix(v, "_test.go") {
+			file = v
+		}
+	}
+	
+	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
+	if err != nil {
+		return
+	}
+	if f.Name == nil {
+		err = fmt.Errorf("package name is nil")
+		return
+	}
+	name = f.Name.String()
+	
+	return
 }
 
 func (m Mod) OpenPackage(pkg string) (files []string, err error) {
