@@ -1,7 +1,7 @@
 package parser
 
 import (
-	jsonrpc_client "github.com/gozelle/mix/maker/jsonrpc"
+	jsonrpc_client "github.com/gozelle/mix/generator/jsonrpc"
 	"github.com/gozelle/mix/parser"
 	"github.com/gozelle/testify/require"
 	"os"
@@ -13,15 +13,16 @@ func TestParser(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 	
-	_parser, err := parser.NewParser(filepath.Join(wd, "../rpc"), "TestRpc")
+	_parser, err := parser.NewParser()
 	require.NoError(t, err)
 	
-	p, err := _parser.Parse()
+	p, err := _parser.LoadPackage(filepath.Join(wd, "../rpc"))
 	require.NoError(t, err)
 	
-	err = p.Make("TestRpc", jsonrpc_client.Maker{})
+	files, err := p.Generate("TestRpc", jsonrpc_client.Maker{})
 	require.NoError(t, err)
 	
+	t.Log(files[0].Name, files[0].Content)
 	//d, err := json.MarshalIndent(p, "", "\t")
 	//require.NoError(t, err)
 	//
