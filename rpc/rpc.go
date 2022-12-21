@@ -9,6 +9,9 @@ import (
 type TestRpc interface {
 	Register(ctx context.Context, username, password string) (token string, err error)
 	GetUser(ctx context.Context, id int64) (user *User, err error)
+	GetOrderByID(ctx context.Context, id ID) (user *User, err error)
+	GetOrderPrice(ctx context.Context, id int64) (price Fil, err error)
+	GetOrderPrice2(ctx context.Context, id int64) (price decimal.Decimal, err error)
 }
 
 type ID int64

@@ -20,11 +20,11 @@ func (m Maker) Generate(i *parser.Interface) (files []*parser.GenFile, err error
 }
 
 func renderMethod(i *parser.Interface) (file *parser.GenFile, err error) {
-	tpl, err := pongo2.FromString(serviceTpl)
+	tpl, err := pongo2.FromString(internalTpl)
 	if err != nil {
 		panic(err)
 	}
-	d := golang.PrepareRenderInterface("", i)
+	d := golang.PrepareRenderInterface("rpc", i)
 	m := structs.Map(d)
 	out, err := tpl.Execute(m)
 	if err != nil {
@@ -41,10 +41,23 @@ func renderType() {
 
 }
 
-const serviceTpl = `
+const internalTpl = `
+package {{ Package }}
+
+import (
+{% for pkg in Packages %}
+	{{ pkg.Alias }} "{{ pkg.Path }}"
+{% endfor %}
+)
+
+
 type {{ Name }} struct{
 {% for method in Methods %}
     {{ method.Name }} func({{ method.Params }}) {{method.Results}}
 {% endfor %}
 }
+`
+
+const importTpl = `
+
 `
