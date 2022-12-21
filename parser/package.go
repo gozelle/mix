@@ -15,7 +15,7 @@ type Package struct {
 	Path       string
 	Imports    map[string]*Package
 	Interfaces map[string]*Interface
-	Types      map[string]*Type
+	Defs       map[string]*Def
 	mod        *Mod
 	loaded     bool
 }
@@ -35,14 +35,14 @@ func (p *Package) addImport(item *Package) *Package {
 	return item
 }
 
-func (p *Package) addType(name string, item *Type) *Type {
-	if p.Types == nil {
-		p.Types = map[string]*Type{}
+func (p *Package) addType(name string, item *Def) *Def {
+	if p.Defs == nil {
+		p.Defs = map[string]*Def{}
 	}
-	if v, ok := p.Types[name]; ok {
+	if v, ok := p.Defs[name]; ok {
 		return v
 	}
-	p.Types[name] = item
+	p.Defs[name] = item
 	return item
 }
 
@@ -152,10 +152,9 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	case *ast.ArrayType:
 	// TODO
 	case *ast.SelectorExpr:
-		fmt.Println("selector:", s.Name, t.X.(*ast.Ident).Name, t.Sel.Name)
 		p.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	default:
-		fmt.Println("package:", t, reflect.TypeOf(t).String())
+		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))
 	}
 	
 	return p

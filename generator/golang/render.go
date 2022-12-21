@@ -1,8 +1,10 @@
-package golang
+package gen_golang
 
 import (
 	"fmt"
 	"github.com/gozelle/mix/parser"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"strings"
 )
 
@@ -10,17 +12,19 @@ type RenderInterface struct {
 	Package  string
 	Name     string
 	Methods  []*RenderMethod
-	Types    []*RenderType
+	Defs     []*RenderDef
 	Packages []*RenderPackage
 }
 
 type RenderMethod struct {
 	Name    string
+	Request *RenderDef
+	Replay  *RenderDef
 	Params  string
 	Results string
 }
 
-type RenderType struct {
+type RenderDef struct {
 	Name   string
 	Type   string
 	Fields []*RenderField
@@ -51,8 +55,8 @@ func PrepareRenderInterface(pkg string, i *parser.Interface) *RenderInterface {
 		})
 	}
 	
-	for _, v := range i.Types {
-		r.Types = append(r.Types, parseRenderType(v))
+	for _, v := range i.Defs {
+		r.Defs = append(r.Defs, parseRenderType(v))
 	}
 	
 	for _, v := range i.Methods {
@@ -63,18 +67,47 @@ func PrepareRenderInterface(pkg string, i *parser.Interface) *RenderInterface {
 }
 
 func parseRenderMethod(m *parser.Method) *RenderMethod {
+	
+	request := &RenderDef{
+		Name: fmt.Sprintf("%sRequest", m.Name),
+	}
+	replay := &RenderDef{
+		Name: fmt.Sprintf("%sReplay", m.Name),
+	}
+	
 	var params []string
+	merge := true
 	for _, v := range m.Params {
+		if !v.Type.IsContext() && merge {
+			if string(v.Type) == request.Name {
+				request.Type = string(v.Type)
+				merge = false
+			} else {
+				request.Fields = append(request.Fields, convertMethodParam(v)...)
+			}
+			
+		}
 		params = append(params, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
 	var results []string
+	merge = true
 	for _, v := range m.Results {
+		if !v.Type.IsError() && merge {
+			if string(v.Type) == request.Name {
+				replay.Type = string(v.Type)
+				merge = false
+			} else {
+				replay.Fields = append(replay.Fields, convertMethodParam(v)...)
+			}
+		}
 		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
 	r := &RenderMethod{
 		Name:    m.Name,
+		Request: request,
+		Replay:  replay,
 		Params:  strings.Join(params, ","),
 		Results: strings.Join(results, ","),
 	}
@@ -85,25 +118,34 @@ func parseRenderMethod(m *parser.Method) *RenderMethod {
 	return r
 }
 
-func parseRenderType(t *parser.Type) *RenderType {
+func convertMethodParam(p *parser.Param) []*RenderField {
+	r := make([]*RenderField, 0)
+	for _, v := range p.Names {
+		r = append(r, &RenderField{
+			Name: Title(v),
+			Type: string(p.Type),
+		})
+	}
+	return r
+}
+
+func Title(v string) string {
+	return cases.Title(language.English).String(v)
+}
+
+func parseRenderType(t *parser.Def) *RenderDef {
 	
-	r := &RenderType{
+	r := &RenderDef{
 		Name: t.Name,
-		Type: t.Type,
+		Type: string(t.Type),
 	}
 	
 	if t.Type == "struct" {
 		
-		var fields []*parser.Type
-		if t.Pointer {
-			fields = t.Elem.Fields
-		} else {
-			fields = t.Fields
-		}
-		for _, v := range fields {
+		for _, v := range t.Fields {
 			r.Fields = append(r.Fields, &RenderField{
 				Name: v.Name,
-				Type: v.Type,
+				Type: string(v.Type),
 				Tags: v.Tags,
 			})
 		}

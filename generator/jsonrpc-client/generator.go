@@ -1,10 +1,10 @@
-package jsonrpc_client
+package gen_jsonrpc_client
 
 import (
 	"github.com/fatih/structs"
 	"github.com/flosch/pongo2/v6"
 	"github.com/gozelle/mix/generator"
-	"github.com/gozelle/mix/generator/golang"
+	gen_golang "github.com/gozelle/mix/generator/golang"
 	"github.com/gozelle/mix/parser"
 )
 
@@ -25,7 +25,7 @@ func renderMethod(i *parser.Interface) (file *generator.File, err error) {
 	if err != nil {
 		panic(err)
 	}
-	d := golang.PrepareRenderInterface("rpc", i)
+	d := gen_golang.PrepareRenderInterface("rpc", i)
 	m := structs.Map(d)
 	out, err := tpl.Execute(m)
 	if err != nil {
@@ -58,19 +58,36 @@ type {{ Name }} struct{
 {% endfor %}
 }
 
-{% for type in Types %}
-	{% if type.Type == "struct" %}
-		type {{ type.Name }} struct{
-			{% for field in type.Fields %}
-				 {{ field.Name }} {{ field.Type }}
-			{% endfor %}
-		}
-	{% else %}
-		type {{ type.Name }} {{ type.Type }}
-	{% endif %}
+type {{ Name }}API struct{
+{% for method in Methods %}
+    {{ method.Name }} func(ctx context.Context,request *{{ method.Request.Name }}) (replay *{{method.Replay.Name}}, err error)
+{% endfor %}
+}
+
+{% for def in Methods %}
+	type {{ def.Request.Name }} struct {
+		{% for field in def.Request.Fields %}
+			 {{ field.Name }} {{ field.Type }}
+		{% endfor %}
+	}
+	type {{ def.Replay.Name }} struct {
+		{% for field in def.Replay.Fields %}
+			 {{ field.Name }} {{ field.Type }}
+		{% endfor %}
+	}
 {% endfor %}
 `
 
 const importTpl = `
-
+{% for def in Defs %}
+	{% if def.Type == "struct" %}
+		type {{ def.Name }} struct{
+			{% for field in def.Fields %}
+				 {{ field.Name }} {{ field.Type }}
+			{% endfor %}
+		}
+	{% else %}
+		type {{ def.Name }} {{ def.Type }}
+	{% endif %}
+{% endfor %}
 `

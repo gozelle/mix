@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github.com/gozelle/fs"
+	"strings"
 )
 
 type Method struct {
@@ -11,21 +12,34 @@ type Method struct {
 	Results []*Param
 }
 
-type Param struct {
-	Names []string
-	Type  string
+type Type string
+
+func (t Type) IsStruct() bool {
+	return string(t) == "struct"
 }
 
-type Type struct {
-	Name     string
-	Type     string
-	Tags     string
-	Reserved bool
-	Pointer  bool
-	Slice    bool
-	Length   int
-	Fields   []*Type // for struct
-	Elem     *Type   // for pointer and slice or array
+func (t Type) IsArray() bool {
+	return strings.HasPrefix(string(t), "[]")
+}
+
+func (t Type) IsContext() bool {
+	return string(t) == "context.Context"
+}
+
+func (t Type) IsError() bool {
+	return string(t) == "error"
+}
+
+type Param struct {
+	Names []string
+	Type  Type
+}
+
+type Def struct {
+	Name   string
+	Type   Type
+	Tags   string
+	Fields []*Def
 }
 
 func NewParser(dir string) (parser *Parser, err error) {
@@ -53,14 +67,14 @@ type Parser struct {
 	Packages []*Package
 }
 
-func (p *Parser) findRootType(name string) *Type {
+func (p *Parser) findRootType(name string) *Def {
 	if p.Root == nil {
 		return nil
 	}
-	if p.Root.Types == nil {
+	if p.Root.Defs == nil {
 		return nil
 	}
-	return p.Root.Types[name]
+	return p.Root.Defs[name]
 }
 
 func (p *Parser) findRootImport(name string) *Package {

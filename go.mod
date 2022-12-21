@@ -15,5 +15,6 @@ require (
 	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/gozelle/go-difflib v1.0.0 // indirect
 	github.com/gozelle/go-spew v1.1.1 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

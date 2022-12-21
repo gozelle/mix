@@ -14,17 +14,13 @@ func parseNames(idents []*ast.Ident) []string {
 	return names
 }
 
-func parseType(name string, t ast.Expr) (r *Type) {
+func parseType(name string, t ast.Expr) (r *Def) {
 	
-	// TODO Cache package.Type
-	r = &Type{
-		Name: name,
-	}
+	r = &Def{Name: name}
 	
 	switch e := t.(type) {
 	case *ast.Ident:
-		r.Type = e.Name
-		r.Reserved = true
+		r.Type = Type(e.Name)
 	case *ast.StructType:
 		r.Type = "struct"
 		for _, f := range e.Fields.List {
@@ -34,16 +30,17 @@ func parseType(name string, t ast.Expr) (r *Type) {
 			}
 			r.Fields = append(r.Fields, st)
 		}
+	case *ast.SliceExpr:
+		// ignore range
+		r.Type = "[]" + parseType(name, e.X).Type
+	case *ast.ArrayType:
+		// ignore len
+		r.Type = "[]" + parseType(name, e.Elt).Type
 	case *ast.SelectorExpr:
-		// TODO 处理包引用类型
-		r.Type = fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name)
+		r.Type = Type(fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name))
 	case *ast.StarExpr:
-		r.Pointer = true
-		r.Elem = parseType(name, e.X)
+		r.Type = Type(fmt.Sprintf("*%s", parseType(name, e.X).Type))
 	default:
-		// TODO 报错，未知的类型
-		fmt.Println(e)
-		
 		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))
 	}
 	

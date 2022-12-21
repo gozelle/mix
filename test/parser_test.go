@@ -19,14 +19,10 @@ func TestParser(t *testing.T) {
 	i, err := _parser.CombineInterface("TestRpc")
 	require.NoError(t, err)
 	
-	g := jsonrpc_client.Generator{}
+	g := gen_jsonrpc_client.Generator{}
 	files, err := g.Generate(i)
 	require.NoError(t, err)
 	
 	t.Log(files[0].Content)
 	
-	//d, err := json.MarshalIndent(p, "", "\t")
-	//require.NoError(t, err)
-	//
-	//fmt.Println(string(d))
 }
