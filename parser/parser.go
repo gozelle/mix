@@ -7,19 +7,23 @@ import (
 
 type Method struct {
 	Name    string
-	Params  []*Type
-	Results []*Type
+	Params  []*Param
+	Results []*Param
+}
+
+type Param struct {
+	Names []string
+	Type  string
 }
 
 type Type struct {
-	Names    []string
+	Name     string
 	Type     string
 	Tags     string
 	Reserved bool
 	Pointer  bool
-	Length   int
 	Slice    bool
-	Ellipsis bool
+	Length   int
 	Fields   []*Type // for struct
 	Elem     *Type   // for pointer and slice or array
 }

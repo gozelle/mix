@@ -144,7 +144,7 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	case *ast.FuncType:
 		return p
 	case *ast.StructType, *ast.Ident:
-		p.addType(s.Name.String(), parseType([]string{s.Name.String()}, s.Type))
+		p.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	case *ast.MapType:
 		// TODO
 	case *ast.SliceExpr:
@@ -153,7 +153,7 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	// TODO
 	case *ast.SelectorExpr:
 		fmt.Println("selector:", s.Name, t.X.(*ast.Ident).Name, t.Sel.Name)
-		p.addType(s.Name.String(), parseType([]string{s.Name.String()}, s.Type))
+		p.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	default:
 		fmt.Println("package:", t, reflect.TypeOf(t).String())
 	}

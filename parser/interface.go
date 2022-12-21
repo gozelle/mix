@@ -33,11 +33,11 @@ func (i *Interface) parseMethod(p *Parser, name string, t *ast.FuncType) (r *Met
 	r = &Method{Name: name}
 	
 	for _, f := range t.Params.List {
-		r.Params = append(r.Params, i.parseField(p, parseNames(f.Names), f.Type))
+		r.Params = append(r.Params, i.parseParam(p, parseNames(f.Names), f.Type))
 	}
 	
 	for _, f := range t.Results.List {
-		r.Results = append(r.Results, i.parseField(p, parseNames(f.Names), f.Type))
+		r.Results = append(r.Results, i.parseParam(p, parseNames(f.Names), f.Type))
 	}
 	
 	return
@@ -47,23 +47,24 @@ func (i *Interface) addType(t *Type) {
 	if i.types == nil {
 		i.types = map[string]bool{}
 	}
-	//if _,ok:= i.types[t.Names]
+	if _, ok := i.types[t.Name]; ok {
+		return
+	}
+	i.types[t.Name] = true
 	i.Types = append(i.Types, t)
 }
 
-func (i *Interface) parseField(p *Parser, names []string, t ast.Expr) (r *Type) {
+func (i *Interface) parseParam(p *Parser, names []string, t ast.Expr) (r *Param) {
 	
-	// TODO Cache package.Type
-	r = &Type{
+	r = &Param{
 		Names: names,
 	}
 	
 	switch e := t.(type) {
 	case *ast.Ident:
 		r.Type = e.Name
-		r.Reserved = isReserved(r.Type)
 		// 不是基础数据类型，去当前包里，寻找到该类型定义，放入 Interface 上下文中
-		if !r.Reserved {
+		if !isReserved(r.Type) {
 			rt := p.findRootType(r.Type)
 			if rt == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in root package", r.Type))
@@ -76,11 +77,11 @@ func (i *Interface) parseField(p *Parser, names []string, t ast.Expr) (r *Type) 
 		// TODO 处理包引用类型
 		r.Type = fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name)
 		i.addPackage(p.findRootImport(e.X.(*ast.Ident).String()))
-		
 		// 去 Parser 上下文中寻找对应的 Package 进来
+	case *ast.SliceExpr:
+		r.Type = "[]" + i.parseParam(p, names, e.X).Type
 	case *ast.StarExpr:
-		r.Pointer = true
-		r.Elem = parseType(names, e.X)
+		r.Type = "*" + i.parseParam(p, names, e.X).Type
 	default:
 		// TODO 报错，未知的类型
 		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))

@@ -59,11 +59,10 @@ type {{ Name }} struct{
 }
 
 {% for type in Types %}
-	// {{ type.Name }}
 	{% if type.Type == "struct" %}
-		type {{ type.Name }} {{ type.Type }} {
-			{% for filed in type.Fields %}
-				{{ field.Name }} {{ field.Type }}
+		type {{ type.Name }} struct{
+			{% for field in type.Fields %}
+				 {{ field.Name }} {{ field.Type }}
 			{% endfor %}
 		}
 	{% else %}

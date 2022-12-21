@@ -14,11 +14,11 @@ func parseNames(idents []*ast.Ident) []string {
 	return names
 }
 
-func parseType(name []string, t ast.Expr) (r *Type) {
+func parseType(name string, t ast.Expr) (r *Type) {
 	
 	// TODO Cache package.Type
 	r = &Type{
-		Names: name,
+		Name: name,
 	}
 	
 	switch e := t.(type) {
@@ -28,7 +28,7 @@ func parseType(name []string, t ast.Expr) (r *Type) {
 	case *ast.StructType:
 		r.Type = "struct"
 		for _, f := range e.Fields.List {
-			st := parseType(parseNames(f.Names), f.Type)
+			st := parseType(parseNames(f.Names)[0], f.Type)
 			if f.Tag != nil {
 				st.Tags = f.Tag.Value
 			}

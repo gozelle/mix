@@ -65,12 +65,12 @@ func PrepareRenderInterface(pkg string, i *parser.Interface) *RenderInterface {
 func parseRenderMethod(m *parser.Method) *RenderMethod {
 	var params []string
 	for _, v := range m.Params {
-		params = append(params, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), parseMethodField(v)))
+		params = append(params, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
 	var results []string
 	for _, v := range m.Results {
-		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), parseMethodField(v)))
+		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
 	r := &RenderMethod{
@@ -85,24 +85,24 @@ func parseRenderMethod(m *parser.Method) *RenderMethod {
 	return r
 }
 
-func parseMethodField(f *parser.Type) string {
-	if f.Pointer && f.Elem != nil {
-		return fmt.Sprintf("*%s", f.Elem.Type)
-	}
-	return f.Type
-}
-
 func parseRenderType(t *parser.Type) *RenderType {
 	
 	r := &RenderType{
-		Name: t.Names[0],
+		Name: t.Name,
 		Type: t.Type,
 	}
 	
 	if t.Type == "struct" {
-		for _, v := range t.Fields {
+		
+		var fields []*parser.Type
+		if t.Pointer {
+			fields = t.Elem.Fields
+		} else {
+			fields = t.Fields
+		}
+		for _, v := range fields {
 			r.Fields = append(r.Fields, &RenderField{
-				Name: v.Names[0],
+				Name: v.Name,
 				Type: v.Type,
 				Tags: v.Tags,
 			})
