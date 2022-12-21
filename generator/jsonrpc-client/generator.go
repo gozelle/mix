@@ -1,16 +1,17 @@
-package jsonrpc
+package jsonrpc_client
 
 import (
 	"github.com/fatih/structs"
 	"github.com/flosch/pongo2/v6"
+	"github.com/gozelle/mix/generator"
 	"github.com/gozelle/mix/generator/golang"
 	"github.com/gozelle/mix/parser"
 )
 
-type Maker struct {
+type Generator struct {
 }
 
-func (m Maker) Generate(i *parser.Interface) (files []*parser.GenFile, err error) {
+func (m Generator) Generate(i *parser.Interface) (files []*generator.File, err error) {
 	f, err := renderMethod(i)
 	if err != nil {
 		return
@@ -19,7 +20,7 @@ func (m Maker) Generate(i *parser.Interface) (files []*parser.GenFile, err error
 	return
 }
 
-func renderMethod(i *parser.Interface) (file *parser.GenFile, err error) {
+func renderMethod(i *parser.Interface) (file *generator.File, err error) {
 	tpl, err := pongo2.FromString(internalTpl)
 	if err != nil {
 		panic(err)
@@ -30,7 +31,7 @@ func renderMethod(i *parser.Interface) (file *parser.GenFile, err error) {
 	if err != nil {
 		panic(err)
 	}
-	file = &parser.GenFile{
+	file = &generator.File{
 		Name:    "service.go",
 		Content: out,
 	}
@@ -56,6 +57,19 @@ type {{ Name }} struct{
     {{ method.Name }} func({{ method.Params }}) {{method.Results}}
 {% endfor %}
 }
+
+{% for type in Types %}
+	// {{ type.Name }}
+	{% if type.Type == "struct" %}
+		type {{ type.Name }} {{ type.Type }} {
+			{% for filed in type.Fields %}
+				{{ field.Name }} {{ field.Type }}
+			{% endfor %}
+		}
+	{% else %}
+		type {{ type.Name }} {{ type.Type }}
+	{% endif %}
+{% endfor %}
 `
 
 const importTpl = `
