@@ -4,7 +4,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/flosch/pongo2/v6"
 	"github.com/gozelle/mix/generator"
-	gen_golang "github.com/gozelle/mix/generator/golang"
+	gen_golang "github.com/gozelle/mix/generator/go"
 	"github.com/gozelle/mix/parser"
 )
 

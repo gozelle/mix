@@ -1,4 +1,4 @@
-package gen_golang
+package gen_go
 
 import (
 	"fmt"
