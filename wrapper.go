@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gozelle/gin"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -12,12 +13,12 @@ import (
 
 const placeholder = "$params$"
 const method = "method"
-const namespace = "module"
+const module = "module"
 
-// WrapAPIWithNamespace 包装 API
+// 包装 API
 // ns == ""  =>  gin.Post("/api/v0/:method")
 // ns != ""  =>  gin.Post("/api/v0/:namespace/:method")
-func WrapAPIWithNamespace(ns string, h http.Handler) gin.HandlerFunc {
+func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		body := ctx.Request.Body
 		d, err := ioutil.ReadAll(body)
@@ -26,10 +27,11 @@ func WrapAPIWithNamespace(ns string, h http.Handler) gin.HandlerFunc {
 		}
 		var m string
 		if ns == "" {
-			m = fmt.Sprintf("%s", ctx.Param(method))
+			m = fmt.Sprintf(".%s", ctx.Param(method))
 		} else {
-			m = fmt.Sprintf("%s.%s", ctx.Param(namespace), ctx.Param(method))
+			m = fmt.Sprintf("%s.%s", ctx.Param(module), ctx.Param(method))
 		}
+		
 		r := map[string]interface{}{
 			"id":      time.Now().UnixNano(), // TODO use request header X-Request-Id value
 			"jsonrpc": "2.0",
@@ -49,13 +51,23 @@ func WrapAPIWithNamespace(ns string, h http.Handler) gin.HandlerFunc {
 		}
 		i = bytes.Replace(i, []byte(fmt.Sprintf("\"%s\"", placeholder)), params, 1)
 		ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(i))
-		ctx.Writer.Header().Add("Content-Type", "application/json")
+		
+		err = ctx.Error(fmt.Errorf("some error"))
+		if err != nil {
+			log.Errorf(" error: %s", err)
+			return
+		}
 		h.ServeHTTP(ctx.Writer, ctx.Request)
 	}
 }
 
-// WrapAPI
-// Use gin.Post("/api/v0/:method")
-func WrapAPI(h http.Handler) gin.HandlerFunc {
-	return WrapAPIWithNamespace("", h)
+func HandleReader(wrapper func(ctx *gin.Context) io.Reader) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		r := wrapper(ctx)
+		d, err := ioutil.ReadAll(r)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusBadRequest, err)
+		}
+		_, _ = ctx.Writer.Write(d)
+	}
 }
