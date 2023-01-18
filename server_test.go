@@ -53,11 +53,15 @@ func (t TestHandler) Download(ctx context.Context, file string) io.Reader {
 
 func TestServer(t *testing.T) {
 	h := &TestHandler{}
+	
 	server := NewServer()
-	server.RegisterRPC("/rpc/v1", "", h)
-	server.RegisterAPI("/api/v1/", "", h)
-	server.GET("/api/v1/download", HandleReader(func(ctx *gin.Context) io.Reader {
-		ctx.Header("Content-Type", "text/html;charset=UTF-8")
+	group := server.Group("/api/v1")
+	
+	RegisterRPC(server.Group("/rpc/v1"), "", h)
+	RegisterAPI(group, "", h)
+	
+	group.GET("/download", HandleReader(func(ctx *gin.Context) io.Reader {
+		ctx.Header("Content-Type", "text/html; charset=UTF-8")
 		return h.Download(ctx, "ok")
 	}))
 	
