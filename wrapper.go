@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gozelle/gin"
+	"github.com/gozelle/jsonrpc"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -61,13 +62,55 @@ func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 	}
 }
 
-func HandleReader(wrapper func(ctx *gin.Context) io.Reader) gin.HandlerFunc {
+func WrapHandler(wrap func(ctx *gin.Context) (any, error)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		r := wrapper(ctx)
-		d, err := ioutil.ReadAll(r)
+		r, err := wrap(ctx)
 		if err != nil {
-			_ = ctx.AbortWithError(http.StatusBadRequest, err)
+			if e, ok := err.(*Error); ok {
+				ctx.Header(jsonrpc.X_RPC_ERROR, e.Message)
+				ctx.JSON(http.StatusBadRequest, &jsonrpc.Response{
+					Error: e,
+					ID:    nil,
+				})
+			} else {
+				HandleInternalServerError(ctx, err)
+			}
+			return
 		}
-		_, _ = ctx.Writer.Write(d)
+		if bs, ok1 := r.([]byte); ok1 {
+			_, err = ctx.Writer.Write(bs)
+			if err != nil {
+				HandleInternalServerError(ctx, err)
+				return
+			}
+		} else if reader, ok2 := r.(io.Reader); ok2 {
+			var d []byte
+			d, err = ioutil.ReadAll(reader)
+			if err != nil {
+				HandleInternalServerError(ctx, err)
+				return
+			}
+			_, err = ctx.Writer.Write(d)
+			if err != nil {
+				HandleInternalServerError(ctx, err)
+				return
+			}
+		} else {
+			ctx.JSON(200, &jsonrpc.Response{
+				ID:     nil,
+				Result: r,
+			})
+		}
 	}
+}
+
+func HandleInternalServerError(ctx *gin.Context, err error) {
+	ctx.Header(jsonrpc.X_RPC_ERROR, err.Error())
+	ctx.JSON(http.StatusInternalServerError, &jsonrpc.Response{
+		ID: nil,
+		Error: &jsonrpc.Error{
+			Code:    500,
+			Message: err.Error(),
+		},
+	})
 }

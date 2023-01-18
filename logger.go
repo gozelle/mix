@@ -74,7 +74,7 @@ func LoggerWithConfig(conf LoggerConfig) gin.HandlerFunc {
 				zap.Int("size", param.BodySize),
 			}
 			
-			if h := c.Request.Header.Get(jsonrpc.X_RPC_Method); h != "" {
+			if h := c.Request.Header.Get(jsonrpc.X_RPC_Handler); h != "" {
 				fields = append(fields, zap.String("handler", h))
 			}
 			

@@ -16,11 +16,17 @@ type ITestHandler interface {
 	Download(ctx context.Context, file string) io.Reader
 	Error(ctx context.Context) error
 	Code(ctx context.Context) error
+	Upload(ctx context.Context, file string, size int64, data []byte) (err error)
 }
 
 var _ ITestHandler = (*TestHandler)(nil)
 
 type TestHandler struct {
+}
+
+func (t TestHandler) Upload(ctx context.Context, file string, size int64, data []byte) (err error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (t TestHandler) Error(ctx context.Context) error {
@@ -60,9 +66,9 @@ func TestServer(t *testing.T) {
 	RegisterRPC(server.Group("/rpc/v1"), "", h)
 	RegisterAPI(group, "", h)
 	
-	group.GET("/download", HandleReader(func(ctx *gin.Context) io.Reader {
+	group.GET("/download", WrapHandler(func(ctx *gin.Context) (data any, err error) {
 		ctx.Header("Content-Type", "text/html; charset=UTF-8")
-		return h.Download(ctx, "ok")
+		return h.Download(ctx, "ok"), nil
 	}))
 	
 	require.NoError(t, server.Run(":11111"))
