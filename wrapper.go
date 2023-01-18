@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 const placeholder = "$params$"
@@ -34,7 +33,6 @@ func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 		}
 		
 		r := map[string]interface{}{
-			"id":      time.Now().UnixNano(), // TODO use request header X-Request-Id value
 			"jsonrpc": "2.0",
 			"method":  m,
 			"params":  placeholder,
@@ -53,7 +51,6 @@ func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 		i = bytes.Replace(i, []byte(fmt.Sprintf("\"%s\"", placeholder)), params, 1)
 		ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(i))
 		
-		err = ctx.Error(fmt.Errorf("some error"))
 		if err != nil {
 			log.Errorf(" error: %s", err)
 			return
@@ -69,45 +66,45 @@ func WrapHandler(wrap func(ctx *gin.Context) (any, error)) gin.HandlerFunc {
 			if e, ok := err.(*Error); ok {
 				ctx.Header(jsonrpc.X_RPC_ERROR, e.Message)
 				ctx.JSON(http.StatusBadRequest, &jsonrpc.Response{
+					ID:    ctx.Writer.Header().Get(jsonrpc.X_RPC_ID),
 					Error: e,
-					ID:    nil,
 				})
 			} else {
-				HandleInternalServerError(ctx, err)
+				HandleServerError(ctx, err)
 			}
 			return
 		}
 		if bs, ok1 := r.([]byte); ok1 {
 			_, err = ctx.Writer.Write(bs)
 			if err != nil {
-				HandleInternalServerError(ctx, err)
+				HandleServerError(ctx, err)
 				return
 			}
 		} else if reader, ok2 := r.(io.Reader); ok2 {
 			var d []byte
 			d, err = ioutil.ReadAll(reader)
 			if err != nil {
-				HandleInternalServerError(ctx, err)
+				HandleServerError(ctx, err)
 				return
 			}
 			_, err = ctx.Writer.Write(d)
 			if err != nil {
-				HandleInternalServerError(ctx, err)
+				HandleServerError(ctx, err)
 				return
 			}
 		} else {
 			ctx.JSON(200, &jsonrpc.Response{
-				ID:     nil,
+				ID:     ctx.Writer.Header().Get(jsonrpc.X_RPC_ID),
 				Result: r,
 			})
 		}
 	}
 }
 
-func HandleInternalServerError(ctx *gin.Context, err error) {
+func HandleServerError(ctx *gin.Context, err error) {
 	ctx.Header(jsonrpc.X_RPC_ERROR, err.Error())
 	ctx.JSON(http.StatusInternalServerError, &jsonrpc.Response{
-		ID: nil,
+		ID: ctx.Writer.Header().Get(jsonrpc.X_RPC_ID),
 		Error: &jsonrpc.Error{
 			Code:    500,
 			Message: err.Error(),

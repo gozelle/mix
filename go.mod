@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/gozelle/cobra v1.6.1
 	github.com/gozelle/fs v0.0.0-20221216093437-b3dbc154ce16
-	github.com/gozelle/jsonrpc v0.1.10-0.20230118143052-47da683d4fca
+	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
 	github.com/gozelle/testify v1.8.11
 	github.com/shopspring/decimal v1.3.1
 	golang.org/x/mod v0.7.0
@@ -60,4 +60,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/gozelle/jsonrpc => ../jsonrpc
+//replace github.com/gozelle/jsonrpc => ../jsonrpc

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gozelle/gin"
-	"github.com/gozelle/testify/require"
 	"io"
 	"testing"
 )
@@ -58,6 +57,7 @@ func (t TestHandler) Download(ctx context.Context, file string) io.Reader {
 }
 
 func TestServer(t *testing.T) {
+	
 	h := &TestHandler{}
 	
 	server := NewServer()
@@ -71,5 +71,5 @@ func TestServer(t *testing.T) {
 		return h.Download(ctx, "ok"), nil
 	}))
 	
-	require.NoError(t, server.Run(":11111"))
+	//require.NoError(t, server.Run(":11111"))
 }

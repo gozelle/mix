@@ -22,7 +22,7 @@ type Server struct {
 func RegisterRPC(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
 	rpcServer := jsonrpc.NewServer()
 	rpcServer.Register(namespace, handler)
-	router.POST("/", append([]gin.HandlerFunc{gin.WrapH(rpcServer)}, middlewares...)...)
+	router.POST("", append([]gin.HandlerFunc{gin.WrapH(rpcServer)}, middlewares...)...)
 }
 
 func RegisterAPI(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
