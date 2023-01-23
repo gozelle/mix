@@ -7,7 +7,7 @@ import (
 )
 
 func TestFindMod(t *testing.T) {
-	mod, err := FindModFile()
+	mod, err := PrepareMod()
 	require.NoError(t, err)
 	
 	t.Log(mod.root, mod.file.Module)

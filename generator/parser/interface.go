@@ -7,37 +7,37 @@ import (
 )
 
 type Interface struct {
-	Name     string
-	Methods  []*Method
-	Defs     []*Def
-	defs     map[string]bool
-	Packages []*Package
-	packages map[string]bool
-	includes []*Interface
-	t        *ast.InterfaceType
+	Name          string
+	Methods       []*Method
+	Defs          []*Def
+	defs          map[string]bool
+	Packages      []*Package
+	packages      map[string]bool
+	includes      []*Interface
+	interfaceType *ast.InterfaceType
 }
 
-func (i *Interface) load(p *Parser) (err error) {
-	for _, m := range i.t.Methods.List {
+func (i *Interface) load(pkg *Package) (err error) {
+	for _, m := range i.interfaceType.Methods.List {
 		switch mt := m.Type.(type) {
 		case *ast.Ident:
 		// TODO parse include
 		case *ast.FuncType:
-			i.Methods = append(i.Methods, i.parseMethod(p, m.Names[0].Name, mt))
+			i.Methods = append(i.Methods, i.parseMethod(pkg, m.Names[0].Name, mt))
 		}
 	}
 	return
 }
 
-func (i *Interface) parseMethod(p *Parser, name string, t *ast.FuncType) (r *Method) {
+func (i *Interface) parseMethod(pkg *Package, name string, t *ast.FuncType) (r *Method) {
 	r = &Method{Name: name}
 	
 	for _, f := range t.Params.List {
-		r.Params = append(r.Params, i.parseParam(p, parseNames(f.Names), f.Type))
+		r.Params = append(r.Params, i.parseParam(pkg, parseNames(f.Names), f.Type))
 	}
 	
 	for _, f := range t.Results.List {
-		r.Results = append(r.Results, i.parseParam(p, parseNames(f.Names), f.Type))
+		r.Results = append(r.Results, i.parseParam(pkg, parseNames(f.Names), f.Type))
 	}
 	
 	return
@@ -54,7 +54,7 @@ func (i *Interface) addType(t *Def) {
 	i.Defs = append(i.Defs, t)
 }
 
-func (i *Interface) parseParam(p *Parser, names []string, t ast.Expr) (r *Param) {
+func (i *Interface) parseParam(pkg *Package, names []string, t ast.Expr) (r *Param) {
 	
 	r = &Param{
 		Names: names,
@@ -65,7 +65,7 @@ func (i *Interface) parseParam(p *Parser, names []string, t ast.Expr) (r *Param)
 		r.Type = Type(e.Name)
 		if !isReserved(string(r.Type)) {
 			// 不是基础类型，寻找到该类型定义，放入 Interface 上下文中
-			rt := p.findRootType(string(r.Type))
+			rt := pkg.getDef(string(r.Type))
 			if rt == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in root package", r.Type))
 			} else {
@@ -73,19 +73,19 @@ func (i *Interface) parseParam(p *Parser, names []string, t ast.Expr) (r *Param)
 			}
 		}
 	case *ast.SelectorExpr:
-		pkg := e.X.(*ast.Ident).String()
+		pkgName := e.X.(*ast.Ident).String()
 		typ := e.Sel.Name
-		r.Type = Type(fmt.Sprintf("%s.%s", pkg, typ))
+		r.Type = Type(fmt.Sprintf("%s.%s", pkgName, typ))
 		// 去 Parser 上下文中寻找对应的 Package 进来
-		i.addPackage(p.findRootImport(pkg))
+		i.addPackage(pkg.getImport(pkgName))
 	case *ast.SliceExpr:
 		// ignore range
-		r.Type = "[]" + i.parseParam(p, names, e.X).Type
+		r.Type = "[]" + i.parseParam(pkg, names, e.X).Type
 	case *ast.ArrayType:
 		// ignore len
-		r.Type = "[]" + i.parseParam(p, names, e.Elt).Type
+		r.Type = "[]" + i.parseParam(pkg, names, e.Elt).Type
 	case *ast.StarExpr:
-		r.Type = "*" + i.parseParam(p, names, e.X).Type
+		r.Type = "*" + i.parseParam(pkg, names, e.X).Type
 	default:
 		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))
 	}

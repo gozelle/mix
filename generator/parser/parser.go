@@ -42,50 +42,18 @@ type Def struct {
 	Fields []*Def
 }
 
-func NewParser(dir string) (parser *Parser, err error) {
-	
-	mod, err := FindModFile()
+func NewParser(mod *Mod, dir string) (parser *Parser, err error) {
+	parser = &Parser{}
+	parser.Root, err = parser.loadPackage(mod, dir)
 	if err != nil {
 		return
 	}
-	
-	parser = &Parser{
-		mod: mod,
-	}
-	
-	parser.Root, err = parser.loadPackage(dir)
-	if err != nil {
-		return
-	}
-	
 	return
 }
 
 type Parser struct {
-	mod      *Mod
 	Root     *Package
 	Packages []*Package
-}
-
-func (p *Parser) findRootType(name string) *Def {
-	if p.Root == nil {
-		return nil
-	}
-	if p.Root.Defs == nil {
-		return nil
-	}
-	return p.Root.Defs[name]
-}
-
-func (p *Parser) findRootImport(name string) *Package {
-	if p.Root == nil {
-		return nil
-	}
-	if p.Root.Imports == nil {
-		return nil
-	}
-	
-	return p.Root.Imports[name]
 }
 
 func (p *Parser) CombineInterface(name string) (*Interface, error) {
@@ -101,7 +69,7 @@ func (p *Parser) CombineInterface(name string) (*Interface, error) {
 		return nil, fmt.Errorf("interface: %s not found", name)
 	}
 	
-	err := i.load(p)
+	err := i.load(p.Root)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +77,7 @@ func (p *Parser) CombineInterface(name string) (*Interface, error) {
 	return i, nil
 }
 
-func (p *Parser) loadPackage(dir string) (*Package, error) {
+func (p *Parser) loadPackage(mod *Mod, dir string) (*Package, error) {
 	ok, err := fs.IsDir(dir)
 	if err != nil || !ok {
 		return nil, fmt.Errorf("only accept dir")
@@ -118,10 +86,8 @@ func (p *Parser) loadPackage(dir string) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	pkg := &Package{
-		mod: p.mod,
-	}
-	err = pkg.loadPackage(files)
+	pkg := &Package{}
+	err = pkg.loadFiles(mod, files)
 	if err != nil {
 		return nil, err
 	}

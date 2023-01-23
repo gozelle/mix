@@ -95,8 +95,14 @@ github.com/gozelle/multierr v1.9.10/go.mod h1:4tC7qdet8CoxU9Q/Ha2bn5obpheqU7bTB9
 github.com/gozelle/objx v0.5.10/go.mod h1:3muRr1Da1mCg3D+wYBicuZaHtGbvfLCgewfYJoz7cbs=
 github.com/gozelle/openapi v0.0.0-20230119025534-505c123b70b7 h1:6Dd8Yex83N26tBzbPnMrhBDM0KOf3RS0MklhTrGtILo=
 github.com/gozelle/openapi v0.0.0-20230119025534-505c123b70b7/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
+github.com/gozelle/openapi v0.0.0-20230123140756-6063c7bc8331 h1:cR7ME6zm7KMd1db0rNDWLTfceJ4mN7v/4pvSlJricfc=
+github.com/gozelle/openapi v0.0.0-20230123140756-6063c7bc8331/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
+github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc h1:Pf4WDxEyeWNx8ccAemseNzV/vB22GYjs7QI9x6yCQFE=
+github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
 github.com/gozelle/opencensus v0.24.1 h1:bpMi/cfKi10770trLWek3H7FtskFpXd+H91VPV339RM=
 github.com/gozelle/opencensus v0.24.1/go.mod h1:0nV5jpL96Liu+ozvagdeOPGZU5iTLyyRq/pW1V9CMPk=
+github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621 h1:xHZtldCsoyB6LE3Pvk1e9txlFFLBQ7d6mX+OuB0P/T0=
+github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621/go.mod h1:Pd1g/mV3ZgQRhqpQWei9Y86PEt25KrvU/9MdNZ3kgWk=
 github.com/gozelle/pretty v0.3.1 h1:dtU7yIlzRqiMmB9TcunypDfvAC/QOP0K8y/BKKOrgRg=
 github.com/gozelle/pretty v0.3.1/go.mod h1:F2wDK3wv6aq2Bf70Xuu0ltUWRFZC01f0sb7OQLHtI3c=
 github.com/gozelle/pty v1.1.18/go.mod h1:SfI1d649o2MwHyGTx3gtCqh2AuntxoqVvXU0C5uIWII=

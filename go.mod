@@ -10,7 +10,7 @@ require (
 	github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9
 	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
 	github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46
-	github.com/gozelle/openapi v0.0.0-20230119025534-505c123b70b7
+	github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc
 	github.com/gozelle/testify v1.8.11
 	github.com/gozelle/zap v1.24.0
 	github.com/shopspring/decimal v1.3.1
@@ -36,6 +36,7 @@ require (
 	github.com/gozelle/isatty v0.0.17 // indirect
 	github.com/gozelle/multierr v1.9.10 // indirect
 	github.com/gozelle/opencensus v0.24.1 // indirect
+	github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621 // indirect
 	github.com/gozelle/websocket v1.5.0 // indirect
 	github.com/gozelle/yaml v0.0.0-20221214152138-81b78a92d903 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect

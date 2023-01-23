@@ -1,55 +1,23 @@
-package gen_go
+package convertor
 
 import (
 	"fmt"
-	"github.com/gozelle/mix/parser"
+	"github.com/gozelle/mix/generator/langs/golang"
+	"github.com/gozelle/mix/generator/parser"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"strings"
 )
 
-type RenderInterface struct {
-	Package  string
-	Name     string
-	Methods  []*RenderMethod
-	Defs     []*RenderDef
-	Packages []*RenderPackage
-}
-
-type RenderMethod struct {
-	Name    string
-	Request *RenderDef
-	Replay  *RenderDef
-	Params  string
-	Results string
-}
-
-type RenderDef struct {
-	Name   string
-	Type   string
-	Fields []*RenderField
-}
-
-type RenderField struct {
-	Name string
-	Type string
-	Tags string
-}
-
-type RenderPackage struct {
-	Alias string
-	Path  string
-}
-
-func PrepareRenderInterface(pkg string, i *parser.Interface) *RenderInterface {
+func ToGolangInterface(i *parser.Interface) *golang.Interface {
 	
-	r := &RenderInterface{
-		Package: pkg,
-		Name:    i.Name,
+	r := &golang.Interface{
+		//Package: pkg,
+		Name: i.Name,
 	}
 	
 	for _, v := range i.Packages {
-		r.Packages = append(r.Packages, &RenderPackage{
+		r.Packages = append(r.Packages, &golang.Package{
 			Alias: v.Alias,
 			Path:  v.Path,
 		})
@@ -66,12 +34,12 @@ func PrepareRenderInterface(pkg string, i *parser.Interface) *RenderInterface {
 	return r
 }
 
-func parseRenderMethod(m *parser.Method) *RenderMethod {
+func parseRenderMethod(m *parser.Method) *golang.Method {
 	
-	request := &RenderDef{
+	request := &golang.Def{
 		Name: fmt.Sprintf("%sRequest", m.Name),
 	}
-	replay := &RenderDef{
+	replay := &golang.Def{
 		Name: fmt.Sprintf("%sReplay", m.Name),
 	}
 	
@@ -104,7 +72,7 @@ func parseRenderMethod(m *parser.Method) *RenderMethod {
 		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
-	r := &RenderMethod{
+	r := &golang.Method{
 		Name:    m.Name,
 		Request: request,
 		Replay:  replay,
@@ -118,12 +86,12 @@ func parseRenderMethod(m *parser.Method) *RenderMethod {
 	return r
 }
 
-func convertMethodParam(p *parser.Param) []*RenderField {
-	r := make([]*RenderField, 0)
+func convertMethodParam(p *parser.Param) []*golang.Field {
+	r := make([]*golang.Field, 0)
 	for _, v := range p.Names {
-		r = append(r, &RenderField{
+		r = append(r, &golang.Field{
 			Name: Title(v),
-			Type: string(p.Type),
+			Type: p.Type,
 		})
 	}
 	return r
@@ -133,9 +101,9 @@ func Title(v string) string {
 	return cases.Title(language.English).String(v)
 }
 
-func parseRenderType(t *parser.Def) *RenderDef {
+func parseRenderType(t *parser.Def) *golang.Def {
 	
-	r := &RenderDef{
+	r := &golang.Def{
 		Name: t.Name,
 		Type: string(t.Type),
 	}
@@ -143,9 +111,9 @@ func parseRenderType(t *parser.Def) *RenderDef {
 	if t.Type == "struct" {
 		
 		for _, v := range t.Fields {
-			r.Fields = append(r.Fields, &RenderField{
+			r.Fields = append(r.Fields, &golang.Field{
 				Name: v.Name,
-				Type: string(v.Type),
+				Type: v.Type,
 				Tags: v.Tags,
 			})
 		}

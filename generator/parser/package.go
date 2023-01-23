@@ -2,12 +2,15 @@ package parser
 
 import (
 	"fmt"
+	"github.com/gozelle/logging"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"reflect"
 	"strings"
 )
+
+var log = logging.Logger("parser")
 
 type Package struct {
 	Name       string
@@ -16,8 +19,21 @@ type Package struct {
 	Imports    map[string]*Package
 	Interfaces map[string]*Interface
 	Defs       map[string]*Def
-	mod        *Mod
 	loaded     bool
+}
+
+func (p *Package) getDef(name string) *Def {
+	if p.Defs == nil {
+		return nil
+	}
+	return p.Defs[name]
+}
+
+func (p *Package) getImport(name string) *Package {
+	if p.Imports == nil {
+		return nil
+	}
+	return p.Imports[name]
 }
 
 func (p *Package) addImport(item *Package) *Package {
@@ -68,10 +84,10 @@ func (p *Package) getInterface(name string) *Interface {
 	return nil
 }
 
-func (p *Package) loadPackage(files []string) (err error) {
+func (p *Package) loadFiles(mod *Mod, files []string) (err error) {
 	for _, v := range files {
 		if !strings.HasSuffix(v, "_test.go") {
-			err = p.parseFile(v)
+			err = p.parseFile(mod, v)
 			if err != nil {
 				return
 			}
@@ -81,13 +97,7 @@ func (p *Package) loadPackage(files []string) (err error) {
 	return
 }
 
-func (p *Package) parseFile(file string) (err error) {
-	//defer func() {
-	//	if e := recover(); e != nil {
-	//		err = fmt.Errorf("%v", e)
-	//		return
-	//	}
-	//}()
+func (p *Package) parseFile(mod *Mod, file string) (err error) {
 	
 	set := token.NewFileSet()
 	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
@@ -95,15 +105,13 @@ func (p *Package) parseFile(file string) (err error) {
 		return
 	}
 	
-	p.Name = f.Name.String()
-	for _, i := range f.Imports {
-		p.addImport(p.parseImport(i))
-	}
-	ast.Walk(p, f)
+	p.Name = f.Name.String() // package name
 	
-	//for _, v := range p.Interfaces {
-	//	p.parseInterface(v)
-	//}
+	for _, i := range f.Imports {
+		p.addImport(p.parseImport(mod, i))
+	}
+	// parse file use Visit
+	ast.Walk(p, f)
 	
 	return
 }
@@ -115,15 +123,14 @@ func (p *Package) parseAlias(name string) string {
 	return name
 }
 
-func (p *Package) parseImport(i *ast.ImportSpec) *Package {
+func (p *Package) parseImport(mod *Mod, i *ast.ImportSpec) *Package {
 	
 	r := &Package{
 		Alias: p.parseAlias(i.Name.String()),
 		Path:  strings.Trim(i.Path.Value, "\""),
-		mod:   p.mod,
 	}
 	var err error
-	r.Name, err = r.mod.GetPackageRealName(r.Path)
+	r.Name, err = mod.GetPackageRealName(r.Path)
 	if err != nil {
 		panic(fmt.Errorf("get %s package name error: %s", r.Path, err))
 	}
@@ -140,7 +147,7 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	switch t := s.Type.(type) {
 	
 	case *ast.InterfaceType:
-		p.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), t: t})
+		p.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), interfaceType: t})
 	case *ast.FuncType:
 		return p
 	case *ast.StructType, *ast.Ident:
@@ -160,7 +167,7 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	return p
 }
 
-func (p *Package) getPackage(name string) *Package {
+func (p *Package) getPackage(mod *Mod, name string) *Package {
 	if p.Imports == nil {
 		p.Imports = map[string]*Package{}
 	}
@@ -169,11 +176,11 @@ func (p *Package) getPackage(name string) *Package {
 		return nil
 	}
 	if !v.loaded {
-		files, err := p.mod.OpenPackage(v.Path)
+		files, err := mod.OpenPackage(v.Path)
 		if err != nil {
 			panic(fmt.Errorf("open package '%s' error: %s", v.Path, err))
 		}
-		err = v.loadPackage(files)
+		err = v.loadFiles(mod, files)
 		if err != nil {
 			panic(fmt.Errorf("load package '%s' error: %s", v.Path, err))
 		}

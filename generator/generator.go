@@ -1,6 +1,8 @@
 package generator
 
-import "github.com/gozelle/mix/parser"
+import (
+	"github.com/gozelle/mix/generator/parser"
+)
 
 type File struct {
 	Name    string
