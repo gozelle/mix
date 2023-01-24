@@ -48,10 +48,10 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	for _, v := range m.Params {
 		if !v.Type.IsContext() && merge {
 			if string(v.Type) == request.Name {
-				request.Type = string(v.Type)
+				request.Type = v.Type
 				merge = false
 			} else {
-				request.Fields = append(request.Fields, convertMethodParam(v)...)
+				request.Properties = append(request.Properties, convertMethodParam(v)...)
 			}
 			
 		}
@@ -63,10 +63,10 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	for _, v := range m.Results {
 		if !v.Type.IsError() && merge {
 			if string(v.Type) == request.Name {
-				replay.Type = string(v.Type)
+				replay.Type = v.Type
 				merge = false
 			} else {
-				replay.Fields = append(replay.Fields, convertMethodParam(v)...)
+				replay.Properties = append(replay.Properties, convertMethodParam(v)...)
 			}
 		}
 		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
@@ -86,10 +86,10 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	return r
 }
 
-func convertMethodParam(p *parser.Param) []*golang.Field {
-	r := make([]*golang.Field, 0)
+func convertMethodParam(p *parser.Param) []*golang.Def {
+	r := make([]*golang.Def, 0)
 	for _, v := range p.Names {
-		r = append(r, &golang.Field{
+		r = append(r, &golang.Def{
 			Name: Title(v),
 			Type: p.Type,
 		})
@@ -105,13 +105,13 @@ func parseRenderType(t *parser.Def) *golang.Def {
 	
 	r := &golang.Def{
 		Name: t.Name,
-		Type: string(t.Type),
+		Type: t.Type,
 	}
 	
 	if t.Type == "struct" {
 		
 		for _, v := range t.Fields {
-			r.Fields = append(r.Fields, &golang.Field{
+			r.Properties = append(r.Properties, &golang.Def{
 				Name: v.Name,
 				Type: v.Type,
 				Tags: v.Tags,

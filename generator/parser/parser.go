@@ -57,7 +57,7 @@ type Parser struct {
 }
 
 func (p *Parser) CombineInterface(name string) (*Interface, error) {
-
+	
 	if p.Root == nil {
 		return nil, fmt.Errorf("root package is nil")
 	}
@@ -68,12 +68,12 @@ func (p *Parser) CombineInterface(name string) (*Interface, error) {
 	if !ok {
 		return nil, fmt.Errorf("interface: %s not found", name)
 	}
-
+	
 	err := i.load(p.Root)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return i, nil
 }
 
@@ -91,6 +91,6 @@ func (p *Parser) loadPackage(mod *Mod, dir string) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return pkg, nil
 }

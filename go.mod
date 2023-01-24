@@ -10,6 +10,7 @@ require (
 	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
 	github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46
 	github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc
+	github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab
 	github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621
 	github.com/gozelle/testify v1.8.11
 	github.com/gozelle/zap v1.24.0
@@ -34,15 +35,12 @@ require (
 	github.com/gozelle/go-difflib v1.0.0 // indirect
 	github.com/gozelle/go-spew v1.1.10 // indirect
 	github.com/gozelle/isatty v0.0.17 // indirect
-	github.com/gozelle/jq v0.0.0-20230124150112-0a733d2b125c // indirect
 	github.com/gozelle/multierr v1.9.10 // indirect
 	github.com/gozelle/opencensus v0.24.1 // indirect
-	github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab // indirect
 	github.com/gozelle/websocket v1.5.0 // indirect
 	github.com/gozelle/yaml v0.0.0-20221214152138-81b78a92d903 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
-	github.com/itchyny/timefmt-go v0.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.14 // indirect

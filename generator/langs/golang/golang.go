@@ -1,7 +1,7 @@
 package golang
 
 import (
-	parser2 "github.com/gozelle/mix/generator/parser"
+	parser "github.com/gozelle/mix/generator/parser"
 )
 
 const (
@@ -42,15 +42,11 @@ type Method struct {
 }
 
 type Def struct {
-	Name   string
-	Type   string
-	Fields []*Field
-}
-
-type Field struct {
-	Name string
-	Type parser2.Type
-	Tags string
+	Name       string
+	Type       parser.Type
+	Properties []*Def
+	Item       *Def
+	Tags       string
 }
 
 type Package struct {
