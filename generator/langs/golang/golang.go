@@ -22,6 +22,7 @@ const (
 	Struct  = "struct"
 	Slice   = "slice"
 	Array   = "array"
+	Bool    = "bool"
 )
 
 type Interface struct {

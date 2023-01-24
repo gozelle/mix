@@ -1,19 +1,19 @@
-package rpc
+package example
 
 import (
 	"context"
-	"github.com/gozelle/mix/rpc/types"
+	"github.com/gozelle/mix/example/example_types"
 	"github.com/shopspring/decimal"
 	"time"
 )
 
 type TestRpc interface {
-	Register(ctx context.Context, username, password string) (token string, err error)
+	Register(ctx context.Context, username, password string) (token string, err error) //
 	GetUser(ctx context.Context, id int64) (user *User, err error)
 	GetOrderByID(ctx context.Context, id ID) (user []*User, err error)
 	GetOrderPrice(ctx context.Context, id int64) (price Fil, err error)
 	GetOrderPrice2(ctx context.Context, id int64) (price decimal.Decimal, err error)
-	SaveApple(ctx context.Context, apple types.Apple) (err error)
+	SaveApple(ctx context.Context, apple example_types.Apple) (err error)
 	RegisterByEmail(ctx context.Context, r RegisterByEmailRequest) (err error)
 }
 

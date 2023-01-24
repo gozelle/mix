@@ -7,7 +7,6 @@ import (
 	"go/token"
 	"golang.org/x/mod/modfile"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,12 +19,12 @@ func PrepareMod() (mod *Mod, err error) {
 		// A nonexistent working directory can't be in a module.
 		return
 	}
-	
+
 	for {
 		var f *os.File
 		if f, err = os.Open(filepath.Join(parent, "go.mod")); err == nil {
 			var d []byte
-			d, err = ioutil.ReadAll(f)
+			d, err = io.ReadAll(f)
 			if err != nil {
 				return
 			}
@@ -85,28 +84,28 @@ func (m Mod) GetPackagePath(pkg string) string {
 		}
 	}
 	src := filepath.Join(m.Gopath(), "src", pkg)
-	if ok, _ := fs.Exist(src); ok {
+	if err := fs.Exist(src); err == nil {
 		return src
 	}
-	
+
 	return ""
 }
 
 func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
-	
+
 	files, err := m.OpenPackage(pkg)
 	if err != nil {
 		return
 	}
 	set := token.NewFileSet()
-	
+
 	file := ""
 	for _, v := range files {
 		if !strings.HasSuffix(v, "_test.go") {
 			file = v
 		}
 	}
-	
+
 	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		return
@@ -116,29 +115,29 @@ func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
 		return
 	}
 	name = f.Name.String()
-	
+
 	return
 }
 
 func (m Mod) OpenPackage(pkg string) (files []string, err error) {
-	
+
 	var path string
 	if strings.HasPrefix(pkg, m.ModuleName()) {
 		path = filepath.Join(m.root, strings.TrimPrefix(pkg, m.ModuleName()))
-		
+
 	} else {
 		path = m.GetPackagePath(pkg)
 	}
-	
+
 	if path == "" {
 		err = fmt.Errorf("can't resolve pkg path: %s", pkg)
 		return
 	}
-	
+
 	files, err = fs.Files(path, ".go")
 	if err != nil {
 		return
 	}
-	
+
 	return
 }

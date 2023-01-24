@@ -20,8 +20,6 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
-github.com/flosch/pongo2/v6 v6.0.0 h1:lsGru8IAzHgIAw6H2m4PCyleO58I40ow6apih0WprMU=
-github.com/flosch/pongo2/v6 v6.0.0/go.mod h1:CuDpFm47R0uGGE7z13/tTlt1Y6zdxvr2RLT5LJhsHEU=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/go-openapi/jsonpointer v0.19.5 h1:gZr+CIYByUqjcgeLXnQu2gHYQC9o73G2XUeOFYEICuY=
@@ -73,8 +71,8 @@ github.com/gozelle/check v1.0.0/go.mod h1:t4gM11iaDT1dmzBqm2uBf9WZJ8XaCQ55gi5/BC
 github.com/gozelle/clock v1.3.0 h1:xfRJ4MbwWHqJxAXX7ZnVQI0Z3ilJzZo5cndOgHcE+ko=
 github.com/gozelle/cobra v1.6.1 h1:ZfljY+Ee3Fejq2ySBN8zxYGrLdcERjv1/Ed2/gNxf7M=
 github.com/gozelle/cobra v1.6.1/go.mod h1:tSCvXmS97dyGiTdsQedjsQqcLzgUo95bympGEqWAm0U=
-github.com/gozelle/fs v0.0.0-20221216093437-b3dbc154ce16 h1:g0fBrwv3PgR38V7AkeLNmbsFzFKYDPH7aNuCwhZKlk8=
-github.com/gozelle/fs v0.0.0-20221216093437-b3dbc154ce16/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
+github.com/gozelle/fs v0.0.0-20230111033557-efba04455aa0 h1:2np3AKjRsQuip4hLNxyeG4mXdRBgfuajIhqNVRiz9s0=
+github.com/gozelle/fs v0.0.0-20230111033557-efba04455aa0/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
 github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9 h1:cniqpd+RC8mXijVrDtMiConDvxG46WtED3LvKmILOwc=
 github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9/go.mod h1:JireDjjNIq7AeXEs9Aqjt9DGBtCahaYDNi5xiGPRlHE=
 github.com/gozelle/go-difflib v1.0.0 h1:BIQXTH387TRKUtDGMTaPmoFKKWZQMRR4mSxxcPLOjXQ=
@@ -86,6 +84,8 @@ github.com/gozelle/go-spew v1.1.10/go.mod h1:qwUFQBhiE5zwtTAfe/m87+73t2jRbNHwGOv
 github.com/gozelle/goleak v1.2.1 h1:e9B5tGt96ak+/85Nv0rj2DjoehP7FgqwlFvHlzIr5ts=
 github.com/gozelle/isatty v0.0.17 h1:1ka2GcKL1hNwIHIl5JFHfHOAzl+vXRH4Jx3dlFa88nM=
 github.com/gozelle/isatty v0.0.17/go.mod h1:u77FICFTx4IXjAoAaYstj8NvStDRVhwe3NNZCKzXVGo=
+github.com/gozelle/jq v0.0.0-20230124150112-0a733d2b125c h1:1BCVhZtMWAwcyNf81mrP2+ct9pD7gDAFptZ8uVaH+1I=
+github.com/gozelle/jq v0.0.0-20230124150112-0a733d2b125c/go.mod h1:rp4PPYBr4cKn1CI6ciqx7y6KlobpvAVtbjZwDUMwIyI=
 github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5 h1:toqzqNK421m/AwzhEhlu+hW3zQo2LAlvjFkOk7m9dqQ=
 github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5/go.mod h1:LI3nXlYirSES3oY9wNtkDyu+IB7MzbPFt5Xspu+JBJE=
 github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46 h1:hV0LqMjLl6oDbp4qXvia9pplS95kQtfq92YHvDZFGww=
@@ -93,14 +93,12 @@ github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46/go.mod h1:uYLWg4Id
 github.com/gozelle/multierr v1.9.10 h1:EUU22u5Yx82/mQm55fH1WF6ztp0w4U+cZl9lCzuyUvE=
 github.com/gozelle/multierr v1.9.10/go.mod h1:4tC7qdet8CoxU9Q/Ha2bn5obpheqU7bTB9AENXwWzaI=
 github.com/gozelle/objx v0.5.10/go.mod h1:3muRr1Da1mCg3D+wYBicuZaHtGbvfLCgewfYJoz7cbs=
-github.com/gozelle/openapi v0.0.0-20230119025534-505c123b70b7 h1:6Dd8Yex83N26tBzbPnMrhBDM0KOf3RS0MklhTrGtILo=
-github.com/gozelle/openapi v0.0.0-20230119025534-505c123b70b7/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
-github.com/gozelle/openapi v0.0.0-20230123140756-6063c7bc8331 h1:cR7ME6zm7KMd1db0rNDWLTfceJ4mN7v/4pvSlJricfc=
-github.com/gozelle/openapi v0.0.0-20230123140756-6063c7bc8331/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
 github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc h1:Pf4WDxEyeWNx8ccAemseNzV/vB22GYjs7QI9x6yCQFE=
 github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc/go.mod h1:7TaZNuU1fCzpa2FqWfL7IzeN1nmtP/zRhmeJPd4I6ok=
 github.com/gozelle/opencensus v0.24.1 h1:bpMi/cfKi10770trLWek3H7FtskFpXd+H91VPV339RM=
 github.com/gozelle/opencensus v0.24.1/go.mod h1:0nV5jpL96Liu+ozvagdeOPGZU5iTLyyRq/pW1V9CMPk=
+github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab h1:hr9lIgfu8ETqHa/KDNUWNBva7MOKoVIeolMjKHfeySE=
+github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab/go.mod h1:59shQaqJGhb00p6UGYDnwtwP57iWdmuD9TPBlwMk4CU=
 github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621 h1:xHZtldCsoyB6LE3Pvk1e9txlFFLBQ7d6mX+OuB0P/T0=
 github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621/go.mod h1:Pd1g/mV3ZgQRhqpQWei9Y86PEt25KrvU/9MdNZ3kgWk=
 github.com/gozelle/pretty v0.3.1 h1:dtU7yIlzRqiMmB9TcunypDfvAC/QOP0K8y/BKKOrgRg=
@@ -120,6 +118,8 @@ github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7P
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/invopop/yaml v0.1.0 h1:YW3WGUoJEXYfzWBjn00zIlrw7brGVD0fUKRYDPAPhrc=
 github.com/invopop/yaml v0.1.0/go.mod h1:2XuRLgs/ouIrW3XNzuNj7J3Nvu/Dig5MXvbCEdiBN3Q=
+github.com/itchyny/timefmt-go v0.1.5 h1:G0INE2la8S6ru/ZI5JecgyzbbJNs5lG1RcBqa7Jm6GE=
+github.com/itchyny/timefmt-go v0.1.5/go.mod h1:nEP7L+2YmAbT2kZ2HfSs1d8Xtw9LY8D2stDBckWakZ8=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=

@@ -6,7 +6,8 @@ import (
 	"github.com/gozelle/mix/generator/convertor"
 	"github.com/gozelle/mix/generator/langs/golang"
 	"github.com/gozelle/mix/generator/parser"
-	
+	"github.com/gozelle/pointer"
+
 	"github.com/gozelle/openapi/openapi3"
 )
 
@@ -21,19 +22,28 @@ func (g Generator) Generate(i *parser.Interface) (files []*generator.File, err e
 }
 
 func (g Generator) TOOpenapiV3(i *parser.Interface) *DocumentV3 {
-	
+
 	d := &DocumentV3{}
-	
+	d.OpenAPI = "3.0.3"
+	d.Info = &openapi3.Info{
+		Title:          "",
+		Description:    "",
+		TermsOfService: "",
+		Contact:        nil,
+		License:        nil,
+		Version:        "",
+	}
+
 	r := convertor.ToGolangInterface(i)
-	
+
 	for _, v := range r.Methods {
 		g.convertMethods(d, v)
 	}
-	
+
 	for _, v := range r.Defs {
 		g.makeDefSchema(d, v)
 	}
-	
+
 	return d
 }
 
@@ -55,31 +65,53 @@ func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
 		},
 	}
 	if m.Request != nil {
-		g.convertMethodParameter(d, m.Request)
+		item.Post.RequestBody = &openapi3.RequestBodyRef{
+			Ref: g.makeMethodParameterRef(d, m.Request),
+			//Value: &openapi3.RequestBody{
+			//	Extensions:  nil,
+			//	Description: "",
+			//	Required:    false,
+			//	Content: map[string]*openapi3.MediaType{
+			//		application_json: {
+			//			Schema: &openapi3.SchemaRef{
+			//				Ref:,
+			//			},
+			//		},
+			//	},
+			//},
+		}
 	}
 	if m.Replay != nil {
-		g.convertMethodReply(d, m.Replay)
+		if item.Post.Responses == nil {
+			item.Post.Responses = map[string]*openapi3.ResponseRef{}
+		}
+		item.Post.Responses["200"] = &openapi3.ResponseRef{
+			Ref: g.makeMethodReplyRef(d, m.Replay),
+		}
 	}
-	
+
 	d.Paths[fmt.Sprintf("/%s", m.Name)] = item
 }
 
-func (g Generator) convertMethodParameter(d *DocumentV3, def *golang.Def) {
+func (g Generator) makeMethodParameterRef(d *DocumentV3, def *golang.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
 	if d.Components.RequestBodies == nil {
 		d.Components.RequestBodies = map[string]*openapi3.RequestBodyRef{}
 	}
+
 	d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
 		Value: &openapi3.RequestBody{
 			Required: false,
 			Content:  g.makeContent(d, def.Fields),
 		},
 	}
+	ref = fmt.Sprintf("#/components/requestBodies/%s", def.Name)
+	return
 }
 
-func (g Generator) convertMethodReply(d *DocumentV3, def *golang.Def) {
+func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -88,11 +120,13 @@ func (g Generator) convertMethodReply(d *DocumentV3, def *golang.Def) {
 	}
 	d.Components.Responses[def.Name] = &openapi3.ResponseRef{
 		Value: &openapi3.Response{
-			Description: nil,
+			Description: pointer.ToString(""),
 			Headers:     nil,
 			Content:     g.makeContent(d, def.Fields),
 		},
 	}
+	ref = fmt.Sprintf("#/components/responses/%s", def.Name)
+	return
 }
 
 func (g Generator) makeDefSchema(d *DocumentV3, def *golang.Def) {
@@ -100,13 +134,13 @@ func (g Generator) makeDefSchema(d *DocumentV3, def *golang.Def) {
 }
 
 func (g Generator) makeFieldSchema(d *DocumentV3, field *golang.Field) (ref string) {
-	
+
 	return
 }
 
 func (g Generator) makeContent(d *DocumentV3, fields []*golang.Field) openapi3.Content {
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
-	
+
 	for _, filed := range fields {
 		if filed.Type.IsStruct() {
 			c[filed.Name] = &openapi3.MediaType{
@@ -119,7 +153,7 @@ func (g Generator) makeContent(d *DocumentV3, fields []*golang.Field) openapi3.C
 			c[filed.Name] = g.makeMediaType(filed)
 		}
 	}
-	
+
 	return c
 }
 
@@ -141,6 +175,18 @@ func (g Generator) makeMediaType(field *golang.Field) *openapi3.MediaType {
 }
 
 func (g Generator) convertType(t parser.Type) string {
-	
-	return "any"
+
+	switch t {
+	case golang.String:
+		return "string"
+	case golang.Int, golang.Int8, golang.Int16, golang.Int32, golang.Int64,
+		golang.Uint, golang.Uint8, golang.Uint16, golang.Uint32, golang.Uint64:
+		return "integer"
+	case golang.Float32, golang.Float64:
+		return "number"
+	case golang.Bool:
+		return "boolean"
+	}
+
+	return "object"
 }
