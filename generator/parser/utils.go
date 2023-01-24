@@ -20,9 +20,9 @@ func parseType(name string, t ast.Expr) (r *Def) {
 	
 	switch e := t.(type) {
 	case *ast.Ident:
-		r.Type = Type(e.Name)
+		r.Type = Type{t: e.Name}
 	case *ast.StructType:
-		r.Type = "struct"
+		r.Type = Type{t: "struct"}
 		for _, f := range e.Fields.List {
 			st := parseType(parseNames(f.Names)[0], f.Type)
 			if f.Tag != nil {
@@ -32,20 +32,20 @@ func parseType(name string, t ast.Expr) (r *Def) {
 		}
 	case *ast.SliceExpr:
 		// ignore range
-		r.Type = "[]"
+		r.Type = Type{t: "[]"}
 		r.Elem = &Def{
 			Type: parseType(name, e.X).Type,
 		}
 	case *ast.ArrayType:
 		// ignore len
-		r.Type = "[]"
+		r.Type = Type{t: "[]"}
 		r.Elem = &Def{
 			Type: parseType(name, e.Elt).Type,
 		}
 	case *ast.SelectorExpr:
-		r.Type = Type(fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name))
+		r.Type = Type{t: fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name)}
 	case *ast.StarExpr:
-		r.Type = Type(fmt.Sprintf("*%s", parseType(name, e.X).Type))
+		r.Type = Type{t: fmt.Sprintf("*%s", parseType(name, e.X).Type)}
 	default:
 		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))
 	}

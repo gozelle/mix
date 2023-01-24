@@ -19,7 +19,7 @@ func PrepareMod() (mod *Mod, err error) {
 		// A nonexistent working directory can't be in a module.
 		return
 	}
-
+	
 	for {
 		var f *os.File
 		if f, err = os.Open(filepath.Join(parent, "go.mod")); err == nil {
@@ -50,8 +50,9 @@ func PrepareMod() (mod *Mod, err error) {
 }
 
 type Mod struct {
-	root string
-	file *modfile.File
+	root     string
+	file     *modfile.File
+	packages map[string]*Package
 }
 
 func (m Mod) ModuleName() string {
@@ -63,6 +64,22 @@ func (m Mod) ModuleName() string {
 
 func (m Mod) Gopath() string {
 	return os.Getenv("GOPATH")
+}
+
+func (m *Mod) AddPackage(pkg *Package) {
+	if m.packages == nil {
+		m.packages = map[string]*Package{}
+	}
+	if pkg.Path != "" {
+		m.packages[pkg.Path] = pkg
+	}
+}
+
+func (m Mod) GetPackage(path string) *Package {
+	if m.packages == nil {
+		return nil
+	}
+	return m.packages[path]
 }
 
 // GetPackagePath 获取包的真实路径
@@ -87,25 +104,25 @@ func (m Mod) GetPackagePath(pkg string) string {
 	if err := fs.Exist(src); err == nil {
 		return src
 	}
-
+	
 	return ""
 }
 
 func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
-
-	files, err := m.OpenPackage(pkg)
+	
+	files, err := m.GetPackageFiles(pkg)
 	if err != nil {
 		return
 	}
 	set := token.NewFileSet()
-
+	
 	file := ""
 	for _, v := range files {
 		if !strings.HasSuffix(v, "_test.go") {
 			file = v
 		}
 	}
-
+	
 	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		return
@@ -115,29 +132,29 @@ func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
 		return
 	}
 	name = f.Name.String()
-
+	
 	return
 }
 
-func (m Mod) OpenPackage(pkg string) (files []string, err error) {
-
+func (m Mod) GetPackageFiles(pkg string) (files []string, err error) {
+	
 	var path string
 	if strings.HasPrefix(pkg, m.ModuleName()) {
 		path = filepath.Join(m.root, strings.TrimPrefix(pkg, m.ModuleName()))
-
+		
 	} else {
 		path = m.GetPackagePath(pkg)
 	}
-
+	
 	if path == "" {
 		err = fmt.Errorf("can't resolve pkg path: %s", pkg)
 		return
 	}
-
+	
 	files, err = fs.Files(path, ".go")
 	if err != nil {
 		return
 	}
-
+	
 	return
 }

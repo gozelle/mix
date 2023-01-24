@@ -47,7 +47,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	merge := true
 	for _, v := range m.Params {
 		if !v.Type.IsContext() && merge {
-			if string(v.Type) == request.Name {
+			if v.Type.Type() == request.Name {
 				request.Type = v.Type
 				merge = false
 			} else {
@@ -62,7 +62,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	merge = true
 	for _, v := range m.Results {
 		if !v.Type.IsError() && merge {
-			if string(v.Type) == request.Name {
+			if v.Type.Type() == request.Name {
 				replay.Type = v.Type
 				merge = false
 			} else {

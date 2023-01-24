@@ -210,7 +210,7 @@ func (g Generator) convertType(t parser.Type) string {
 		return "array"
 	}
 	
-	switch t {
+	switch t.Type() {
 	case golang.String:
 		return "string"
 	case golang.Int, golang.Int8, golang.Int16, golang.Int32, golang.Int64,
