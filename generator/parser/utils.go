@@ -28,14 +28,20 @@ func parseType(name string, t ast.Expr) (r *Def) {
 			if f.Tag != nil {
 				st.Tags = f.Tag.Value
 			}
-			r.Fields = append(r.Fields, st)
+			r.StructFields = append(r.StructFields, st)
 		}
 	case *ast.SliceExpr:
 		// ignore range
-		r.Type = "[]" + parseType(name, e.X).Type
+		r.Type = "[]"
+		r.Elem = &Def{
+			Type: parseType(name, e.X).Type,
+		}
 	case *ast.ArrayType:
 		// ignore len
-		r.Type = "[]" + parseType(name, e.Elt).Type
+		r.Type = "[]"
+		r.Elem = &Def{
+			Type: parseType(name, e.Elt).Type,
+		}
 	case *ast.SelectorExpr:
 		r.Type = Type(fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name))
 	case *ast.StarExpr:

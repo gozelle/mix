@@ -36,10 +36,11 @@ type Param struct {
 }
 
 type Def struct {
-	Name   string
-	Type   Type
-	Tags   string
-	Fields []*Def
+	Name         string
+	Type         Type
+	Tags         string
+	StructFields []*Def
+	Elem         *Def
 }
 
 func NewParser(mod *Mod, dir string) (parser *Parser, err error) {

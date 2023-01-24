@@ -68,13 +68,13 @@ type {{ Name }}API struct{
 {%- for def in Methods %}
 
 type {{ def.Request.Name }} struct {
-	{%- for field in def.Request.Properties %}
+	{%- for field in def.Request.StructFields %}
 	{{ field.Name }} {{ field.Type }}
 	{%- endfor %}
 }
 
 type {{ def.Replay.Name }} struct {
-	{%- for field in def.Replay.Properties %}
+	{%- for field in def.Replay.StructFields %}
 	{{ field.Name }} {{ field.Type }}
 	{%- endfor %}
 }

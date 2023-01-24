@@ -155,9 +155,9 @@ func (p *Package) Visit(node ast.Node) ast.Visitor {
 	case *ast.MapType:
 		// TODO
 	case *ast.SliceExpr:
-		// TODO
+		panic(s.Name.String())
 	case *ast.ArrayType:
-	// TODO
+		panic(s.Name.String())
 	case *ast.SelectorExpr:
 		p.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	default:

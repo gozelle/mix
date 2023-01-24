@@ -41,13 +41,7 @@ type Method struct {
 	Results string
 }
 
-type Def struct {
-	Name       string
-	Type       parser.Type
-	Properties []*Def
-	Item       *Def
-	Tags       string
-}
+type Def = parser.Def
 
 type Package struct {
 	Alias string

@@ -24,7 +24,7 @@ func ToGolangInterface(i *parser.Interface) *golang.Interface {
 	}
 	
 	for _, v := range i.Defs {
-		r.Defs = append(r.Defs, parseRenderType(v))
+		r.Defs = append(r.Defs, v)
 	}
 	
 	for _, v := range i.Methods {
@@ -51,7 +51,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 				request.Type = v.Type
 				merge = false
 			} else {
-				request.Properties = append(request.Properties, convertMethodParam(v)...)
+				request.StructFields = append(request.StructFields, convertMethodParam(v)...)
 			}
 			
 		}
@@ -66,7 +66,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 				replay.Type = v.Type
 				merge = false
 			} else {
-				replay.Properties = append(replay.Properties, convertMethodParam(v)...)
+				replay.StructFields = append(replay.StructFields, convertMethodParam(v)...)
 			}
 		}
 		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
@@ -99,25 +99,4 @@ func convertMethodParam(p *parser.Param) []*golang.Def {
 
 func Title(v string) string {
 	return cases.Title(language.English).String(v)
-}
-
-func parseRenderType(t *parser.Def) *golang.Def {
-	
-	r := &golang.Def{
-		Name: t.Name,
-		Type: t.Type,
-	}
-	
-	if t.Type == "struct" {
-		
-		for _, v := range t.Fields {
-			r.Properties = append(r.Properties, &golang.Def{
-				Name: v.Name,
-				Type: v.Type,
-				Tags: v.Tags,
-			})
-		}
-	}
-	
-	return r
 }

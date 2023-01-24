@@ -2,7 +2,6 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/gozelle/logging"
 	"github.com/gozelle/mix/generator"
 	"github.com/gozelle/mix/generator/convertor"
 	"github.com/gozelle/mix/generator/langs/golang"
@@ -159,12 +158,11 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 	
 	if def.Type.IsStruct() {
 		s.Value.Properties = map[string]*openapi3.SchemaRef{}
-		for _, v := range def.Properties {
+		for _, v := range def.StructFields {
 			s.Value.Properties[v.Name] = g.makeSchemaRef(d, v)
 		}
 	} else if def.Type.IsArray() {
-		logging.Logger("debug").Info(def.Name, def.Item)
-		s.Value.Items = g.makeSchemaRef(d, def.Item)
+		s.Value.Items = g.makeSchemaRef(d, def.Elem)
 	}
 	
 	return
