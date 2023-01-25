@@ -15,6 +15,7 @@ type TestRpc interface {
 	GetOrderPrice2(ctx context.Context, id int64) (price decimal.Decimal, err error)
 	SaveApple(ctx context.Context, apple example_types.Apple) (err error)
 	RegisterByEmail(ctx context.Context, r RegisterByEmailRequest) (err error)
+	GetInfo(ctx context.Context, info Info) (err error)
 }
 
 type ID int64
@@ -33,6 +34,11 @@ type ExampleUser struct {
 	Tags      []string `json:"tags"`
 	CreatedAt time2.Time
 	UpdatedAt time2.Time
+}
+
+type Info struct {
+	Users ExampleUser
+	Req   RegisterByEmailRequest
 }
 
 type NoUsed struct {

@@ -28,7 +28,7 @@ func ToGolangInterface(i *parser.Interface) *golang.Interface {
 	}
 	
 	for _, v := range i.Defs {
-		if !v.Used {
+		if !v.Used || v.Type.Name != "struct" {
 			continue
 		}
 		d := convertDef(v)
