@@ -16,7 +16,7 @@ func ToGolangInterface(i *parser.Interface) *golang.Interface {
 		Name: i.Name,
 	}
 	
-	for _, v := range i.Packages {
+	for _, v := range i.Imports {
 		r.Packages = append(r.Packages, &golang.Package{
 			Alias: v.Alias,
 			Path:  v.Path,

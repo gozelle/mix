@@ -48,7 +48,7 @@ func (p *Package) addInterface(name string, item *Interface) *Interface {
 	return item
 }
 
-func (p *Package) getInterface(name string) *Interface {
+func (p *Package) GetInterface(name string) *Interface {
 	if p.Interfaces == nil {
 		return nil
 	}
@@ -62,8 +62,8 @@ func (p *Package) getInterface(name string) *Interface {
 func (p *Package) loadFiles(mod *Mod, files []string) (err error) {
 	for _, v := range files {
 		if !strings.HasSuffix(v, "_test.go") {
-			f := &File{pkg: p}
-			err = f.load(mod, v)
+			f := &File{pkg: p, mod: mod, path: v}
+			err = f.load(v)
 			if err != nil {
 				return
 			}
@@ -74,6 +74,14 @@ func (p *Package) loadFiles(mod *Mod, files []string) (err error) {
 
 func (p *Package) load(mod *Mod, dir string) error {
 	
+	if mod.loaded == nil {
+		mod.loaded = map[string]bool{}
+	}
+	if _, ok := mod.loaded[dir]; ok {
+		return nil
+	}
+	mod.loaded[dir] = true
+	//log.Debugf("load dir: %s", dir)
 	err := fs.IsDir(dir)
 	if err != nil {
 		return fmt.Errorf("only accept dir")

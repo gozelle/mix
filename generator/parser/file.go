@@ -10,6 +10,7 @@ import (
 )
 
 type File struct {
+	path    string
 	mod     *Mod
 	pkg     *Package
 	Imports map[string]*Import
@@ -35,6 +36,7 @@ func (f *File) addImport(item *Import) *Import {
 }
 
 func (f *File) Visit(node ast.Node) ast.Visitor {
+	
 	s, ok := node.(*ast.TypeSpec)
 	if !ok {
 		return f
@@ -43,19 +45,28 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 	switch t := s.Type.(type) {
 	
 	case *ast.InterfaceType:
-		f.pkg.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), interfaceType: t})
+		i := &Interface{Name: s.Name.String(), interfaceType: t}
+		err := i.load(f.mod, f.pkg, f)
+		if err != nil {
+			panic(fmt.Errorf("load interface: %s error: %s", i.Name, err))
+		}
+		f.pkg.addInterface(i.Name, i)
 	case *ast.FuncType:
 		return f
 	case *ast.StructType, *ast.Ident:
 		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-	//case *ast.MapType:
-	//	// TODO
-	//case *ast.SliceExpr:
-	//	panic(s.Name.String())
-	//case *ast.ArrayType:
-	//	panic(s.Name.String())
+	case *ast.MapType:
+		// TODO
+	case *ast.SliceExpr:
+		// TODO
+	case *ast.ArrayType:
+		// TODO
+	case *ast.StarExpr:
+		// TODO
 	case *ast.SelectorExpr:
 		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	case *ast.ChanType:
+		// TODO
 	default:
 		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))
 	}
@@ -63,8 +74,8 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 	return f
 }
 
-func (f *File) load(mod *Mod, file string) (err error) {
-	
+func (f *File) load(file string) (err error) {
+	//log.Debugf("load file: %s", file)
 	set := token.NewFileSet()
 	af, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
@@ -76,7 +87,7 @@ func (f *File) load(mod *Mod, file string) (err error) {
 	}
 	
 	for _, i := range af.Imports {
-		f.addImport(f.parseImport(mod, i))
+		f.addImport(f.parseImport(i))
 	}
 	// parse file use Visit
 	ast.Walk(f, af)
@@ -91,29 +102,31 @@ func (f *File) parseAlias(name string) string {
 	return name
 }
 
-func (f *File) parseImport(mod *Mod, i *ast.ImportSpec) *Import {
+func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	
 	r := &Import{
 		Alias:   f.parseAlias(i.Name.String()),
 		Path:    strings.Trim(i.Path.Value, "\""),
 		Package: &Package{},
 	}
+	
+	if r.Path == "C" {
+		return r
+	}
+	
 	if r.Alias == "" {
 		var err error
-		r.Alias, err = mod.GetPackageRealName(r.Path)
+		r.Alias, err = f.mod.GetPackageRealName(r.Path)
 		if err != nil {
-			panic(fmt.Errorf("get %s package name error: %s", r.Path, err))
+			panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
 		}
 	}
-	
-	files, err := mod.GetPackageFiles(r.Path)
+	//log.Debugf("load import: %s", r.Path)
+	realPath := f.mod.GetPackagePath(r.Path)
+	//log.Debugf("load import path: %s", realPath)
+	err := r.Package.load(f.mod, realPath)
 	if err != nil {
-		panic(fmt.Errorf("get package: %s fiels error: %s", r.Path, err))
-	}
-	
-	err = r.Package.loadFiles(mod, files)
-	if err != nil {
-		panic(fmt.Errorf("load package: %s fiels error: %s", r.Path, err))
+		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
 	}
 	
 	return r

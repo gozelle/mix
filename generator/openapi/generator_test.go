@@ -15,11 +15,10 @@ func TestParser(t *testing.T) {
 	path, err := fs.Lookup("./example")
 	require.NoError(t, err)
 	
-	p, err := parser.NewParser(mod, path)
+	p, err := parser.Parse(mod, path)
 	require.NoError(t, err)
 	
-	i, err := p.CombineInterface("TestRpc")
-	require.NoError(t, err)
+	i := p.GetInterface("TestRpc")
 	
 	g := Generator{}
 	

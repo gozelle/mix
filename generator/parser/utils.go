@@ -24,6 +24,10 @@ func parseType(name string, t ast.Expr) (r *Def) {
 	case *ast.StructType:
 		r.Type = Type{t: "struct"}
 		for _, f := range e.Fields.List {
+			if len(f.Names) == 0 {
+				// TODO
+				continue
+			}
 			st := parseType(parseNames(f.Names)[0], f.Type)
 			if f.Tag != nil {
 				st.Tags = f.Tag.Value
@@ -45,7 +49,13 @@ func parseType(name string, t ast.Expr) (r *Def) {
 	case *ast.SelectorExpr:
 		r.Type = Type{t: fmt.Sprintf("%s.%s", e.X.(*ast.Ident), e.Sel.Name)}
 	case *ast.StarExpr:
-		r.Type = Type{t: fmt.Sprintf("*%s", parseType(name, e.X).Type)}
+		r.Type = Type{t: fmt.Sprintf("*%s", parseType(name, e.X).Type.Type())}
+	case *ast.MapType:
+		// TODO
+	case *ast.FuncType:
+		// TODO
+	case *ast.ChanType:
+		// TODO
 	default:
 		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))
 	}

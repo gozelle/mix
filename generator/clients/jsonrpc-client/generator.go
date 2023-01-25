@@ -47,7 +47,7 @@ const tpl = `
 package {{ Package }}
 
 import (
-{%- for pkg in Packages %}
+{%- for pkg in Imports %}
 	{{ pkg.Alias }} "{{ pkg.Path }}"
 {%- endfor %}
 )

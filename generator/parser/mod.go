@@ -20,6 +20,15 @@ func PrepareMod() (mod *Mod, err error) {
 		return
 	}
 	
+	defer func() {
+		if err == nil {
+			if mod.file.Module == nil {
+				err = fmt.Errorf("mod file not defined module")
+				return
+			}
+		}
+	}()
+	
 	for {
 		var f *os.File
 		if f, err = os.Open(filepath.Join(parent, "go.mod")); err == nil {
@@ -53,6 +62,7 @@ type Mod struct {
 	root     string
 	file     *modfile.File
 	packages map[string]*Package
+	loaded   map[string]bool
 }
 
 func (m Mod) ModuleName() string {
@@ -100,12 +110,18 @@ func (m Mod) GetPackagePath(pkg string) string {
 			return filepath.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s", pkg, v.Mod.Version))
 		}
 	}
+	
 	src := filepath.Join(m.Gopath(), "src", pkg)
-	if err := fs.Exist(src); err == nil {
+	if err := fs.Exists(src); err == nil {
 		return src
 	}
 	
-	return ""
+	src = filepath.Join(m.Gopath(), "src/vendor", pkg)
+	if err := fs.Exists(src); err == nil {
+		return src
+	}
+	
+	return filepath.Join(m.root, strings.TrimPrefix(pkg, m.file.Module.Mod.Path))
 }
 
 func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
