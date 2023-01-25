@@ -1,11 +1,32 @@
 package parser
 
+import "fmt"
+
 func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 	pkg = &Package{}
 	err = pkg.load(mod, dir)
 	if err != nil {
 		return
 	}
+	
+	for _, v := range pkg.Interfaces {
+		err = v.load(mod, pkg, v.file)
+		if err != nil {
+			panic(fmt.Errorf("load interface: %s error: %s", v.Name, err))
+		}
+	}
+	
+	for _, v := range pkg.Defs {
+		if !v.Used {
+			continue
+		}
+		v.Type = parseType(v.File, v.Expr)
+	}
+	
+	for name, v := range pkg.Defs {
+		log.Infof("def: %s  => %s", name, v.String())
+	}
+	
 	return
 }
 

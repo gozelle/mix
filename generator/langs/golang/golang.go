@@ -1,9 +1,5 @@
 package golang
 
-import (
-	parser "github.com/gozelle/mix/generator/parser"
-)
-
 const (
 	Int     = "int"
 	Int8    = "int8"
@@ -41,7 +37,12 @@ type Method struct {
 	Results string
 }
 
-type Def = parser.Def
+type Def struct {
+	Name         string
+	Type         string
+	StructFields []*Def
+	Elem         *Def
+}
 
 type Package struct {
 	Alias string

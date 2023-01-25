@@ -23,16 +23,12 @@ func (f *File) getImport(name string) *Import {
 	return f.Imports[name]
 }
 
-func (f *File) addImport(item *Import) *Import {
+func (f *File) addImport(item *Import) {
 	if f.Imports == nil {
 		f.Imports = map[string]*Import{}
 	}
 	
-	if v, ok := f.Imports[item.Alias]; ok {
-		return v
-	}
 	f.Imports[item.Alias] = item
-	return item
 }
 
 func (f *File) Visit(node ast.Node) ast.Visitor {
@@ -43,34 +39,23 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 	}
 	
 	switch t := s.Type.(type) {
-	
 	case *ast.InterfaceType:
 		f.pkg.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), interfaceType: t, file: f})
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-	case *ast.FuncType:
-		return f
-	case *ast.StructType, *ast.Ident:
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-	case *ast.MapType:
-		// TODO
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	}
 	
-	case *ast.SliceExpr:
-		// TODO
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	switch t := s.Type.(type) {
 	
-	case *ast.ArrayType:
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-		
-		// TODO
-	case *ast.StarExpr:
-		// TODO
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-	
-	case *ast.SelectorExpr:
-		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
-	case *ast.ChanType:
-		// TODO
+	case *ast.InterfaceType,
+		*ast.FuncType,
+		*ast.StructType,
+		*ast.Ident,
+		*ast.MapType,
+		*ast.SliceExpr,
+		*ast.ArrayType,
+		*ast.StarExpr,
+		*ast.SelectorExpr,
+		*ast.ChanType:
+		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type})
 	default:
 		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))
 	}
@@ -79,19 +64,20 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 }
 
 func (f *File) load(file string) (err error) {
-	log.Debugf("load file: %s", file)
+	//log.Debugf("load file: %s", file)
 	set := token.NewFileSet()
 	af, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		return
 	}
 	
-	if f.pkg.Name == "" {
-		f.pkg.Name = af.Name.String() // package name
-	}
-	
 	for _, i := range af.Imports {
-		f.addImport(f.parseImport(i))
+		
+		v := f.parseImport(i)
+		if f.path == "/Users/kun/.go/current/pkg/mod/github.com/shopspring/decimal@v1.3.1/decimal.go" {
+			log.Debugf("parseImport33: alias: %s => %s", v.Alias, i.Path.Value)
+		}
+		f.addImport(v)
 	}
 	// parse file use Visit
 	ast.Walk(f, af)
@@ -109,26 +95,43 @@ func (f *File) parseAlias(name string) string {
 func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	
 	r := &Import{
-		Alias:   f.parseAlias(i.Name.String()),
-		Path:    strings.Trim(i.Path.Value, "\""),
-		Package: &Package{},
+		Alias: f.parseAlias(i.Name.String()),
+		Path:  strings.Trim(i.Path.Value, "\""),
 	}
+	
+	r.Package = &Package{Path: r.Path}
 	
 	if r.Path == "C" {
 		return r
 	}
 	
+	var err error
 	if r.Alias == "" {
-		var err error
 		r.Alias, err = f.mod.GetPackageRealName(r.Path)
 		if err != nil {
 			panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
 		}
 	}
-	log.Debugf("load import: %s", r.Path)
+	
+	//log.Debugf("load import: %s", r.Path)
 	realPath := f.mod.GetPackagePath(r.Path)
 	//log.Debugf("load import path: %s", realPath)
-	err := r.Package.load(f.mod, realPath)
+	
+	if f.mod.packages != nil {
+		if v, ok := f.mod.packages[realPath]; ok {
+			r.Package = v
+			return r
+		}
+	}
+	defer func() {
+		f.mod.cachePackage(realPath, r.Package)
+	}()
+	
+	if f.path == "/Users/kun/.go/current/pkg/mod/github.com/shopspring/decimal@v1.3.1/decimal.go" {
+		log.Debugf("parseImport: %s", r.Path)
+	}
+	
+	err = r.Package.load(f.mod, realPath)
 	if err != nil {
 		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
 	}

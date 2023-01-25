@@ -26,15 +26,12 @@ func (p *Package) getDef(name string) *Def {
 	return p.Defs[name]
 }
 
-func (p *Package) addType(name string, item *Def) *Def {
+func (p *Package) addDef(name string, item *Def) {
 	if p.Defs == nil {
 		p.Defs = map[string]*Def{}
 	}
-	if v, ok := p.Defs[name]; ok {
-		return v
-	}
+	
 	p.Defs[name] = item
-	return item
 }
 
 func (p *Package) addInterface(name string, item *Interface) *Interface {
@@ -81,7 +78,7 @@ func (p *Package) load(mod *Mod, dir string) error {
 		return nil
 	}
 	mod.loaded[dir] = true
-	log.Debugf("load dir: %s", dir)
+	//log.Debugf("load dir: %s", dir)
 	err := fs.IsDir(dir)
 	if err != nil {
 		return fmt.Errorf("only accept dir")
@@ -96,11 +93,9 @@ func (p *Package) load(mod *Mod, dir string) error {
 		return err
 	}
 	
-	for _, v := range p.Interfaces {
-		err = v.load(mod, p, v.file)
-		if err != nil {
-			panic(fmt.Errorf("load interface: %s error: %s", v.Name, err))
-		}
+	p.Name, err = mod.GetPackageRealName(p.Path)
+	if err != nil {
+		return err
 	}
 	
 	return nil

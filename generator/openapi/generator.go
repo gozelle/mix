@@ -152,19 +152,19 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 	
 	s = &openapi3.SchemaRef{
 		Value: &openapi3.Schema{
-			Type: g.convertType(def.Type),
+			//Type: g.convertType(def.Type),
 		},
 	}
 	
-	if def.Type.IsStruct() {
-		s.Value.Properties = map[string]*openapi3.SchemaRef{}
-		for _, v := range def.StructFields {
-			s.Value.Properties[v.Name] = g.makeSchemaRef(d, v)
-		}
-	} else if def.Type.IsArray() {
-		s.Value.Items = g.makeSchemaRef(d, def.Elem)
-	}
-	
+	//if def.Type.IsStruct() {
+	//	s.Value.Properties = map[string]*openapi3.SchemaRef{}
+	//	for _, v := range def.StructFields {
+	//		s.Value.Properties[v.Name] = g.makeSchemaRef(d, v)
+	//	}
+	//} else if def.Type.IsArray() {
+	//	s.Value.Items = g.makeSchemaRef(d, def.Elem)
+	//}
+	//
 	return
 }
 
@@ -204,13 +204,13 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 //	}
 //}
 
-func (g Generator) convertType(t parser.Type) string {
+func (g Generator) convertType(t *parser.Type) string {
 	
 	if t.IsArray() {
 		return "array"
 	}
 	
-	switch t.Type() {
+	switch t.Name {
 	case golang.String:
 		return "string"
 	case golang.Int, golang.Int8, golang.Int16, golang.Int32, golang.Int64,

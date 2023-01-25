@@ -1,6 +1,10 @@
 package parser
 
-import "strings"
+import (
+	"encoding/json"
+	"go/ast"
+	"strings"
+)
 
 type Import struct {
 	Alias   string
@@ -14,46 +18,59 @@ type Method struct {
 	Results []*Param
 }
 
+// func(a string) => Param(a Type{Name: string})
+// func(fil Fil)  => Param(fil Type{Name: Fil, Def: Type{Name: decimal.Decimal, Def;Type{Name: string}}}
 type Type struct {
-	pkg      string
-	t        string
-	toString bool // own String() method
+	Name         string  `json:"name,omitempty"`
+	ToString     bool    `json:"toString,omitempty"` // own String() method
+	Pointer      bool    `json:"pointer,omitempty"`
+	StructFields []*Type `json:"structFields,omitempty"`
+	Elem         *Type   `json:"elem,omitempty"`
+	Tags         string  `json:"tags,omitempty"`
+	Def          *Type   `json:"def,omitempty"`
 }
 
-func (t Type) Type() string {
-	return t.t
+func (t Type) String() string {
+	d, _ := json.Marshal(t)
+	return string(d)
 }
 
 func (t Type) IsString() bool {
-	return t.t == "string" || t.toString
+	return t.Name == "string" || t.ToString
 }
 
 func (t Type) IsStruct() bool {
-	return t.t == "struct"
+	return t.Name == "struct"
 }
 
 func (t Type) IsArray() bool {
-	return strings.HasPrefix(t.t, "[]")
+	return strings.HasPrefix(t.Name, "[]")
 }
 
 func (t Type) IsContext() bool {
 	//TODO
-	return t.t == "context.Context"
+	return t.Name == "context.Context"
 }
 
 func (t Type) IsError() bool {
-	return t.t == "error"
+	return t.Name == "error"
 }
 
 type Param struct {
 	Names []string
-	Type  Type
+	Type  *Type
+	Def   *Def
 }
 
 type Def struct {
-	Name         string
-	Type         Type
-	Tags         string
-	StructFields []*Def
-	Elem         *Def
+	Name string   `json:"name"`
+	Used bool     `json:"used"`
+	Expr ast.Expr `json:"-"`
+	File *File    `json:"-"`
+	Type *Type    `json:"type,omitempty"`
+}
+
+func (d Def) String() string {
+	a, _ := json.Marshal(d)
+	return string(a)
 }

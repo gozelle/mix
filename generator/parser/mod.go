@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github.com/gozelle/fs"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"golang.org/x/mod/modfile"
@@ -76,21 +77,20 @@ func (m Mod) Gopath() string {
 	return os.Getenv("GOPATH")
 }
 
-func (m *Mod) AddPackage(pkg *Package) {
+func (m *Mod) cachePackage(realPath string, pkg *Package) {
 	if m.packages == nil {
 		m.packages = map[string]*Package{}
 	}
-	if pkg.Path != "" {
-		m.packages[pkg.Path] = pkg
-	}
+	
+	m.packages[realPath] = pkg
 }
 
-func (m Mod) GetPackage(path string) *Package {
-	if m.packages == nil {
-		return nil
-	}
-	return m.packages[path]
-}
+//func (m Mod) GetPackage(path string) *Package {
+//	if m.packages == nil {
+//		return nil
+//	}
+//	return m.packages[path]
+//}
 
 // GetPackagePath 获取包的真实路径
 // 1. 首先判断是否被本地替换
@@ -132,22 +132,27 @@ func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
 	}
 	set := token.NewFileSet()
 	
-	file := ""
+	var f *ast.File
 	for _, v := range files {
-		if !strings.HasSuffix(v, "_test.go") {
-			file = v
+		if strings.HasSuffix(v, "_test.go") {
+			continue
+		}
+		
+		f, err = parser.ParseFile(set, v, nil, parser.AllErrors|parser.ParseComments)
+		if err != nil {
+			return
+		}
+		if f.Name == nil {
+			err = fmt.Errorf("package name is nil")
+			return
+		}
+		name = f.Name.String()
+		
+		// ignore main namespace
+		if name != "main" {
+			return
 		}
 	}
-	
-	f, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
-	if err != nil {
-		return
-	}
-	if f.Name == nil {
-		err = fmt.Errorf("package name is nil")
-		return
-	}
-	name = f.Name.String()
 	
 	return
 }
