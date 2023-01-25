@@ -45,24 +45,28 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 	switch t := s.Type.(type) {
 	
 	case *ast.InterfaceType:
-		i := &Interface{Name: s.Name.String(), interfaceType: t}
-		err := i.load(f.mod, f.pkg, f)
-		if err != nil {
-			panic(fmt.Errorf("load interface: %s error: %s", i.Name, err))
-		}
-		f.pkg.addInterface(i.Name, i)
+		f.pkg.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), interfaceType: t, file: f})
+		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	case *ast.FuncType:
 		return f
 	case *ast.StructType, *ast.Ident:
 		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	case *ast.MapType:
 		// TODO
+		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	
 	case *ast.SliceExpr:
 		// TODO
+		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	
 	case *ast.ArrayType:
+		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+		
 		// TODO
 	case *ast.StarExpr:
 		// TODO
+		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
+	
 	case *ast.SelectorExpr:
 		f.pkg.addType(s.Name.String(), parseType(s.Name.String(), s.Type))
 	case *ast.ChanType:
@@ -75,7 +79,7 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 }
 
 func (f *File) load(file string) (err error) {
-	//log.Debugf("load file: %s", file)
+	log.Debugf("load file: %s", file)
 	set := token.NewFileSet()
 	af, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
@@ -121,7 +125,7 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 			panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
 		}
 	}
-	//log.Debugf("load import: %s", r.Path)
+	log.Debugf("load import: %s", r.Path)
 	realPath := f.mod.GetPackagePath(r.Path)
 	//log.Debugf("load import path: %s", realPath)
 	err := r.Package.load(f.mod, realPath)

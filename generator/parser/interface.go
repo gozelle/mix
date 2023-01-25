@@ -15,6 +15,7 @@ type Interface struct {
 	imports       map[string]bool
 	includes      []*Interface
 	interfaceType *ast.InterfaceType
+	file          *File
 }
 
 func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
@@ -70,10 +71,7 @@ func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []strin
 			// 不是基础类型，寻找到该类型定义，放入 Interface 上下文中
 			rt := pkg.getDef(r.Type.Type())
 			if rt == nil {
-				//panic()
-				//TODO use struct as type
-				err := fmt.Errorf("can't fond type: '%s' in root package", r.Type.Type())
-				log.Error(err)
+				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Type.Type(), i.file.path))
 			} else {
 				i.addType(rt)
 			}
@@ -139,6 +137,8 @@ func isReserved(t string) bool {
 		"bool",
 		"byte",
 		"rune",
+		"uintptr",
+		"any",
 		"error":
 		return true
 	}

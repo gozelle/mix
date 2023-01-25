@@ -21,6 +21,8 @@ func parseType(name string, t ast.Expr) (r *Def) {
 	switch e := t.(type) {
 	case *ast.Ident:
 		r.Type = Type{t: e.Name}
+	case *ast.InterfaceType:
+		r.Type = Type{t: "any"}
 	case *ast.StructType:
 		r.Type = Type{t: "struct"}
 		for _, f := range e.Fields.List {

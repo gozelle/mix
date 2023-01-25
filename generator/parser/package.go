@@ -81,7 +81,7 @@ func (p *Package) load(mod *Mod, dir string) error {
 		return nil
 	}
 	mod.loaded[dir] = true
-	//log.Debugf("load dir: %s", dir)
+	log.Debugf("load dir: %s", dir)
 	err := fs.IsDir(dir)
 	if err != nil {
 		return fmt.Errorf("only accept dir")
@@ -94,6 +94,13 @@ func (p *Package) load(mod *Mod, dir string) error {
 	err = p.loadFiles(mod, files)
 	if err != nil {
 		return err
+	}
+	
+	for _, v := range p.Interfaces {
+		err = v.load(mod, p, v.file)
+		if err != nil {
+			panic(fmt.Errorf("load interface: %s error: %s", v.Name, err))
+		}
 	}
 	
 	return nil
