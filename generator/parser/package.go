@@ -16,6 +16,7 @@ type Package struct {
 	Path       string
 	Interfaces map[string]*Interface
 	Defs       map[string]*Def
+	DefsCount  map[string]int
 	Stringers  map[string]bool
 	Files      []*File
 }
@@ -121,4 +122,25 @@ func (p *Package) load(mod *Mod, dir string) error {
 	}
 	
 	return nil
+}
+
+func (p *Package) AddExternalNalDef(def *Def) {
+	if def.File.pkg.Path == "context" {
+		return
+	}
+	d := def.ShallowFork()
+	t := p.getDef(d.Name)
+	if t != nil {
+		if p.DefsCount == nil {
+			p.DefsCount = map[string]int{}
+		}
+		if v, ok := p.DefsCount[d.Name]; !ok {
+			p.DefsCount[d.Name] = 1
+			d.Name = fmt.Sprintf("%s%d", d.Name, 2)
+		} else {
+			d.Name = fmt.Sprintf("%s%d", d.Name, v+1)
+			p.DefsCount[d.Name] = v + 1
+		}
+	}
+	p.addDef(d.Name, d)
 }

@@ -71,6 +71,18 @@ type Def struct {
 	ToString bool     `json:"toString,omitempty"`
 }
 
+func (d Def) ShallowFork() *Def {
+	n := &Def{
+		Name:     d.Name,
+		Used:     d.Used,
+		Expr:     d.Expr,
+		File:     d.File,
+		Type:     d.Type,
+		ToString: d.ToString,
+	}
+	return n
+}
+
 func (d Def) String() string {
 	a, _ := json.Marshal(d)
 	return string(a)

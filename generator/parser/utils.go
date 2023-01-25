@@ -28,24 +28,11 @@ func parseType(f *File, t ast.Expr) (r *Type) {
 			}
 			def.Used = true
 		}
-		// 不是基础类型，寻找到该类型定义，放入 Interface 上下文中
-		//	rt := pkg.getDef(r.Type.Name)
-		//	if rt == nil {
-		//		panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Type.Name, i.file.path))
-		//	} else {
-		//		i.addDef(rt)
-		//		r.Def = rt
-		//	}
 	case *ast.InterfaceType:
 		r = &Type{Name: "any"}
 	case *ast.StructType:
 		r = &Type{Name: "struct"}
-		
 		for _, field := range e.Fields.List {
-			if len(field.Names) == 0 {
-				// TODO
-				continue
-			}
 			st := parseType(f, field.Type)
 			if field.Tag != nil {
 				st.Tags = field.Tag.Value
@@ -85,8 +72,8 @@ func parseType(f *File, t ast.Expr) (r *Type) {
 		if def.ToString {
 			r.Def = &Type{Name: "string"}
 		} else {
-			// TODO 思考子包结构如何映射到 Package 中
 			r.Def = parseType(def.File, def.Expr)
+			f.pkg.AddExternalNalDef(def)
 		}
 	
 	case *ast.StarExpr:
