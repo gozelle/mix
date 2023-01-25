@@ -1,13 +1,17 @@
 package convertor
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/gozelle/logging"
 	"github.com/gozelle/mix/generator/langs/golang"
 	"github.com/gozelle/mix/generator/parser"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"strings"
 )
+
+var log = logging.Logger("convertor")
 
 func ToGolangInterface(i *parser.Interface) *golang.Interface {
 	
@@ -23,16 +27,54 @@ func ToGolangInterface(i *parser.Interface) *golang.Interface {
 		})
 	}
 	
-	// TODO
-	//for _, v := range i.Defs {
-	//	r.Defs = append(r.Defs, v)
-	//}
+	for _, v := range i.Defs {
+		if !v.Used {
+			continue
+		}
+		d := convertDef(v)
+		r.Defs = append(r.Defs, d)
+		fmt.Printf("=============== Def: %s  ===============\n", v.Name)
+		dd, _ := json.MarshalIndent(d, "", "\t")
+		fmt.Println(string(dd))
+		fmt.Printf("=============== Def: %s ===============\n", v.Name)
+	}
 	
 	for _, v := range i.Methods {
 		r.Methods = append(r.Methods, parseRenderMethod(v))
 	}
 	
 	return r
+}
+
+func convertDef(d *parser.Def) *golang.Def {
+	
+	rt := d.Type.RealType()
+	
+	n := &golang.Def{
+		Name: d.Name,
+		Type: rt.Name,
+	}
+	
+	if n.Type == "struct" {
+		for _, v := range rt.StructFields {
+			log.Infof("转换 name: %s, field: %s, type: %s", d.Name, v.Name, v.RealType().Name)
+			n.StructFields = append(n.StructFields, convertType(v))
+		}
+	} else if n.Type == "[]" {
+		n.Elem = convertType(rt.Elem)
+	}
+	
+	return n
+}
+
+func convertType(t *parser.Type) *golang.Def {
+	n := &golang.Def{
+		Name: t.RealType().Field,
+		Type: t.RealType().Name,
+		Tags: t.Tags,
+	}
+	
+	return n
 }
 
 func parseRenderMethod(m *parser.Method) *golang.Method {

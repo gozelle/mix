@@ -27,6 +27,9 @@ func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
 			i.Methods = append(i.Methods, i.parseMethod(mod, pkg, file, m.Names[0].Name, mt))
 		}
 	}
+	for _, v := range pkg.Defs {
+		i.addDef(v)
+	}
 	return
 }
 
@@ -70,12 +73,12 @@ func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []strin
 	
 	switch e := t.(type) {
 	case *ast.Ident:
-		r.Type = parseType(i.file, e)
+		r.Type = parseType(i.file, "", e)
 	case *ast.SelectorExpr:
 		
 		//pkgName := e.X.(*ast.Ident).String()
 		//typ := e.Sel.Name
-		r.Type = parseType(i.file, e) // TODO
+		r.Type = parseType(i.file, "", e) // TODO
 		//r.Type = &Type{Name: fmt.Sprintf("%s.%s", pkgName, typ)}
 		//// 去 Parser 上下文中寻找对应的 Package 进来
 		//imt := file.getImport(pkgName)
@@ -91,14 +94,14 @@ func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []strin
 	case *ast.SliceExpr:
 		// ignore range
 		//r.Type = &Type{Name: "[]" + i.parseParam(mod, pkg, file, names, e.X).Type.Name}
-		r.Type = parseType(file, e.X)
+		r.Type = parseType(file, "", e.X)
 	case *ast.ArrayType:
 		// ignore len
 		//r.Type = &Type{Name: "[]" + i.parseParam(mod, pkg, file, names, e.Elt).Type.Name}
-		r.Type = parseType(file, e.Elt)
+		r.Type = parseType(file, "", e.Elt)
 	case *ast.StarExpr:
 		//r.Type = &Type{Name: "*" + i.parseParam(mod, pkg, file, names, e.X).Type.Name}
-		r.Type = parseType(file, e.X)
+		r.Type = parseType(file, "", e.X)
 	case *ast.FuncType:
 		// TODO
 	case *ast.MapType:

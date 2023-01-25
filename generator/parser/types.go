@@ -28,6 +28,14 @@ type Type struct {
 	Elem         *Type   `json:"elem,omitempty"`
 	Tags         string  `json:"tags,omitempty"`
 	Def          *Type   `json:"def,omitempty"`
+	Field        string  `json:"field,omitempty"`
+}
+
+func (t *Type) RealType() *Type {
+	if t.Def == nil {
+		return t
+	}
+	return t.Def.RealType()
 }
 
 func (t Type) String() string {

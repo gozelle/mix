@@ -129,6 +129,7 @@ func (p *Package) AddExternalNalDef(def *Def) {
 		return
 	}
 	d := def.ShallowFork()
+	d.Used = true
 	t := p.getDef(d.Name)
 	if t != nil {
 		if p.DefsCount == nil {

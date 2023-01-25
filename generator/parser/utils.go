@@ -14,11 +14,12 @@ func parseNames(idents []*ast.Ident) []string {
 	return names
 }
 
-func parseType(f *File, t ast.Expr) (r *Type) {
+func parseType(f *File, field string, t ast.Expr) (r *Type) {
 	
+	r = &Type{Field: field}
 	switch e := t.(type) {
 	case *ast.Ident:
-		r = &Type{Name: e.Name}
+		r.Name = e.Name
 		if !isReserved(r.Name) {
 			//r.Type.Pkg = f.pkg
 			log.Infof("填充自定义类型: %s", r.Name)
@@ -29,29 +30,34 @@ func parseType(f *File, t ast.Expr) (r *Type) {
 			def.Used = true
 		}
 	case *ast.InterfaceType:
-		r = &Type{Name: "any"}
+		r.Name = "any"
 	case *ast.StructType:
-		r = &Type{Name: "struct"}
-		for _, field := range e.Fields.List {
-			st := parseType(f, field.Type)
-			if field.Tag != nil {
-				st.Tags = field.Tag.Value
+		r.Name = "struct"
+		for i, fd := range e.Fields.List {
+			var fn string
+			if len(fd.Names) == 0 {
+				fn = fmt.Sprintf("field%d", i)
+			} else {
+				fn = fd.Names[0].Name
 			}
-			
+			st := parseType(f, fn, fd.Type)
+			if fd.Tag != nil {
+				st.Tags = fd.Tag.Value
+			}
 			r.StructFields = append(r.StructFields, st)
 		}
 	case *ast.SliceExpr:
 		// ignore range
-		r = &Type{Name: "[]"}
-		r.Elem = parseType(f, e.X)
+		r.Name = "[]"
+		r.Elem = parseType(f, "", e.X)
 	case *ast.ArrayType:
 		// ignore len
-		r = &Type{Name: "[]"}
-		r.Elem = parseType(f, e.Elt)
+		r.Name = "[]"
+		r.Elem = parseType(f, "", e.Elt)
 	case *ast.SelectorExpr:
 		pkgName := e.X.(*ast.Ident).String()
 		typeName := e.Sel.Name
-		r = &Type{Name: fmt.Sprintf("%s.%s", pkgName, typeName)}
+		r.Name = fmt.Sprintf("%s.%s", pkgName, typeName)
 		imt := f.getImport(pkgName)
 		if imt == nil {
 			log.Infof("import file path: %s", f.path)
@@ -70,14 +76,15 @@ func parseType(f *File, t ast.Expr) (r *Type) {
 		}
 		def.Used = true
 		if def.ToString {
-			r.Def = &Type{Name: "string"}
+			r.Def = &Type{Name: "string", Field: field}
 		} else {
-			r.Def = parseType(def.File, def.Expr)
+			r.Def = parseType(def.File, field, def.Expr)
 			f.pkg.AddExternalNalDef(def)
 		}
 	
 	case *ast.StarExpr:
-		r = &Type{Pointer: true, Elem: parseType(f, e.X)}
+		r.Pointer = true
+		r.Elem = parseType(f, "", e.X)
 	case *ast.MapType:
 		// TODO
 	case *ast.FuncType:

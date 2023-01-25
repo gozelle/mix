@@ -37,11 +37,17 @@ type Method struct {
 	Results string
 }
 
+type Param struct {
+	Names []string
+	Type  string
+}
+
 type Def struct {
-	Name         string
-	Type         string
-	StructFields []*Def
-	Elem         *Def
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	StructFields []*Def `json:"struct_fields,omitempty"`
+	Elem         *Def   `json:"elem,omitempty"`
+	Tags         string `json:"tags,omitempty"`
 }
 
 type Package struct {

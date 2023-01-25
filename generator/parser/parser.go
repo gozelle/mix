@@ -20,7 +20,7 @@ func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 		if !v.Used {
 			continue
 		}
-		v.Type = parseType(v.File, v.Expr)
+		v.Type = parseType(v.File, "", v.Expr)
 	}
 	
 	for name, v := range pkg.Defs {
