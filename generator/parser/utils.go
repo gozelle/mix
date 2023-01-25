@@ -76,14 +76,18 @@ func parseType(f *File, t ast.Expr) (r *Type) {
 		if imt.Package == nil {
 			panic(fmt.Errorf("import: %s Package is nil in: %s", pkgName, f.path))
 		}
-		log.Infof("包变量: %s : %s(%s)", r.Name, imt.Package.Name, imt.Path)
+		
 		def := imt.Package.getDef(typeName)
 		if def == nil {
 			panic(fmt.Errorf("package: %s type %s def is nil in: %s", pkgName, typeName, f.path))
 		}
 		def.Used = true
-		// TODO 思考子包结构如何映射到 Package 中
-		r.Def = parseType(def.File, def.Expr)
+		if def.ToString {
+			r.Def = &Type{Name: "string"}
+		} else {
+			// TODO 思考子包结构如何映射到 Package 中
+			r.Def = parseType(def.File, def.Expr)
+		}
 	
 	case *ast.StarExpr:
 		r = &Type{Pointer: true, Elem: parseType(f, e.X)}

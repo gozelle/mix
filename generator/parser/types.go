@@ -63,11 +63,12 @@ type Param struct {
 }
 
 type Def struct {
-	Name string   `json:"name"`
-	Used bool     `json:"used"`
-	Expr ast.Expr `json:"-"`
-	File *File    `json:"-"`
-	Type *Type    `json:"type,omitempty"`
+	Name     string   `json:"name"`
+	Used     bool     `json:"used,omitempty"`
+	Expr     ast.Expr `json:"-"`
+	File     *File    `json:"-"`
+	Type     *Type    `json:"type,omitempty"`
+	ToString bool     `json:"toString,omitempty"`
 }
 
 func (d Def) String() string {

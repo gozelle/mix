@@ -16,7 +16,23 @@ type Package struct {
 	Path       string
 	Interfaces map[string]*Interface
 	Defs       map[string]*Def
+	Stringers  map[string]bool
 	Files      []*File
+}
+
+func (p *Package) markStringer(t string) {
+	if p.Stringers == nil {
+		p.Stringers = map[string]bool{}
+	}
+	p.Stringers[t] = true
+}
+
+func (p *Package) isStringer(t string) bool {
+	if p.Stringers == nil {
+		return false
+	}
+	_, ok := p.Stringers[t]
+	return ok
 }
 
 func (p *Package) getDef(name string) *Def {
@@ -96,6 +112,12 @@ func (p *Package) load(mod *Mod, dir string) error {
 	p.Name, err = mod.GetPackageRealName(p.Path)
 	if err != nil {
 		return err
+	}
+	
+	for _, v := range p.Defs {
+		if p.isStringer(v.Name) {
+			v.ToString = true
+		}
 	}
 	
 	return nil

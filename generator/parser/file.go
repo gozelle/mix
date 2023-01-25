@@ -31,13 +31,48 @@ func (f *File) addImport(item *Import) {
 	f.Imports[item.Alias] = item
 }
 
+func (f *File) markToStringDef(node ast.Node) {
+	d, ok := node.(*ast.FuncDecl)
+	if !ok {
+		return
+	}
+	if d.Recv == nil {
+		return
+	}
+	if d.Recv.NumFields() == 0 {
+		return
+	}
+	
+	if d.Type.Results == nil {
+		return
+	}
+	if d.Type.Results.NumFields() != 1 {
+		return
+	}
+	s, ok := d.Type.Results.List[0].Type.(*ast.Ident)
+	if !ok {
+		return
+	}
+	if s.Name != "string" {
+		return
+	}
+	
+	i, ok := d.Recv.List[0].Type.(*ast.Ident)
+	if !ok {
+		return
+	}
+	
+	f.pkg.markStringer(i.String())
+}
+
 func (f *File) Visit(node ast.Node) ast.Visitor {
+	
+	f.markToStringDef(node)
 	
 	s, ok := node.(*ast.TypeSpec)
 	if !ok {
 		return f
 	}
-	
 	switch t := s.Type.(type) {
 	case *ast.InterfaceType:
 		f.pkg.addInterface(s.Name.String(), &Interface{Name: s.Name.String(), interfaceType: t, file: f})
@@ -56,6 +91,7 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 		*ast.SelectorExpr,
 		*ast.ChanType:
 		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type})
+	
 	default:
 		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))
 	}
@@ -74,9 +110,6 @@ func (f *File) load(file string) (err error) {
 	for _, i := range af.Imports {
 		
 		v := f.parseImport(i)
-		if f.path == "/Users/kun/.go/current/pkg/mod/github.com/shopspring/decimal@v1.3.1/decimal.go" {
-			log.Debugf("parseImport33: alias: %s => %s", v.Alias, i.Path.Value)
-		}
 		f.addImport(v)
 	}
 	// parse file use Visit
