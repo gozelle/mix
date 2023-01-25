@@ -43,7 +43,7 @@ type Param struct {
 }
 
 type Def struct {
-	Name         string `json:"name"`
+	Name         string `json:"name,omitempty"`
 	Type         string `json:"type"`
 	StructFields []*Def `json:"struct_fields,omitempty"`
 	Elem         *Def   `json:"elem,omitempty"`

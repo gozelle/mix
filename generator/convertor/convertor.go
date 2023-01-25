@@ -33,10 +33,10 @@ func ToGolangInterface(i *parser.Interface) *golang.Interface {
 		}
 		d := convertDef(v)
 		r.Defs = append(r.Defs, d)
-		fmt.Printf("=============== Def: %s  ===============\n", v.Name)
+		fmt.Printf("===============Start Def: %s  ===============\n", v.Name)
 		dd, _ := json.MarshalIndent(d, "", "\t")
 		fmt.Println(string(dd))
-		fmt.Printf("=============== Def: %s ===============\n", v.Name)
+		fmt.Printf("===============End Def: %s ===============\n", v.Name)
 	}
 	
 	for _, v := range i.Methods {
@@ -57,21 +57,23 @@ func convertDef(d *parser.Def) *golang.Def {
 	
 	if n.Type == "struct" {
 		for _, v := range rt.StructFields {
-			log.Infof("转换 name: %s, field: %s, type: %s", d.Name, v.Name, v.RealType().Name)
-			n.StructFields = append(n.StructFields, convertType(v))
+			n.StructFields = append(n.StructFields, convertType(v.Field, v))
 		}
 	} else if n.Type == "[]" {
-		n.Elem = convertType(rt.Elem)
+		n.Elem = convertType(rt.Elem.Field, rt.Elem)
 	}
 	
 	return n
 }
 
-func convertType(t *parser.Type) *golang.Def {
+func convertType(name string, t *parser.Type) *golang.Def {
 	n := &golang.Def{
-		Name: t.RealType().Field,
+		Name: name,
 		Type: t.RealType().Name,
 		Tags: t.Tags,
+	}
+	if n.Type == "[]" {
+		n.Elem = convertType(t.Elem.Field, t.Elem)
 	}
 	
 	return n

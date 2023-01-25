@@ -21,13 +21,13 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 	case *ast.Ident:
 		r.Name = e.Name
 		if !isReserved(r.Name) {
-			//r.Type.Pkg = f.pkg
 			log.Infof("填充自定义类型: %s", r.Name)
 			def := f.pkg.getDef(r.Name)
 			if def == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Name, f.path))
 			}
 			def.Used = true
+			r.Def = def.Type
 		}
 	case *ast.InterfaceType:
 		r.Name = "any"

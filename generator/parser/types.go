@@ -31,6 +31,29 @@ type Type struct {
 	Field        string  `json:"field,omitempty"`
 }
 
+func (t Type) Fork() *Type {
+	n := &Type{
+		Name:         t.Name,
+		ToString:     t.ToString,
+		Pointer:      t.Pointer,
+		StructFields: nil,
+		Elem:         nil,
+		Tags:         t.Tags,
+		Def:          nil,
+		Field:        t.Field,
+	}
+	for _, v := range t.StructFields {
+		n.StructFields = append(n.StructFields, v.Fork())
+	}
+	if t.Elem != nil {
+		n.Elem = t.Elem.Fork()
+	}
+	if t.Def != nil {
+		n.Def = t.Def.Fork()
+	}
+	return n
+}
+
 func (t *Type) RealType() *Type {
 	if t.Def == nil {
 		return t
