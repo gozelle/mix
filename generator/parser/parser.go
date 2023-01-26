@@ -17,10 +17,10 @@ func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 		}
 	}
 	
-	for name, v := range pkg.defs {
-		log.Infof("def: %s  => %s", name, v.String())
-		//}
-	}
+	//for name, v := range pkg.defs {
+	//log.Infof("def: %s  => %s", name, v.String())
+	//}
+	//}
 	
 	return
 }

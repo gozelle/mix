@@ -94,6 +94,24 @@ func (t Type) Json() string {
 	return ""
 }
 
+func handleTypeDef(pkg *Package, field string, r *Type, name string) *Def {
+	def := pkg.GetDef(name)
+	if def == nil {
+		return nil
+	}
+	def.Used = true
+	if def.Type == nil {
+		def.Type = parseType(def.File, "", def.Expr)
+	}
+	if def.ToString {
+		r.Real = &Type{Type: TString, Field: field}
+	} else {
+		r.Def = def
+		r.Real = def.Type
+	}
+	return def
+}
+
 func parseType(f *File, field string, t ast.Expr) (r *Type) {
 	
 	r = &Type{Field: field}
@@ -101,21 +119,10 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 	case *ast.Ident:
 		r.Type = e.Name
 		if !isReserved(r.Type) {
-			def := f.pkg.GetDef(r.Type)
+			def := handleTypeDef(f.pkg, field, r, r.Type)
 			if def == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Type, f.path))
 			}
-			def.Used = true
-			if def.Type == nil {
-				def.Type = parseType(def.File, "", def.Expr)
-			}
-			r.Def = def
-			r.Real = def.Type
-			//log.Infof("填充自定义类型: %s", r.Name)
-			//spew.Json(r)
-			//spew.Json(def)
-		} else {
-			//r.Reserved = true
 		}
 	case *ast.InterfaceType:
 		r.Type = TAny
@@ -158,16 +165,11 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 			panic(fmt.Errorf("import: %s Package is nil in: %s", pkgName, f.path))
 		}
 		
-		def := imt.Package.GetDef(typeName)
+		def := handleTypeDef(imt.Package, field, r, typeName)
 		if def == nil {
 			panic(fmt.Errorf("package: %s type %s def is nil in: %s", pkgName, typeName, f.path))
 		}
-		def.Used = true
-		r.Def = def
-		if def.ToString {
-			r.Real = &Type{Type: TString, Field: field}
-		} else {
-			r.Real = parseType(def.File, field, def.Expr)
+		if !def.ToString {
 			f.pkg.AddExternalNalDef(def)
 		}
 	case *ast.StarExpr:

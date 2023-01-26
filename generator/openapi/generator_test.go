@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"github.com/gozelle/fastjson"
 	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/generator/parser"
 	"github.com/gozelle/testify/require"
@@ -27,7 +28,14 @@ func TestParser(t *testing.T) {
 	d, err := v3.MarshalJSON()
 	require.NoError(t, err)
 	
-	t.Log(string(d))
+	tp, err := fs.Lookup("./generator/tests/openapi.json")
+	require.NoError(t, err)
+	
+	td, err := fs.Read(tp)
+	require.NoError(t, err)
+	
+	err = fastjson.EqualsBytes(td, d)
+	require.NoError(t, err)
 	
 	//t.Log(r.String())
 	//files, err := g.Generate(i)
