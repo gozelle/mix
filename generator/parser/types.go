@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/json"
-	"github.com/gozelle/spew"
 	"go/ast"
 	"strings"
 )
@@ -22,7 +21,6 @@ type Method struct {
 func (m Method) ExportParams() []*Param {
 	var n []*Param
 	for _, v := range m.Params {
-		spew.Dump(v)
 		if !v.Type.IsContext() {
 			n = append(n, v)
 		}
@@ -101,7 +99,7 @@ func (t Type) IsString() bool {
 }
 
 func (t Type) IsStruct() bool {
-	return t.Name == "struct" || !t.Reserved
+	return t.Name == "struct"
 }
 
 func (t Type) IsArray() bool {
@@ -120,16 +118,16 @@ func (t Type) IsError() bool {
 type Param struct {
 	Names []string
 	Type  *Type
-	Def   *Def
+	Def   *Def `json:"Def,omitempty"`
 }
 
 type Def struct {
-	Name     string   `json:"name"`
-	Used     bool     `json:"used,omitempty"`
+	Name     string   `json:"Name"`
+	Used     bool     `json:"Used,omitempty"`
 	Expr     ast.Expr `json:"-"`
 	File     *File    `json:"-"`
-	Type     *Type    `json:"type,omitempty"`
-	ToString bool     `json:"toString,omitempty"`
+	Type     *Type    `json:"Type,omitempty"`
+	ToString bool     `json:"ToString,omitempty"`
 }
 
 func (d Def) ShallowFork() *Def {

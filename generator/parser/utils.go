@@ -83,7 +83,6 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 			r.Def = parseType(def.File, field, def.Expr)
 			f.pkg.AddExternalNalDef(def)
 		}
-	
 	case *ast.StarExpr:
 		r.Pointer = true
 		r.Def = parseType(f, "", e.X)

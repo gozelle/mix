@@ -110,6 +110,8 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	} else {
 		request = nil
 	}
+	//log.Infof("request.Name: %s %v", request.Name, len(params) == 1 && params[0].Type.IsStruct())
+	//log.Infof("params[0]: %s", params[0].Type.String())
 	
 	results := m.ExportResults()
 	if len(results) > 0 && results[0].Type.IsStruct() {
@@ -138,12 +140,13 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 
 func convertMethodParam(p *parser.Param) []*golang.Def {
 	r := make([]*golang.Def, 0)
+	//log.Infof("convertMethodParam: %v", p.Names)
+	//spew.Json(p)
 	for _, v := range p.Names {
-		r = append(r, &golang.Def{
-			Name: Title(v),
-			Json: v,
-			Type: p.Type.Name,
-		})
+		d := convertType(Title(v), p.Type)
+		d.Name = Title(v)
+		d.Json = v
+		r = append(r, d)
 	}
 	return r
 }

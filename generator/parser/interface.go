@@ -3,7 +3,6 @@ package parser
 import (
 	"fmt"
 	"go/ast"
-	"reflect"
 )
 
 type Interface struct {
@@ -24,7 +23,7 @@ func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
 		case *ast.Ident:
 		// TODO parse include
 		case *ast.FuncType:
-			i.Methods = append(i.Methods, i.parseMethod(mod, pkg, file, m.Names[0].Name, mt))
+			i.Methods = append(i.Methods, i.parseMethod(file, m.Names[0].Name, mt))
 		}
 	}
 	for _, v := range pkg.Defs {
@@ -33,18 +32,26 @@ func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
 	return
 }
 
-func (i *Interface) parseMethod(mod *Mod, pkg *Package, file *File, name string, t *ast.FuncType) (r *Method) {
+func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Method) {
 	r = &Method{Name: name}
 	
 	if t.Params != nil {
-		for _, f := range t.Params.List {
-			r.Params = append(r.Params, i.parseParam(mod, pkg, file, parseNames(f.Names), f.Type))
+		for index, f := range t.Params.List {
+			names := parseNames(f.Names)
+			if len(names) == 0 {
+				names = append(names, fmt.Sprintf("p%d", index))
+			}
+			r.Params = append(r.Params, i.parseParam(file, names, f.Type))
 		}
 	}
 	
 	if t.Results != nil {
-		for _, f := range t.Results.List {
-			r.Results = append(r.Results, i.parseParam(mod, pkg, file, parseNames(f.Names), f.Type))
+		for index, f := range t.Results.List {
+			names := parseNames(f.Names)
+			if len(names) == 0 {
+				names = append(names, fmt.Sprintf("r%d", index))
+			}
+			r.Results = append(r.Results, i.parseParam(file, names, f.Type))
 		}
 	}
 	return
@@ -61,56 +68,17 @@ func (i *Interface) addDef(t *Def) {
 	i.Defs = append(i.Defs, t)
 }
 
-func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []string, t ast.Expr) (r *Param) {
+func (i *Interface) parseParam(f *File, names []string, t ast.Expr) (r *Param) {
 	
 	r = &Param{
 		Names: names,
 	}
 	
-	//defer func() {
-	//	log.Infof("param: %v Type: %s", r.Names, r.Type)
-	//}()
+	defer func() {
+		log.Infof("param: %v Type: %s", r.Names, r.Type)
+	}()
 	
-	switch e := t.(type) {
-	case *ast.Ident:
-		r.Type = parseType(i.file, "", e)
-	case *ast.SelectorExpr:
-		
-		//pkgName := e.X.(*ast.Ident).String()
-		//typ := e.Sel.Name
-		r.Type = parseType(i.file, "", e) // TODO
-		//r.Type = &Type{Name: fmt.Sprintf("%s.%s", pkgName, typ)}
-		//// 去 Parser 上下文中寻找对应的 Package 进来
-		//imt := file.getImport(pkgName)
-		//
-		//if imt != nil {
-		//	i.addImport(imt)
-		//	//r.Pkg = imt.Package
-		//} else {
-		//	//dd, _ := json.MarshalIndent(file.Imports, "", "\t")
-		//	//fmt.Println(string(dd))
-		//	panic(fmt.Errorf("can't found import package: %s in %s", pkgName, i.file.path))
-		//}
-	case *ast.SliceExpr:
-		// ignore range
-		//r.Type = &Type{Name: "[]" + i.parseParam(mod, pkg, file, names, e.X).Type.Name}
-		r.Type = parseType(file, "", e.X)
-	case *ast.ArrayType:
-		// ignore len
-		//r.Type = &Type{Name: "[]" + i.parseParam(mod, pkg, file, names, e.Elt).Type.Name}
-		r.Type = parseType(file, "", e.Elt)
-	case *ast.StarExpr:
-		//r.Type = &Type{Name: "*" + i.parseParam(mod, pkg, file, names, e.X).Type.Name}
-		r.Type = parseType(file, "", e.X)
-	case *ast.FuncType:
-		// TODO
-	case *ast.MapType:
-		r.Type = parseType(file, "", e.Value)
-	case *ast.ChanType:
-		// TODO
-	default:
-		panic(fmt.Errorf("unknown type: %s", reflect.TypeOf(e)))
-	}
+	r.Type = parseType(f, "", t)
 	
 	return
 }

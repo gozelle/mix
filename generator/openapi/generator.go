@@ -181,6 +181,10 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref strin
 }
 
 func (g Generator) makeContent(d *DocumentV3, def *golang.Def) openapi3.Content {
+	
+	log.Infof("content golang def: %s", def.Name)
+	spew.Json(def)
+	
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
 	c[application_json] = &openapi3.MediaType{
 		Extensions: nil,
@@ -204,7 +208,11 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 	if def.Type == "struct" {
 		s.Value.Properties = map[string]*openapi3.SchemaRef{}
 		for _, v := range def.StructFields {
-			s.Value.Properties[v.Name] = g.makeSchemaRef(d, v)
+			name := v.Name
+			if v.Json != "" {
+				name = v.Json
+			}
+			s.Value.Properties[name] = g.makeSchemaRef(d, v)
 		}
 	} else if def.Type == "[]" {
 		s.Value.Items = g.makeSchemaRef(d, def.Elem)
