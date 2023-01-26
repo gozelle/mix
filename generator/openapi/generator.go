@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"github.com/gozelle/logging"
 	"github.com/gozelle/mix/generator"
-	"github.com/gozelle/mix/generator/convertor"
-	"github.com/gozelle/mix/generator/langs/golang"
 	"github.com/gozelle/mix/generator/parser"
+	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/openapi/openapi3"
 	"github.com/gozelle/pointer"
 	"github.com/gozelle/spew"
@@ -37,7 +36,7 @@ func (g Generator) TOOpenapiV3(i *parser.Interface) *DocumentV3 {
 		Version:        "",
 	}
 	
-	r := convertor.ToGolangInterface(i)
+	r := render.ToGolangInterface(i)
 	
 	for _, v := range r.Methods {
 		g.convertMethods(d, v)
@@ -50,13 +49,13 @@ func (g Generator) TOOpenapiV3(i *parser.Interface) *DocumentV3 {
 		d.Components.Schemas = map[string]*openapi3.SchemaRef{}
 	}
 	for _, v := range r.Defs {
-		d.Components.Schemas[v.Name] = g.makeSchemaRef(d, v)
+		d.Components.Schemas[v.Field] = g.makeSchemaRef(d, v)
 	}
 	
 	return d
 }
 
-func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
+func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
 	if d.Paths == nil {
 		d.Paths = map[string]*openapi3.PathItem{}
 	}
@@ -74,8 +73,8 @@ func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
 		},
 	}
 	if m.Request != nil {
-		log.Infof("Request: %s", m.Request.Name)
-		if m.Request.Name == "IntStructRequest" {
+		log.Infof("Request: %s", m.Request.Field)
+		if m.Request.Field == "IntStructRequest" {
 			spew.Json(m.Request)
 		}
 		item.Post.RequestBody = &openapi3.RequestBodyRef{
@@ -112,7 +111,7 @@ func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
 	d.Paths[fmt.Sprintf("/%s", m.Name)] = item
 }
 
-func (g Generator) makeMethodParameterRef(d *DocumentV3, def *golang.Def) (ref string) {
+func (g Generator) makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -121,31 +120,31 @@ func (g Generator) makeMethodParameterRef(d *DocumentV3, def *golang.Def) (ref s
 	}
 	
 	if def.Concat {
-		d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
+		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Required: false,
 				Content:  g.makeContent(d, def),
 			},
 		}
 	} else {
-		d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
+		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Required: false,
 				Content: openapi3.Content{
 					application_json: &openapi3.MediaType{
 						Schema: &openapi3.SchemaRef{
-							Ref: fmt.Sprintf("#/components/schemas/%s", def.Name),
+							Ref: fmt.Sprintf("#/components/schemas/%s", def.Field),
 						},
 					},
 				},
 			},
 		}
 	}
-	ref = fmt.Sprintf("#/components/requestBodies/%s", def.Name)
+	ref = fmt.Sprintf("#/components/requestBodies/%s", def.Field)
 	return
 }
 
-func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref string) {
+func (g Generator) makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -153,7 +152,7 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref strin
 		d.Components.Responses = map[string]*openapi3.ResponseRef{}
 	}
 	if def.Concat {
-		d.Components.Responses[def.Name] = &openapi3.ResponseRef{
+		d.Components.Responses[def.Field] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
 				Description: pointer.ToString(""),
 				Headers:     nil,
@@ -161,28 +160,28 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref strin
 			},
 		}
 	} else {
-		d.Components.Responses[def.Name] = &openapi3.ResponseRef{
+		d.Components.Responses[def.Field] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
 				Description: pointer.ToString(""),
 				Headers:     nil,
 				Content: openapi3.Content{
 					application_json: &openapi3.MediaType{
 						Schema: &openapi3.SchemaRef{
-							Ref: fmt.Sprintf("#/components/schemas/%s", def.Name),
+							Ref: fmt.Sprintf("#/components/schemas/%s", def.Field),
 						},
 					},
 				},
 			},
 		}
 	}
-	ref = fmt.Sprintf("#/components/responses/%s", def.Name)
+	ref = fmt.Sprintf("#/components/responses/%s", def.Field)
 	
 	return
 }
 
-func (g Generator) makeContent(d *DocumentV3, def *golang.Def) openapi3.Content {
+func (g Generator) makeContent(d *DocumentV3, def *render.Def) openapi3.Content {
 	
-	log.Infof("content golang def: %s", def.Name)
+	log.Infof("content golang def: %s", def.Field)
 	spew.Json(def)
 	
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
@@ -193,7 +192,7 @@ func (g Generator) makeContent(d *DocumentV3, def *golang.Def) openapi3.Content 
 	return c
 }
 
-func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.SchemaRef) {
+func (g Generator) makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
 	
 	if def == nil { // TODO should remove
 		return
@@ -208,7 +207,7 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 	if def.Type == "struct" {
 		s.Value.Properties = map[string]*openapi3.SchemaRef{}
 		for _, v := range def.StructFields {
-			name := v.Name
+			name := v.Field
 			if v.Json != "" {
 				name = v.Json
 			}
@@ -266,14 +265,14 @@ func (g Generator) convertType(t string) string {
 	}
 	
 	switch t {
-	case golang.String:
+	case render.String:
 		return "string"
-	case golang.Int, golang.Int8, golang.Int16, golang.Int32, golang.Int64,
-		golang.Uint, golang.Uint8, golang.Uint16, golang.Uint32, golang.Uint64:
+	case render.Int, render.Int8, render.Int16, render.Int32, render.Int64,
+		render.Uint, render.Uint8, render.Uint16, render.Uint32, render.Uint64:
 		return "integer"
-	case golang.Float32, golang.Float64:
+	case render.Float32, render.Float64:
 		return "number"
-	case golang.Bool:
+	case render.Bool:
 		return "boolean"
 	}
 	

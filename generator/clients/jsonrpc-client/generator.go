@@ -3,8 +3,8 @@ package jsonrpc_client
 import (
 	"github.com/fatih/structs"
 	"github.com/gozelle/mix/generator"
-	"github.com/gozelle/mix/generator/convertor"
 	"github.com/gozelle/mix/generator/parser"
+	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/pongo2"
 )
 
@@ -25,7 +25,7 @@ func renderMethod(i *parser.Interface) (file *generator.File, err error) {
 	if err != nil {
 		panic(err)
 	}
-	d := convertor.ToGolangInterface(i)
+	d := render.ToGolangInterface(i)
 	d.Package = "rpc"
 	m := structs.Map(d)
 	out, err := t.Execute(m)

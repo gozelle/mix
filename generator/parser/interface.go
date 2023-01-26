@@ -17,7 +17,7 @@ type Interface struct {
 	file          *File
 }
 
-func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
+func (i *Interface) Load(pkg *Package, file *File) (err error) {
 	for _, m := range i.interfaceType.Methods.List {
 		switch mt := m.Type.(type) {
 		case *ast.Ident:
@@ -26,7 +26,7 @@ func (i *Interface) load(mod *Mod, pkg *Package, file *File) (err error) {
 			i.Methods = append(i.Methods, i.parseMethod(file, m.Names[0].Name, mt))
 		}
 	}
-	for _, v := range pkg.Defs {
+	for _, v := range pkg.defs {
 		i.addDef(v)
 	}
 	return
@@ -37,7 +37,7 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 	
 	if t.Params != nil {
 		for index, f := range t.Params.List {
-			names := parseNames(f.Names)
+			names := i.parseNames(f.Names)
 			if len(names) == 0 {
 				names = append(names, fmt.Sprintf("p%d", index))
 			}
@@ -47,7 +47,7 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 	
 	if t.Results != nil {
 		for index, f := range t.Results.List {
-			names := parseNames(f.Names)
+			names := i.parseNames(f.Names)
 			if len(names) == 0 {
 				names = append(names, fmt.Sprintf("r%d", index))
 			}
@@ -74,9 +74,9 @@ func (i *Interface) parseParam(f *File, names []string, t ast.Expr) (r *Param) {
 		Names: names,
 	}
 	
-	defer func() {
-		log.Infof("param: %v Type: %s", r.Names, r.Type)
-	}()
+	//defer func() {
+	//	log.Infof("param: %v Type: %s", r.Names, r.Type)
+	//}()
 	
 	r.Type = parseType(f, "", t)
 	
@@ -94,28 +94,10 @@ func (i *Interface) addImport(imt *Import) {
 	i.Imports = append(i.Imports, imt)
 }
 
-func isReserved(t string) bool {
-	switch t {
-	case "int",
-		"int8",
-		"int16",
-		"int32",
-		"int64",
-		"uint",
-		"uint8",
-		"uint16",
-		"uint32",
-		"uint64",
-		"float32",
-		"float64",
-		"string",
-		"bool",
-		"byte",
-		"rune",
-		"uintptr",
-		"any",
-		"error":
-		return true
+func (i Interface) parseNames(idents []*ast.Ident) []string {
+	names := make([]string, 0)
+	for _, i := range idents {
+		names = append(names, i.Name)
 	}
-	return false
+	return names
 }

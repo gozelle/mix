@@ -99,7 +99,7 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 	return f
 }
 
-func (f *File) load(file string) (err error) {
+func (f *File) parse(file string) (err error) {
 	//log.Debugf("load file: %s", file)
 	set := token.NewFileSet()
 	af, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
@@ -108,10 +108,10 @@ func (f *File) load(file string) (err error) {
 	}
 	
 	for _, i := range af.Imports {
-		
 		v := f.parseImport(i)
 		f.addImport(v)
 	}
+	
 	// parse file use Visit
 	ast.Walk(f, af)
 	
@@ -160,7 +160,7 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 		f.mod.cachePackage(realPath, r.Package)
 	}()
 	
-	err = r.Package.load(f.mod, realPath)
+	err = r.Package.Parse(f.mod, realPath)
 	if err != nil {
 		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
 	}
