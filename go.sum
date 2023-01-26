@@ -71,8 +71,6 @@ github.com/gozelle/check v1.0.0/go.mod h1:t4gM11iaDT1dmzBqm2uBf9WZJ8XaCQ55gi5/BC
 github.com/gozelle/clock v1.3.0 h1:xfRJ4MbwWHqJxAXX7ZnVQI0Z3ilJzZo5cndOgHcE+ko=
 github.com/gozelle/cobra v1.6.1 h1:ZfljY+Ee3Fejq2ySBN8zxYGrLdcERjv1/Ed2/gNxf7M=
 github.com/gozelle/cobra v1.6.1/go.mod h1:tSCvXmS97dyGiTdsQedjsQqcLzgUo95bympGEqWAm0U=
-github.com/gozelle/fs v0.0.0-20230111033557-efba04455aa0 h1:2np3AKjRsQuip4hLNxyeG4mXdRBgfuajIhqNVRiz9s0=
-github.com/gozelle/fs v0.0.0-20230111033557-efba04455aa0/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
 github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c h1:A1Be+2ThW1hS/l+5VmH0wZudOhA/XWmbahA1YYOFGts=
 github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
 github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9 h1:cniqpd+RC8mXijVrDtMiConDvxG46WtED3LvKmILOwc=
@@ -104,6 +102,8 @@ github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621/go.mod h1:Pd1g/mV3Z
 github.com/gozelle/pretty v0.3.1 h1:dtU7yIlzRqiMmB9TcunypDfvAC/QOP0K8y/BKKOrgRg=
 github.com/gozelle/pretty v0.3.1/go.mod h1:F2wDK3wv6aq2Bf70Xuu0ltUWRFZC01f0sb7OQLHtI3c=
 github.com/gozelle/pty v1.1.18/go.mod h1:SfI1d649o2MwHyGTx3gtCqh2AuntxoqVvXU0C5uIWII=
+github.com/gozelle/spew v1.1.13 h1:LPEF8VvvTUCCp0gse15oe3QzYZbaSMmk8OuGJ4xuvXU=
+github.com/gozelle/spew v1.1.13/go.mod h1:qKgQqwPZNKAqYnh02N0yfi/Cx2+CochxaipvXfwLCJ4=
 github.com/gozelle/testify v1.8.11 h1:HDi4d07tDlTLfAc1ie9yR/ZBr3r4HR9866GA5uHSwdA=
 github.com/gozelle/testify v1.8.11/go.mod h1:vYSBvyNev2JwOWCafPzpqdL3xuxy79bECwKkP5a7Y1c=
 github.com/gozelle/text v0.2.0 h1:p0p6mIm1aD0lDN798Pfx9T0itU8O/iUoauFvPUtV6Gw=

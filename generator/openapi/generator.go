@@ -2,14 +2,17 @@ package openapi
 
 import (
 	"fmt"
+	"github.com/gozelle/logging"
 	"github.com/gozelle/mix/generator"
 	"github.com/gozelle/mix/generator/convertor"
 	"github.com/gozelle/mix/generator/langs/golang"
 	"github.com/gozelle/mix/generator/parser"
-	"github.com/gozelle/pointer"
-	
 	"github.com/gozelle/openapi/openapi3"
+	"github.com/gozelle/pointer"
+	"github.com/gozelle/spew"
 )
+
+var log = logging.Logger("openapi")
 
 var _ generator.Generator = (*Generator)(nil)
 
@@ -71,6 +74,10 @@ func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
 		},
 	}
 	if m.Request != nil {
+		log.Infof("Request: %s", m.Request.Name)
+		if m.Request.Name == "IntStructRequest" {
+			spew.Json(m.Request)
+		}
 		item.Post.RequestBody = &openapi3.RequestBodyRef{
 			Ref: g.makeMethodParameterRef(d, m.Request),
 			//Value: &openapi3.RequestBody{
@@ -87,12 +94,18 @@ func (g Generator) convertMethods(d *DocumentV3, m *golang.Method) {
 			//},
 		}
 	}
+	if item.Post.Responses == nil {
+		item.Post.Responses = map[string]*openapi3.ResponseRef{}
+	}
 	if m.Replay != nil {
-		if item.Post.Responses == nil {
-			item.Post.Responses = map[string]*openapi3.ResponseRef{}
-		}
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
 			Ref: g.makeMethodReplyRef(d, m.Replay),
+		}
+	} else {
+		item.Post.Responses["200"] = &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Description: pointer.ToString("success"),
+			},
 		}
 	}
 	
@@ -107,11 +120,26 @@ func (g Generator) makeMethodParameterRef(d *DocumentV3, def *golang.Def) (ref s
 		d.Components.RequestBodies = map[string]*openapi3.RequestBodyRef{}
 	}
 	
-	d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
-		Value: &openapi3.RequestBody{
-			Required: false,
-			Content:  g.makeContent(d, def),
-		},
+	if def.Concat {
+		d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
+			Value: &openapi3.RequestBody{
+				Required: false,
+				Content:  g.makeContent(d, def),
+			},
+		}
+	} else {
+		d.Components.RequestBodies[def.Name] = &openapi3.RequestBodyRef{
+			Value: &openapi3.RequestBody{
+				Required: false,
+				Content: openapi3.Content{
+					application_json: &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: fmt.Sprintf("#/components/schemas/%s", def.Name),
+						},
+					},
+				},
+			},
+		}
 	}
 	ref = fmt.Sprintf("#/components/requestBodies/%s", def.Name)
 	return
@@ -124,14 +152,31 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *golang.Def) (ref strin
 	if d.Components.Responses == nil {
 		d.Components.Responses = map[string]*openapi3.ResponseRef{}
 	}
-	d.Components.Responses[def.Name] = &openapi3.ResponseRef{
-		Value: &openapi3.Response{
-			Description: pointer.ToString(""),
-			Headers:     nil,
-			Content:     g.makeContent(d, def),
-		},
+	if def.Concat {
+		d.Components.Responses[def.Name] = &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Description: pointer.ToString(""),
+				Headers:     nil,
+				Content:     g.makeContent(d, def),
+			},
+		}
+	} else {
+		d.Components.Responses[def.Name] = &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Description: pointer.ToString(""),
+				Headers:     nil,
+				Content: openapi3.Content{
+					application_json: &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: fmt.Sprintf("#/components/schemas/%s", def.Name),
+						},
+					},
+				},
+			},
+		}
 	}
 	ref = fmt.Sprintf("#/components/responses/%s", def.Name)
+	
 	return
 }
 

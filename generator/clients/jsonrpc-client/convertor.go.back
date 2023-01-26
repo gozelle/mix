@@ -8,6 +8,7 @@ import (
 	"github.com/gozelle/mix/generator/parser"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"strings"
 )
 
 var log = logging.Logger("convertor")
@@ -89,59 +90,64 @@ func convertType(name string, t *parser.Type) *golang.Def {
 func parseRenderMethod(m *parser.Method) *golang.Method {
 	
 	request := &golang.Def{
-		Name:   fmt.Sprintf("%sRequest", m.Name),
-		Type:   golang.Struct,
-		Concat: true,
+		Name: fmt.Sprintf("%sRequest", m.Name),
+		Type: golang.Struct,
 	}
 	replay := &golang.Def{
-		Name:   fmt.Sprintf("%sReplay", m.Name),
-		Type:   golang.Struct,
-		Concat: true,
+		Name: fmt.Sprintf("%sReplay", m.Name),
+		Type: golang.Struct,
 	}
 	
-	params := m.ExportParams()
-	
-	if len(params) == 1 && params[0].Type.IsStruct() {
-		request = convertType(params[0].Type.Name, params[0].Type)
-	} else if len(params) > 0 {
-		for _, v := range params {
-			request.StructFields = append(request.StructFields, convertMethodParam(v)...)
+	var params []string
+	merge := true
+	for _, v := range m.Params {
+		if v.Type != nil && !v.Type.IsContext() && merge {
+			if v.Type.Name == request.Name {
+				request.Type = v.Type.Name // TODO
+				merge = false
+			} else {
+				request.StructFields = append(request.StructFields, convertMethodParam(v)...)
+			}
+			
 		}
-	} else {
-		request = nil
+		params = append(params, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
-	results := m.ExportResults()
-	if len(results) > 0 && results[0].Type.IsStruct() {
-		replay = convertType(results[0].Type.Name, results[0].Type)
-	} else if len(results) > 0 {
-		for _, v := range results {
-			replay.StructFields = append(replay.StructFields, convertMethodParam(v)...)
+	var results []string
+	merge = true
+	for _, v := range m.Results {
+		if !v.Type.IsError() && merge {
+			if v.Type.Name == request.Name {
+				replay.Type = v.Type.Name
+				merge = false
+			} else {
+				replay.StructFields = append(replay.StructFields, convertMethodParam(v)...)
+			}
 		}
-	} else {
-		replay = nil
+		results = append(results, fmt.Sprintf("%s %s", strings.Join(v.Names, ","), v.Type))
 	}
 	
 	r := &golang.Method{
 		Name:    m.Name,
 		Request: request,
 		Replay:  replay,
-		//Params:  strings.Join(params, ","),
-		//Results: strings.Join(results, ","),
+		Params:  strings.Join(params, ","),
+		Results: strings.Join(results, ","),
 	}
-	//if len(results) > 0 {
-	//	r.Results = fmt.Sprintf("(%s)", r.Results)
-	//}
+	if len(results) > 0 {
+		r.Results = fmt.Sprintf("(%s)", r.Results)
+	}
 	
 	return r
 }
+
+//func convertMethod
 
 func convertMethodParam(p *parser.Param) []*golang.Def {
 	r := make([]*golang.Def, 0)
 	for _, v := range p.Names {
 		r = append(r, &golang.Def{
 			Name: Title(v),
-			Json: v,
 			Type: p.Type.Name,
 		})
 	}

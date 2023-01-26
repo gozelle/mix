@@ -24,7 +24,9 @@ func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 	}
 	
 	for name, v := range pkg.Defs {
-		log.Infof("def: %s  => %s", name, v.String())
+		if v.Used {
+			log.Infof("def: %s  => %s", name, v.String())
+		}
 	}
 	
 	return

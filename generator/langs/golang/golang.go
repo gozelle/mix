@@ -44,10 +44,14 @@ type Param struct {
 
 type Def struct {
 	Name         string `json:"name,omitempty"`
+	Json         string `json:"json,omitempty"`
 	Type         string `json:"type"`
+	Pointer      bool   `json:"pointer,omitempty"`
+	Reserved     bool   `json:"reserved,omitempty"`
 	StructFields []*Def `json:"struct_fields,omitempty"`
 	Elem         *Def   `json:"elem,omitempty"`
 	Tags         string `json:"tags,omitempty"`
+	Concat       bool   `json:"contact"`
 }
 
 type Package struct {

@@ -3,6 +3,7 @@ module github.com/gozelle/mix
 go 1.18
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/structs v1.1.0
 	github.com/gozelle/cobra v1.6.1
 	github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c
@@ -37,6 +38,7 @@ require (
 	github.com/gozelle/isatty v0.0.17 // indirect
 	github.com/gozelle/multierr v1.9.10 // indirect
 	github.com/gozelle/opencensus v0.24.1 // indirect
+	github.com/gozelle/spew v1.1.13 // indirect
 	github.com/gozelle/websocket v1.5.0 // indirect
 	github.com/gozelle/yaml v0.0.0-20221214152138-81b78a92d903 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect

@@ -18,6 +18,26 @@ type Method struct {
 	Results []*Param
 }
 
+func (m Method) ExportParams() []*Param {
+	var n []*Param
+	for _, v := range m.Params {
+		if !v.Type.IsContext() {
+			n = append(n, v)
+		}
+	}
+	return n
+}
+
+func (m Method) ExportResults() []*Param {
+	var n []*Param
+	for _, v := range m.Results {
+		if !v.Type.IsError() {
+			n = append(n, v)
+		}
+	}
+	return n
+}
+
 // func(a string) => Param(a Type{Name: string})
 // func(fil Fil)  => Param(fil Type{Name: Fil, Def: Type{Name: decimal.Decimal, Def;Type{Name: string}}}
 type Type struct {
@@ -29,6 +49,7 @@ type Type struct {
 	Tags         string  `json:"tags,omitempty"`
 	Def          *Type   `json:"def,omitempty"`
 	Field        string  `json:"field,omitempty"`
+	Reserved     bool    `json:"reserved,omitempty"`
 }
 
 func (t Type) Fork() *Type {
@@ -54,6 +75,13 @@ func (t Type) Fork() *Type {
 	return n
 }
 
+func (t *Type) NoPointer() *Type {
+	if t.Pointer {
+		return t.Def.NoPointer()
+	}
+	return t
+}
+
 func (t *Type) RealType() *Type {
 	if t.Def == nil {
 		return t
@@ -71,7 +99,7 @@ func (t Type) IsString() bool {
 }
 
 func (t Type) IsStruct() bool {
-	return t.Name == "struct"
+	return t.Name == "struct" || !t.Reserved
 }
 
 func (t Type) IsArray() bool {

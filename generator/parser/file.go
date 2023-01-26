@@ -160,10 +160,6 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 		f.mod.cachePackage(realPath, r.Package)
 	}()
 	
-	if f.path == "/Users/kun/.go/current/pkg/mod/github.com/shopspring/decimal@v1.3.1/decimal.go" {
-		log.Debugf("parseImport: %s", r.Path)
-	}
-	
 	err = r.Package.load(f.mod, realPath)
 	if err != nil {
 		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))

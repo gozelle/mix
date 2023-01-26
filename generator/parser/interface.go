@@ -67,9 +67,9 @@ func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []strin
 		Names: names,
 	}
 	
-	defer func() {
-		log.Infof("param: %v Type: %s", r.Names, r.Type)
-	}()
+	//defer func() {
+	//	log.Infof("param: %v Type: %s", r.Names, r.Type)
+	//}()
 	
 	switch e := t.(type) {
 	case *ast.Ident:
