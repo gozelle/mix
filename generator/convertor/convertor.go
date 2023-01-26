@@ -6,6 +6,7 @@ import (
 	"github.com/gozelle/logging"
 	"github.com/gozelle/mix/generator/langs/golang"
 	"github.com/gozelle/mix/generator/parser"
+	"github.com/gozelle/spew"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -72,14 +73,16 @@ func convertType(name string, t *parser.Type) *golang.Def {
 		t = t.NoPointer()
 	}
 	
+	rt := t.RealType()
 	n := &golang.Def{
 		Name:     name,
 		Pointer:  pointer,
-		Type:     t.RealType().Name,
-		Reserved: t.Reserved,
-		Tags:     t.Tags,
+		Type:     rt.Name,
+		Reserved: rt.Reserved,
+		Tags:     rt.Tags,
 	}
 	if n.Type == "[]" {
+		// TODO 处理各种转换情况
 		n.Elem = convertType(t.Elem.Field, t.Elem)
 	}
 	
@@ -101,7 +104,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	
 	params := m.ExportParams()
 	
-	if len(params) == 1 && params[0].Type.IsStruct() {
+	if len(params) == 1 && params[0].Type.RealType().IsStruct() {
 		request = convertType(params[0].Type.Name, params[0].Type)
 	} else if len(params) > 0 {
 		for _, v := range params {
@@ -110,6 +113,10 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	} else {
 		request = nil
 	}
+	
+	//log.Infof("params[0]: %s, %v", m.Name, len(params) == 1 && params[0].Type.RealType().IsStruct())
+	//spew.Json(params[0].Type)
+	//spew.Json(request)
 	//log.Infof("request.Name: %s %v", request.Name, len(params) == 1 && params[0].Type.IsStruct())
 	//log.Infof("params[0]: %s", params[0].Type.String())
 	
@@ -140,8 +147,8 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 
 func convertMethodParam(p *parser.Param) []*golang.Def {
 	r := make([]*golang.Def, 0)
-	//log.Infof("convertMethodParam: %v", p.Names)
-	//spew.Json(p)
+	log.Infof("convertMethodParam: %v", p.Names)
+	spew.Json(p)
 	for _, v := range p.Names {
 		d := convertType(Title(v), p.Type)
 		d.Name = Title(v)

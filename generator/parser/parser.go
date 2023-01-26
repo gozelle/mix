@@ -16,17 +16,10 @@ func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 		}
 	}
 	
-	for _, v := range pkg.Defs {
-		if !v.Used {
-			continue
-		}
-		v.Type = parseType(v.File, "", v.Expr)
-	}
-	
 	for name, v := range pkg.Defs {
-		if v.Used {
-			log.Infof("def: %s  => %s", name, v.String())
-		}
+		
+		log.Infof("def: %s  => %s", name, v.String())
+		//}
 	}
 	
 	return

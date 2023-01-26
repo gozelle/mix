@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"github.com/gozelle/spew"
 	"go/ast"
 	"reflect"
 )
@@ -21,13 +22,19 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 	case *ast.Ident:
 		r.Name = e.Name
 		if !isReserved(r.Name) {
-			//log.Infof("填充自定义类型: %s", r.Name)
+			
 			def := f.pkg.getDef(r.Name)
 			if def == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Name, f.path))
 			}
 			def.Used = true
+			if def.Type == nil {
+				def.Type = parseType(def.File, "", def.Expr)
+			}
 			r.Def = def.Type
+			log.Infof("填充自定义类型: %s", r.Name)
+			spew.Json(r)
+			spew.Json(def)
 		} else {
 			r.Reserved = true
 		}
@@ -78,7 +85,7 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 		}
 		def.Used = true
 		if def.ToString {
-			r.Def = &Type{Name: "string", Field: field}
+			r.Def = &Type{Name: "string", Field: field, Reserved: true}
 		} else {
 			r.Def = parseType(def.File, field, def.Expr)
 			f.pkg.AddExternalNalDef(def)

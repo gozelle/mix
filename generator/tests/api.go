@@ -12,53 +12,53 @@ type RequestAPI interface {
 	IntPointer(context.Context, *int, *int8, *int16, *int32, *int64) error
 	IntArray(ctx context.Context, p1 []int) error
 	IntArrayPointer(context.Context, []*int) error
-	IntStruct(ctx context.Context, p1 Int) error
+	IntStruct(ctx context.Context, param1 Int) error
 	IntStructPointer(context.Context, *IntPointer) error
 	IntStructArray(ctx context.Context, p1 []Int) error
 	IntStructPointerArray(context.Context, []*IntPointer) error
-	//Uint(ctx context.Context, p1 uint, p2 uint8, p3 uint16, p4 uint32, p5 uint64) error
-	//UIntPointer(context.Context, *uint, *uint8, *uint16, *uint32, *int64) error
-	//UintArray(ctx context.Context, p1 []uint) error
-	//UintArrayPointer(context.Context, []*uint) error
-	//UintStruct(ctx context.Context, p1 Uint) error
-	//UintStructPointer(context.Context, *UintPointer) error
-	//String(ctx context.Context, p1 string) error
-	//StringPointer(context.Context, *string) error
-	//StringArray(ctx context.Context, p1 []string) error
-	//StringArrayPointer(context.Context, []*string) error
-	//StringStruct(ctx context.Context, p1 String) error
-	//StringStructPointer(context.Context, *StringPointer) error
-	//Float(ctx context.Context, p1 float32, p2 float64) error
-	//FloatPointer(context.Context, *float32, *float64) error
-	//FloatArray(ctx context.Context, p1 []float32, p2 []float64) error
-	//FloatArrayPointer(context.Context, []*float32, []*float64) error
-	//FloatStruct(ctx context.Context, p1 Float) error
-	//FloatStructPointer(context.Context, *FloatPointer) error
-	//Bool(ctx context.Context, p1 bool) error
-	//BoolPointer(context.Context, *bool) error
-	//BoolArray(ctx context.Context, p1 []bool) error
-	//BoolArrayPointer(context.Context, []*bool) error
-	//BoolStruct(ctx context.Context, p1 Bool) error
-	//BoolStructPointer(context.Context, *BoolPointer) error
-	//Time(ctx context.Context, p1 time.Time) error
-	//TimePointer(context.Context, *time.Time) error
-	//TimeArray(ctx context.Context, p1 []time.Time) error
-	//TimeArrayPointer(context.Context, []*time.Time) error
-	//TimeShadow(ctx context.Context, p1 TimeShadow) error
-	//TimeShadowPointer(context.Context, *TimeShadow) error
-	//Decimal(ctx context.Context, p1 decimal.Decimal) error
-	//DecimalPinter(context.Context, *decimal.Decimal) error
-	//DecimalArray(ctx context.Context, p1 []decimal.Decimal) error
-	//DecimalArrayPointer(context.Context, []*decimal.Decimal) error
-	//DecimalShadow(ctx context.Context, p1 DecimalShadow) error
-	//DecimalShadowPointer(context.Context, *DecimalShadow) error
-	//Map(ctx context.Context, m1 map[string]string) error
-	//Type(ctx context.Context, p1 Type) error
-	//TypePointer(context.Context, *TypePointer) error
-	//TypeArray(ctx context.Context, p1 []Type) error
-	//TypeArrayPointer(context.Context, []*TypePointer) error
-	//TypeArrayArray(ctx context.Context, p1 [][]Type) error
-	//TypeArrayArrayPointer(context.Context, [][]*TypePointer) error
+	Uint(ctx context.Context, p1 uint, p2 uint8, p3 uint16, p4 uint32, p5 uint64) error
+	UIntPointer(context.Context, *uint, *uint8, *uint16, *uint32, *int64) error
+	UintArray(ctx context.Context, p1 []uint) error
+	UintArrayPointer(context.Context, []*uint) error
+	UintStruct(ctx context.Context, p1 Uint) error
+	UintStructPointer(context.Context, *UintPointer) error
+	String(ctx context.Context, p1 string) error
+	StringPointer(context.Context, *string) error
+	StringArray(ctx context.Context, p1 []string) error
+	StringArrayPointer(context.Context, []*string) error
+	StringStruct(ctx context.Context, p1 String) error
+	StringStructPointer(context.Context, *StringPointer) error
+	Float(ctx context.Context, p1 float32, p2 float64) error
+	FloatPointer(context.Context, *float32, *float64) error
+	FloatArray(ctx context.Context, p1 []float32, p2 []float64) error
+	FloatArrayPointer(context.Context, []*float32, []*float64) error
+	FloatStruct(ctx context.Context, p1 Float) error
+	FloatStructPointer(context.Context, *FloatPointer) error
+	Bool(ctx context.Context, p1 bool) error
+	BoolPointer(context.Context, *bool) error
+	BoolArray(ctx context.Context, p1 []bool) error
+	BoolArrayPointer(context.Context, []*bool) error
+	BoolStruct(ctx context.Context, p1 Bool) error
+	BoolStructPointer(context.Context, *BoolPointer) error
+	Time(ctx context.Context, p1 time.Time) error
+	TimePointer(context.Context, *time.Time) error
+	TimeArray(ctx context.Context, p1 []time.Time) error
+	TimeArrayPointer(context.Context, []*time.Time) error
+	TimeShadow(ctx context.Context, p1 TimeShadow) error
+	TimeShadowPointer(context.Context, *TimeShadow) error
+	Decimal(ctx context.Context, p1 decimal.Decimal) error
+	DecimalPinter(context.Context, *decimal.Decimal) error
+	DecimalArray(ctx context.Context, p1 []decimal.Decimal) error
+	DecimalArrayPointer(context.Context, []*decimal.Decimal) error
+	DecimalShadow(ctx context.Context, p1 DecimalShadow) error
+	DecimalShadowPointer(context.Context, *DecimalShadow) error
+	Map(ctx context.Context, m1 map[string]string) error
+	Type(ctx context.Context, p1 Type) error
+	TypePointer(context.Context, *TypePointer) error
+	TypeArray(ctx context.Context, p1 []Type) error
+	TypeArrayPointer(context.Context, []*TypePointer) error
+	TypeArrayArray(ctx context.Context, p1 [][]Type) error
+	TypeArrayArrayPointer(context.Context, [][]*TypePointer) error
 }
 
 type ReplyAPI interface {

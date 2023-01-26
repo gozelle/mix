@@ -216,6 +216,8 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *golang.Def) (s *openapi3.Sc
 		}
 	} else if def.Type == "[]" {
 		s.Value.Items = g.makeSchemaRef(d, def.Elem)
+	} else if def.Type != "map" && !def.Reserved {
+		s.Ref = fmt.Sprintf("#/components/schemas/%s", def.Type)
 	}
 	
 	return
