@@ -105,7 +105,7 @@ func (i *Interface) parseParam(mod *Mod, pkg *Package, file *File, names []strin
 	case *ast.FuncType:
 		// TODO
 	case *ast.MapType:
-		// TODO
+		r.Type = parseType(file, "", e.Value)
 	case *ast.ChanType:
 		// TODO
 	default:

@@ -33,6 +33,7 @@ require (
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gozelle/atomic v1.10.10 // indirect
+	github.com/gozelle/fastjson v1.6.5 // indirect
 	github.com/gozelle/go-difflib v1.0.0 // indirect
 	github.com/gozelle/go-spew v1.1.10 // indirect
 	github.com/gozelle/isatty v0.0.17 // indirect

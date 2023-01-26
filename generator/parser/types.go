@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/json"
+	"github.com/gozelle/spew"
 	"go/ast"
 	"strings"
 )
@@ -21,6 +22,7 @@ type Method struct {
 func (m Method) ExportParams() []*Param {
 	var n []*Param
 	for _, v := range m.Params {
+		spew.Dump(v)
 		if !v.Type.IsContext() {
 			n = append(n, v)
 		}

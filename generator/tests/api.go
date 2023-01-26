@@ -8,12 +8,14 @@ import (
 
 type RequestAPI interface {
 	//Ping(ctx context.Context) (err error)
-	Int(ctx context.Context, p1 int, p2 int8, p3 int16, p4 int32, p5 int64) error
+	//Int(ctx context.Context, p1 int, p2 int8, p3 int16, p4 int32, p5 int64) error
 	//IntPointer(context.Context, *int, *int8, *int16, *int32, *int64) error
-	//IntArray(ctx context.Context, p1 []int) error
-	//IntArrayPointer(context.Context, []*int) error
-	IntStruct(ctx context.Context, p1 Int) error
+	IntArray(ctx context.Context, p1 []int) error
+	IntArrayPointer(context.Context, []*int) error
+	//IntStruct(ctx context.Context, p1 Int) error
 	//IntStructPointer(context.Context, *IntPointer) error
+	//IntStructArray(ctx context.Context, p1 []Int) error
+	//IntStructPointerArray(context.Context, []*IntPointer) error
 	//Uint(ctx context.Context, p1 uint, p2 uint8, p3 uint16, p4 uint32, p5 uint64) error
 	//UIntPointer(context.Context, *uint, *uint8, *uint16, *uint32, *int64) error
 	//UintArray(ctx context.Context, p1 []uint) error

@@ -88,7 +88,7 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 		r.Pointer = true
 		r.Def = parseType(f, "", e.X)
 	case *ast.MapType:
-		// TODO
+		r.Name = "map"
 	case *ast.FuncType:
 		// TODO
 	case *ast.ChanType:
