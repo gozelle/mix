@@ -12,13 +12,13 @@ func TestParser(t *testing.T) {
 	mod, err := parser.PrepareMod()
 	require.NoError(t, err)
 	
-	path, err := fs.Lookup("./example")
+	path, err := fs.Lookup("./generator/tests")
 	require.NoError(t, err)
 	
 	p, err := parser.Parse(mod, path)
 	require.NoError(t, err)
 	
-	i := p.GetInterface("TestRpc")
+	i := p.GetInterface("RequestAPI")
 	
 	g := Generator{}
 	

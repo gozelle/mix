@@ -91,7 +91,7 @@ func parseRenderMethod(m *parser.Method) *golang.Method {
 	var params []string
 	merge := true
 	for _, v := range m.Params {
-		if !v.Type.IsContext() && merge {
+		if v.Type != nil && !v.Type.IsContext() && merge {
 			if v.Type.Name == request.Name {
 				request.Type = v.Type.Name // TODO
 				merge = false
