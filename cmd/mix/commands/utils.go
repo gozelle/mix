@@ -5,15 +5,15 @@ import (
 	"os"
 )
 
-func warning(format string, a ...any) {
+func Warning(format string, a ...any) {
 	color.Yellow(format, a...)
 }
 
-func info(format string, a ...any) {
+func Info(format string, a ...any) {
 	color.Green(format, a...)
 }
 
-func fatal(err error) {
+func Fatal(err error) {
 	color.Red(err.Error())
 	os.Exit(1)
 }

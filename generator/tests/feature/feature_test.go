@@ -40,11 +40,11 @@ func TestFeature(t *testing.T) {
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
 	//t.Log(string(d))
 	
-	g := openapi.Generator{}
+	doc := &openapi.DocumentV3{}
 	
-	v3 := g.TOOpenapiV3(renderInterface)
+	openapi.Convert(doc, renderInterface)
 	
-	d, err = v3.MarshalJSON()
+	d, err = doc.MarshalJSON()
 	require.NoError(t, err)
 	
 	//

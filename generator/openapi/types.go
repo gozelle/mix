@@ -7,7 +7,7 @@ type DocumentV3 struct {
 }
 
 const (
-	application_json = "application/json"
+	ApplicationJson = "application/json"
 )
 const (
 	String = "string"

@@ -2,57 +2,117 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/gozelle/logging"
-	"github.com/gozelle/mix/generator"
+	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/generator/parser"
 	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/openapi/openapi3"
 	"github.com/gozelle/pointer"
+	"github.com/invopop/yaml"
+	"strings"
 )
 
-var log = logging.Logger("openapi")
-
-var _ generator.Generator = (*Generator)(nil)
-
-type Generator struct {
+type GenerateCmd struct {
+	Path      string
+	Interface string
 }
 
-func (g Generator) Generate(r *render.Interface) (files []*generator.File, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (g Generator) TOOpenapiV3(r *render.Interface) *DocumentV3 {
+func Parse(tplFile, path string, api string) (doc *DocumentV3, err error) {
 	
-	d := &DocumentV3{}
-	d.OpenAPI = "3.0.3"
-	d.Info = &openapi3.Info{
-		Title:          "",
-		Description:    "",
-		TermsOfService: "",
-		Contact:        nil,
-		License:        nil,
-		Version:        "",
+	doc, err = Load(tplFile)
+	if err != nil {
+		err = fmt.Errorf("load template error: %s", err)
+		return
+	}
+	
+	mod, err := parser.PrepareMod()
+	if err != nil {
+		err = fmt.Errorf("prepare mod error: %s", err)
+		return
+	}
+	
+	pkg, err := parser.Parse(mod, path)
+	if err != nil {
+		err = fmt.Errorf("parse package error: %s", err)
+		return
+	}
+	
+	i := pkg.GetInterface(api)
+	if i == nil {
+		err = fmt.Errorf("api interface: %s not found", api)
+		return
+	}
+	
+	r := render.Convert(i)
+	
+	Convert(doc, r)
+	
+	return
+}
+
+func Load(file string) (doc *DocumentV3, err error) {
+	doc = &DocumentV3{}
+	if file != "" {
+		var c []byte
+		c, err = fs.Read(file)
+		if err != nil {
+			err = fmt.Errorf("read openapi file error: %s", err)
+			return
+		}
+		if strings.HasSuffix(file, ".json") {
+			err = doc.UnmarshalJSON(c)
+			if err != nil {
+				err = fmt.Errorf("unmarshal openapi file error: %s", err)
+				return
+			}
+		} else if strings.HasSuffix(file, ".yaml") {
+			var j []byte
+			j, err = yaml.YAMLToJSON(c)
+			if err != nil {
+				err = fmt.Errorf("convert yaml to json error: %s", err)
+				return
+			}
+			
+			err = doc.UnmarshalJSON(j)
+			if err != nil {
+				err = fmt.Errorf("unmarshal openapi file error: %s", err)
+				return
+			}
+		} else {
+			err = fmt.Errorf("unsupport openapi file: %s suffix, accept json or yaml", file)
+			return
+		}
+	}
+	
+	return
+}
+
+func Convert(doc *DocumentV3, r *render.API) {
+	
+	doc.OpenAPI = "3.0.3"
+	
+	if doc.Info == nil {
+		doc.Info = &openapi3.Info{}
 	}
 	
 	for _, v := range r.Methods {
-		g.convertMethods(d, v)
+		convertMethods(doc, v)
 	}
 	
-	if d.Components == nil {
-		d.Components = &openapi3.Components{}
+	if doc.Components == nil {
+		doc.Components = &openapi3.Components{}
 	}
-	if d.Components.Schemas == nil {
-		d.Components.Schemas = map[string]*openapi3.SchemaRef{}
+	if doc.Components.Schemas == nil {
+		doc.Components.Schemas = map[string]*openapi3.SchemaRef{}
 	}
+	
 	for _, v := range r.Defs {
-		d.Components.Schemas[v.Name] = g.makeSchemaRef(d, v)
+		doc.Components.Schemas[v.Name] = makeSchemaRef(doc, v)
 	}
 	
-	return d
+	return
 }
 
-func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
+func convertMethods(d *DocumentV3, m *render.Method) {
 	if d.Paths == nil {
 		d.Paths = map[string]*openapi3.PathItem{}
 	}
@@ -70,24 +130,8 @@ func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
 		},
 	}
 	if m.Request != nil {
-		//log.Infof("Request: %s", m.Request.Field)
-		//if m.Request.Field == "IntStructRequest" {
-		//	spew.Json(m.Request)
-		//}
 		item.Post.RequestBody = &openapi3.RequestBodyRef{
-			Ref: g.makeMethodParameterRef(d, m.Request),
-			//Value: &openapi3.RequestBody{
-			//	Extensions:  nil,
-			//	Description: "",
-			//	Required:    false,
-			//	Content: map[string]*openapi3.MediaType{
-			//		application_json: {
-			//			Schema: &openapi3.SchemaRef{
-			//				Ref:,
-			//			},
-			//		},
-			//	},
-			//},
+			Ref: makeMethodParameterRef(d, m.Request),
 		}
 	}
 	if item.Post.Responses == nil {
@@ -99,7 +143,7 @@ func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
 		m.Replay.StructFields[0].Type != parser.TChan {
 		
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
-			Ref: g.makeMethodReplyRef(d, m.Replay),
+			Ref: makeMethodReplyRef(d, m.Replay),
 		}
 		
 	} else {
@@ -113,7 +157,7 @@ func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
 	d.Paths[fmt.Sprintf("/%s", m.Name)] = item
 }
 
-func (g Generator) makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
+func makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -125,7 +169,7 @@ func (g Generator) makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref s
 		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Required: false,
-				Content:  g.makeContent(d, def),
+				Content:  makeContent(d, def),
 			},
 		}
 	} else {
@@ -133,7 +177,7 @@ func (g Generator) makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref s
 			Value: &openapi3.RequestBody{
 				Required: false,
 				Content: openapi3.Content{
-					application_json: &openapi3.MediaType{
+					ApplicationJson: &openapi3.MediaType{
 						Schema: &openapi3.SchemaRef{
 							Ref: fmt.Sprintf("#/components/schemas/%s", def.Use.Name),
 						},
@@ -146,7 +190,7 @@ func (g Generator) makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref s
 	return
 }
 
-func (g Generator) makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
+func makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -158,7 +202,7 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref strin
 			Value: &openapi3.Response{
 				Description: pointer.ToString(""),
 				Headers:     nil,
-				Content:     g.makeContent(d, def),
+				Content:     makeContent(d, def),
 			},
 		}
 	} else {
@@ -167,7 +211,7 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref strin
 				Description: pointer.ToString(""),
 				Headers:     nil,
 				Content: openapi3.Content{
-					application_json: &openapi3.MediaType{
+					ApplicationJson: &openapi3.MediaType{
 						Schema: &openapi3.SchemaRef{
 							Ref: fmt.Sprintf("#/components/schemas/%s", def.Use.Name),
 						},
@@ -181,24 +225,20 @@ func (g Generator) makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref strin
 	return
 }
 
-func (g Generator) makeContent(d *DocumentV3, def *render.Def) openapi3.Content {
-	
-	//log.Infof("content golang def: %s", def.Field)
-	//spew.Json(def)
-	
+func makeContent(d *DocumentV3, def *render.Def) openapi3.Content {
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
-	c[application_json] = &openapi3.MediaType{
+	c[ApplicationJson] = &openapi3.MediaType{
 		Extensions: nil,
-		Schema:     g.makeSchemaRef(d, def),
+		Schema:     makeSchemaRef(d, def),
 	}
 	return c
 }
 
-func (g Generator) makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
+func makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
 	
 	s = &openapi3.SchemaRef{
 		Value: &openapi3.Schema{
-			Type: g.convertType(def.Type),
+			Type: convertType(def.Type),
 		},
 	}
 	
@@ -209,10 +249,10 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.Sc
 			if v.Json != "" {
 				name = v.Json
 			}
-			s.Value.Properties[name] = g.makeSchemaRef(d, v)
+			s.Value.Properties[name] = makeSchemaRef(d, v)
 		}
 	} else if def.Type == parser.TSlice {
-		s.Value.Items = g.makeSchemaRef(d, def.Elem)
+		s.Value.Items = makeSchemaRef(d, def.Elem)
 	} else if def.Use != nil {
 		s.Ref = fmt.Sprintf("#/components/schemas/%s", def.Use.Name)
 	}
@@ -220,7 +260,7 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.Sc
 	return
 }
 
-func (g Generator) convertType(t string) string {
+func convertType(t string) string {
 	switch t {
 	case parser.TSlice, parser.TArray:
 		return "array"

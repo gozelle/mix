@@ -124,7 +124,9 @@ func (f *File) parse(file string) (err error) {
 	
 	for _, i := range af.Imports {
 		v := f.parseImport(i)
-		f.addImport(v)
+		if v != nil {
+			f.addImport(v)
+		}
 	}
 	
 	// parse file use Visit
@@ -145,6 +147,10 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	r := &Import{
 		Alias: f.parseAlias(i.Name.String()),
 		Path:  strings.Trim(i.Path.Value, "\""),
+	}
+	
+	if strings.Contains(r.Path, "/internal") {
+		return nil
 	}
 	
 	r.Package = &Package{Path: r.Path}

@@ -1,40 +1,26 @@
 package render
 
-type Interface struct {
-	Package string    `json:"Package,omitempty"`
+type API struct {
 	Name    string    `json:"Name,omitempty"`
 	Methods []*Method `json:"Methods,omitempty"`
 	Defs    []*Def    `json:"Defs,omitempty"`
-	Imports []*Import `json:"Imports,omitempty"`
 }
 
 type Method struct {
 	Name    string `json:"Name,omitempty"`
 	Request *Def   `json:"Request,omitempty"`
 	Replay  *Def   `json:"Replay,omitempty"`
-	Params  string `json:"Params,omitempty"`
-	Results string `json:"Results,omitempty"`
-}
-
-type Param struct {
-	Names []string `json:"Names,omitempty"`
-	Type  string   `json:"Type,omitempty"`
+	Comment string `json:"Comment,omitempty"`
 }
 
 type Def struct {
-	Name    string `json:"Name,omitempty"` // 定义时的名称
-	Field   string `json:"Field,omitempty"`
-	Json    string `json:"Json,omitempty"`
-	Type    string `json:"Type"`
-	Pointer bool   `json:"Pointer,omitempty"`
-	//Reserved     bool   `json:"Reserved,omitempty"`
-	StructFields []*Def `json:"StructFields,omitempty"`
-	Elem         *Def   `json:"Elem,omitempty"`
-	Use          *Def   `json:"Use,omitempty"`
-	Tags         string `json:"Tags,omitempty"`
-}
-
-type Import struct {
-	Alias string `json:"Alias,omitempty"`
-	Path  string `json:"Path,omitempty"`
+	Name         string `json:"Name,omitempty"`         // 类型声明时的名称
+	Field        string `json:"Field,omitempty"`        // 作为 struct 字段时的名称
+	Json         string `json:"Json,omitempty"`         // 作为 struct 字段时定义的 json
+	Type         string `json:"Type"`                   // 类型，对标 golang 的类型
+	Pointer      bool   `json:"Pointer,omitempty"`      // 是否为指针
+	StructFields []*Def `json:"StructFields,omitempty"` // 存放 struct 字段
+	Elem         *Def   `json:"Elem,omitempty"`         // 存放数组引用值
+	Use          *Def   `json:"Use,omitempty"`          // 存放类型引用
+	Tags         string `json:"Tags,omitempty"`         // 存放 struct 字段时定义的标签
 }

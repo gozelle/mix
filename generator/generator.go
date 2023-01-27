@@ -14,5 +14,5 @@ type File struct {
 }
 
 type Generator interface {
-	Generate(i *render.Interface) (files []*File, err error)
+	Generate(i *render.API) (files []*File, err error)
 }

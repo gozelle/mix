@@ -1,4 +1,4 @@
-package commands
+package generateCmd
 
 import (
 	"github.com/gozelle/cobra"
@@ -31,7 +31,7 @@ var GenerateCmd = &cobra.Command{
 func init() {
 	GenerateCmd.AddCommand(
 		clientCmd,
-		sdkCmd,
 		openapiCmd,
+		sdkCmd,
 	)
 }
