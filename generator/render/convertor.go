@@ -65,8 +65,8 @@ func convertMethodRequest(m *parser.Method) *Def {
 		Type:  Struct,
 	}
 	params := m.ExportParams()
-	if len(params) == 1 && params[0].Type.Def != nil && params[0].Type.Def.Type.RealType().IsStruct() {
-		request.Use = convertDef(params[0].Type.Def)
+	if len(params) == 1 && params[0].Type.NoPointer().Def != nil && params[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
+		request.Use = convertDef(params[0].Type.NoPointer().Def)
 	} else if len(params) > 0 {
 		for _, v := range params {
 			request.StructFields = append(request.StructFields, convertMethodParam(v)...)
@@ -86,8 +86,8 @@ func convertMethodReply(m *parser.Method) *Def {
 	
 	results := m.ExportResults()
 	
-	if len(results) > 0 && results[0].Type.Def != nil && results[0].Type.Def.Type.RealType().IsStruct() {
-		replay.Use = convertDef(results[0].Type.Def)
+	if len(results) > 0 && results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
+		replay.Use = convertDef(results[0].Type.NoPointer().Def)
 	} else if len(results) > 0 {
 		for _, v := range results {
 			replay.StructFields = append(replay.StructFields, convertMethodParam(v)...)

@@ -1,0 +1,305 @@
+{
+  "components": {
+    "requestBodies": {
+      "TestRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "in": {
+                  "properties": {
+                    "Bool": {
+                      "type": "boolean"
+                    },
+                    "Decimal": {
+                      "type": "string"
+                    },
+                    "Duration": {
+                      "type": "string"
+                    },
+                    "Float": {
+                      "type": "number"
+                    },
+                    "Int": {
+                      "type": "integer"
+                    },
+                    "Link": {
+                      "$ref": "#/components/schemas/Feature"
+                    },
+                    "LinkArray": {
+                      "items": {
+                        "$ref": "#/components/schemas/Feature"
+                      },
+                      "type": "array"
+                    },
+                    "LinkArrayArray": {
+                      "items": {
+                        "items": {
+                          "$ref": "#/components/schemas/Feature"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array"
+                    },
+                    "Map": {
+                      "type": "object"
+                    },
+                    "String": {
+                      "type": "string"
+                    },
+                    "Time": {
+                      "type": "string"
+                    },
+                    "Uint": {
+                      "type": "integer"
+                    },
+                    "bool_array": {
+                      "items": {
+                        "type": "boolean"
+                      },
+                      "type": "array"
+                    },
+                    "float_array": {
+                      "items": {
+                        "type": "number"
+                      },
+                      "type": "array"
+                    },
+                    "int_array": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    },
+                    "string_array": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "string_array_array": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array"
+                    },
+                    "uint_array": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "TestReplay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Feature"
+            }
+          }
+        },
+        "description": ""
+      }
+    },
+    "schemas": {
+      "Basic": {
+        "properties": {
+          "Bool": {
+            "type": "boolean"
+          },
+          "Float": {
+            "type": "number"
+          },
+          "Int": {
+            "type": "integer"
+          },
+          "Map": {
+            "type": "object"
+          },
+          "String": {
+            "type": "string"
+          },
+          "Uint": {
+            "type": "integer"
+          },
+          "bool_array": {
+            "items": {
+              "type": "boolean"
+            },
+            "type": "array"
+          },
+          "float_array": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "int_array": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "string_array": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "string_array_array": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "uint_array": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "Feature": {
+        "properties": {
+          "Bool": {
+            "type": "boolean"
+          },
+          "Decimal": {
+            "type": "string"
+          },
+          "Duration": {
+            "type": "string"
+          },
+          "Float": {
+            "type": "number"
+          },
+          "Int": {
+            "type": "integer"
+          },
+          "Link": {
+            "$ref": "#/components/schemas/Feature"
+          },
+          "LinkArray": {
+            "items": {
+              "$ref": "#/components/schemas/Feature"
+            },
+            "type": "array"
+          },
+          "LinkArrayArray": {
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Feature"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "Map": {
+            "type": "object"
+          },
+          "String": {
+            "type": "string"
+          },
+          "Time": {
+            "type": "string"
+          },
+          "Uint": {
+            "type": "integer"
+          },
+          "bool_array": {
+            "items": {
+              "type": "boolean"
+            },
+            "type": "array"
+          },
+          "float_array": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "int_array": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "string_array": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "string_array_array": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "uint_array": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "Stringer": {
+        "properties": {
+          "Decimal": {
+            "type": "string"
+          },
+          "Duration": {
+            "type": "string"
+          },
+          "Time": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/Test": {
+      "post": {
+        "operationId": "Test",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/TestRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TestReplay"
+          }
+        }
+      }
+    }
+  }
+}
