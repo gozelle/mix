@@ -9,7 +9,7 @@ type Interface struct {
 	Name          string
 	Methods       []*Method
 	Defs          []*Def
-	defs          map[string]bool
+	defs          map[string]*Def
 	Imports       []*Import
 	imports       map[string]bool
 	includes      []*Interface
@@ -25,9 +25,6 @@ func (i *Interface) Load(pkg *Package, file *File) (err error) {
 		case *ast.FuncType:
 			i.Methods = append(i.Methods, i.parseMethod(file, m.Names[0].Name, mt))
 		}
-	}
-	for _, v := range pkg.defs {
-		i.addDef(v)
 	}
 	return
 }
@@ -59,13 +56,20 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 
 func (i *Interface) addDef(t *Def) {
 	if i.defs == nil {
-		i.defs = map[string]bool{}
+		i.defs = map[string]*Def{}
 	}
 	if _, ok := i.defs[t.Name]; ok {
 		return
 	}
-	i.defs[t.Name] = true
+	i.defs[t.Name] = t
 	i.Defs = append(i.Defs, t)
+}
+
+func (i *Interface) getDef(name string) *Def {
+	if i.defs == nil {
+		return nil
+	}
+	return i.defs[name]
 }
 
 func (i *Interface) parseParam(f *File, names []string, t ast.Expr) (r *Param) {
@@ -78,7 +82,7 @@ func (i *Interface) parseParam(f *File, names []string, t ast.Expr) (r *Param) {
 	//	log.Infof("param: %v Type: %s", r.Names, r.Type)
 	//}()
 	
-	r.Type = parseType(f, "", t)
+	r.Type = parseType(f, i, "", t)
 	
 	return
 }

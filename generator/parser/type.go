@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
+	"go/token"
 	"reflect"
 	"strings"
 )
@@ -94,32 +95,56 @@ func (t Type) Json() string {
 	return ""
 }
 
-func handleTypeDef(pkg *Package, field string, r *Type, name string) *Def {
+func handleTypeDef(pkg *Package, i *Interface, field string, r *Type, name string) *Def {
 	def := pkg.GetDef(name)
 	if def == nil {
 		return nil
 	}
-	def.Used = true
-	if def.Type == nil {
-		def.Type = parseType(def.File, "", def.Expr)
+	if def.Type == nil && !def.parsed {
+		def.parsed = true
+		def.Type = parseType(def.File, i, "", def.Expr)
 	}
 	if def.ToString {
 		r.Real = &Type{Type: TString, Field: field}
 	} else {
-		r.Def = def
+		r.Def = def.ShallowFork()
 		r.Real = def.Type
+		i.addDef(def)
 	}
 	return def
 }
 
-func parseType(f *File, field string, t ast.Expr) (r *Type) {
+func handleStructFields(f *File, i *Interface, node *ast.StructType) (fields []*Type) {
+	for _, fd := range node.Fields.List {
+		nl := len(fd.Names)
+		if nl == 0 { // 处理嵌套结构
+			t := parseType(f, i, "", fd.Type)
+			fields = append(fields, t.NoPointer().Def.Type.StructFields...)
+		} else if nl > 1 {
+			panic(fmt.Errorf("expect struct names = 1, got: %d", nl))
+		} else {
+			fn := fd.Names[0].Name
+			if !token.IsExported(fn) {
+				continue
+			}
+			st := parseType(f, i, fn, fd.Type)
+			if fd.Tag != nil {
+				st.Tags = reflect.StructTag(strings.Trim(fd.Tag.Value, "`"))
+			}
+			fields = append(fields, st)
+		}
+	}
+	return
+}
+
+func parseType(f *File, i *Interface, field string, t ast.Expr) (r *Type) {
 	
 	r = &Type{Field: field}
 	switch e := t.(type) {
 	case *ast.Ident:
 		r.Type = e.Name
-		if !isReserved(r.Type) {
-			def := handleTypeDef(f.pkg, field, r, r.Type)
+		if !isReserved(r.Type) && token.IsExported(r.Type) {
+			def := handleTypeDef(f.pkg, i, field, r, r.Type)
 			if def == nil {
 				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Type, f.path))
 			}
@@ -128,27 +153,15 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 		r.Type = TAny
 	case *ast.StructType:
 		r.Type = TStruct
-		for i, fd := range e.Fields.List {
-			var fn string
-			if len(fd.Names) == 0 {
-				fn = fmt.Sprintf("field%d", i)
-			} else {
-				fn = fd.Names[0].Name
-			}
-			st := parseType(f, fn, fd.Type)
-			if fd.Tag != nil {
-				st.Tags = reflect.StructTag(strings.Trim(fd.Tag.Value, "`"))
-			}
-			r.StructFields = append(r.StructFields, st)
-		}
+		r.StructFields = append(r.StructFields, handleStructFields(f, i, e)...)
 	case *ast.SliceExpr:
 		// ignore range
 		r.Type = TSlice
-		r.Elem = parseType(f, "", e.X)
+		r.Elem = parseType(f, i, "", e.X)
 	case *ast.ArrayType:
 		// ignore len
 		r.Type = TArray
-		r.Elem = parseType(f, "", e.Elt)
+		r.Elem = parseType(f, i, "", e.Elt)
 	case *ast.SelectorExpr:
 		pkgName := e.X.(*ast.Ident).String()
 		typeName := e.Sel.Name
@@ -164,17 +177,18 @@ func parseType(f *File, field string, t ast.Expr) (r *Type) {
 		if imt.Package == nil {
 			panic(fmt.Errorf("import: %s Package is nil in: %s", pkgName, f.path))
 		}
-		
-		def := handleTypeDef(imt.Package, field, r, typeName)
-		if def == nil {
-			panic(fmt.Errorf("package: %s type %s def is nil in: %s", pkgName, typeName, f.path))
-		}
-		if !def.ToString {
-			f.pkg.AddExternalNalDef(def)
+		if token.IsExported(typeName) {
+			def := handleTypeDef(imt.Package, i, field, r, typeName)
+			if def == nil {
+				panic(fmt.Errorf("package: %s type %s def is nil in: %s", pkgName, typeName, f.path))
+			}
+			if !def.ToString {
+				f.pkg.AddExternalNalDef(def)
+			}
 		}
 	case *ast.StarExpr:
 		r.Pointer = true
-		r.Real = parseType(f, "", e.X)
+		r.Real = parseType(f, i, "", e.X)
 	case *ast.MapType:
 		r.Type = TMap
 	case *ast.FuncType:

@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/gozelle/mix/generator/parser"
+	"github.com/gozelle/mix/generator/render"
 )
 
 var (
@@ -14,5 +14,5 @@ type File struct {
 }
 
 type Generator interface {
-	Generate(i *parser.Interface) (files []*File, err error)
+	Generate(i *render.Interface) (files []*File, err error)
 }

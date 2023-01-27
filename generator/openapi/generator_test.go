@@ -34,6 +34,7 @@ func TestParser(t *testing.T) {
 	td, err := fs.Read(tp)
 	require.NoError(t, err)
 	
+	t.Log(string(d))
 	err = fastjson.EqualsBytes(td, d)
 	require.NoError(t, err)
 	

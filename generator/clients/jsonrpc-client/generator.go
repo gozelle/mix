@@ -25,7 +25,7 @@ func renderMethod(i *parser.Interface) (file *generator.File, err error) {
 	if err != nil {
 		panic(err)
 	}
-	d := render.ToGolangInterface(i)
+	d := render.Convert(i)
 	d.Package = "rpc"
 	m := structs.Map(d)
 	out, err := t.Execute(m)

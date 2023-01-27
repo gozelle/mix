@@ -50,7 +50,6 @@ func (p *Package) addDef(name string, item *Def) {
 	if p.defs == nil {
 		p.defs = map[string]*Def{}
 	}
-	
 	p.defs[name] = item
 }
 
@@ -133,7 +132,6 @@ func (p *Package) AddExternalNalDef(def *Def) {
 		return
 	}
 	d := def.ShallowFork()
-	d.Used = true
 	t := p.GetDef(d.Name)
 	if t != nil {
 		if p.defsCount == nil {

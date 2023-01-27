@@ -90,6 +90,9 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 		*ast.StarExpr,
 		*ast.SelectorExpr,
 		*ast.ChanType:
+		if !s.Name.IsExported() {
+			return f
+		}
 		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type})
 	
 	default:

@@ -7,21 +7,21 @@ import (
 
 type Def struct {
 	Name     string   `json:"Name"`
-	Used     bool     `json:"Used,omitempty"`
 	Expr     ast.Expr `json:"-"`
 	File     *File    `json:"-"`
 	Type     *Type    `json:"Type,omitempty"`
 	ToString bool     `json:"ToString,omitempty"`
+	parsed   bool
 }
 
 func (d Def) ShallowFork() *Def {
 	n := &Def{
 		Name:     d.Name,
-		Used:     d.Used,
 		Expr:     d.Expr,
 		File:     d.File,
 		Type:     d.Type,
 		ToString: d.ToString,
+		parsed:   d.parsed,
 	}
 	return n
 }

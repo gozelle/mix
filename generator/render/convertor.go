@@ -10,7 +10,7 @@ import (
 
 var log = logging.Logger("convertor")
 
-func ToGolangInterface(i *parser.Interface) *Interface {
+func Convert(i *parser.Interface) *Interface {
 	
 	r := &Interface{
 		//Package: pkg,
@@ -25,7 +25,7 @@ func ToGolangInterface(i *parser.Interface) *Interface {
 	}
 	
 	for _, v := range i.Defs {
-		if !v.Used || v.Type.Type != parser.TStruct {
+		if v.Type.Type != parser.TStruct {
 			continue
 		}
 		d := convertDef(v)
@@ -124,10 +124,7 @@ func convertDef(d *parser.Def) *Def {
 func convertType(t *parser.Type) *Def {
 	
 	pointer := t.Pointer
-	if pointer {
-		t = t.NoPointer()
-	}
-	rt := t.RealType()
+	rt := t.NoPointer().RealType()
 	
 	n := &Def{
 		Field:        t.Field,
@@ -148,6 +145,11 @@ func convertType(t *parser.Type) *Def {
 	case parser.TSlice, parser.TArray:
 		n.Type = parser.TSlice
 		n.Elem = convertType(rt.Elem)
+	}
+	
+	// 处理引用关系
+	if rt.Def != nil && rt.Def.Name == rt.Type {
+		n.Use = &Def{Name: rt.Def.Name}
 	}
 	
 	return n

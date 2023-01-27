@@ -33,7 +33,7 @@ func TestBasic(t *testing.T) {
 	parserInterface := pkg.GetInterface("BasicAPI")
 	require.True(t, parserInterface != nil)
 	
-	renderInterface := render.ToGolangInterface(parserInterface)
+	renderInterface := render.Convert(parserInterface)
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
 	
 	err = fs.Write("./render_interface.json", d)

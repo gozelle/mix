@@ -17,12 +17,12 @@ var _ generator.Generator = (*Generator)(nil)
 type Generator struct {
 }
 
-func (g Generator) Generate(i *parser.Interface) (files []*generator.File, err error) {
+func (g Generator) Generate(r *render.Interface) (files []*generator.File, err error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (g Generator) TOOpenapiV3(i *parser.Interface) *DocumentV3 {
+func (g Generator) TOOpenapiV3(r *render.Interface) *DocumentV3 {
 	
 	d := &DocumentV3{}
 	d.OpenAPI = "3.0.3"
@@ -34,8 +34,6 @@ func (g Generator) TOOpenapiV3(i *parser.Interface) *DocumentV3 {
 		License:        nil,
 		Version:        "",
 	}
-	
-	r := render.ToGolangInterface(i)
 	
 	for _, v := range r.Methods {
 		g.convertMethods(d, v)
@@ -219,18 +217,17 @@ func (g Generator) makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.Sc
 
 func (g Generator) convertType(t string) string {
 	switch t {
-	case render.Slice:
+	case parser.TSlice, parser.TArray:
 		return "array"
-	case render.String:
+	case parser.TString:
 		return "string"
-	case render.Int, render.Int8, render.Int16, render.Int32, render.Int64,
-		render.Uint, render.Uint8, render.Uint16, render.Uint32, render.Uint64:
+	case parser.TInt, parser.TInt8, parser.TInt16, parser.TInt32, parser.TInt64,
+		parser.TUint, parser.TUint8, parser.TUint16, parser.TUint32, parser.TUint64:
 		return "integer"
-	case render.Float32, render.Float64:
+	case parser.TFloat32, parser.TFloat64:
 		return "number"
-	case render.Bool:
+	case parser.TBool:
 		return "boolean"
 	}
-	
 	return "object"
 }
