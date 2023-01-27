@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/structs v1.1.0
-	github.com/gozelle/cobra v1.6.1
+	github.com/gozelle/cobra v1.6.2
 	github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c
 	github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9
 	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
@@ -33,6 +33,7 @@ require (
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gozelle/atomic v1.10.10 // indirect
+	github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1 // indirect
 	github.com/gozelle/fastjson v1.6.5 // indirect
 	github.com/gozelle/go-difflib v1.0.0 // indirect
 	github.com/gozelle/go-spew v1.1.10 // indirect
@@ -49,6 +50,8 @@ require (
 	github.com/klauspost/cpuid/v2 v2.0.14 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
@@ -61,6 +64,7 @@ require (
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/tools v0.5.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
