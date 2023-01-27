@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"github.com/gozelle/spew"
 	"go/ast"
 )
 
@@ -23,6 +24,9 @@ func (i *Interface) Load(pkg *Package, file *File) (err error) {
 		case *ast.Ident:
 		// TODO parse include
 		case *ast.FuncType:
+			cmt := file.comments.Filter(m).Comments()
+			log.Infof("方法注释: %s", m.Names[0].Name)
+			spew.Json(cmt)
 			i.Methods = append(i.Methods, i.parseMethod(file, m.Names[0].Name, mt))
 		}
 	}
@@ -51,6 +55,7 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 			r.Results = append(r.Results, i.parseParam(file, names, f.Type))
 		}
 	}
+	
 	return
 }
 

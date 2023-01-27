@@ -10,10 +10,11 @@ import (
 )
 
 type File struct {
-	path    string
-	mod     *Mod
-	pkg     *Package
-	Imports map[string]*Import
+	path     string
+	mod      *Mod
+	pkg      *Package
+	Imports  map[string]*Import
+	comments ast.CommentMap
 }
 
 func (f *File) getImport(name string) *Import {
@@ -109,6 +110,8 @@ func (f *File) parse(file string) (err error) {
 	if err != nil {
 		return
 	}
+	
+	f.comments = ast.NewCommentMap(set, af, af.Comments)
 	
 	for _, i := range af.Imports {
 		v := f.parseImport(i)

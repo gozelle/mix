@@ -108,12 +108,12 @@ func (p *Package) Parse(mod *Mod, dir string) error {
 		return err
 	}
 	
-	err = p.parseFiles(mod, files)
+	p.Name, err = mod.GetPackageRealName(p.Path)
 	if err != nil {
 		return err
 	}
 	
-	p.Name, err = mod.GetPackageRealName(p.Path)
+	err = p.parseFiles(mod, files)
 	if err != nil {
 		return err
 	}
