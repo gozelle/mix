@@ -4,14 +4,18 @@ import (
 	"context"
 	"github.com/gozelle/mix/generator/tests/basic"
 	"github.com/gozelle/mix/generator/tests/stringer"
+	"io"
 	"regexp"
 )
 
 type FeatureAPI interface {
-	/* Test 测试2 */
+	tests_basic.BasicAPI
+	Sub
 	Test(ctx context.Context, in *Feature) (out Feature, err error) // 测试2
-	// 测试3
-	Test2(ctx context.Context) (err error)
+}
+
+type Sub interface {
+	Download(ctx context.Context) (io.Reader, error)
 }
 
 type Feature struct {

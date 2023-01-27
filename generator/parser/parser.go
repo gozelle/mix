@@ -11,7 +11,7 @@ func Parse(mod *Mod, dir string) (pkg *Package, err error) {
 	}
 	
 	for _, v := range pkg.interfaces {
-		err = v.Load(pkg, v.file)
+		err = v.Load()
 		if err != nil {
 			panic(fmt.Errorf("load interface: %s error: %s", v.Name, err))
 		}

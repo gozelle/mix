@@ -15,6 +15,13 @@ type File struct {
 	pkg      *Package
 	Imports  map[string]*Import
 	comments ast.CommentMap
+	ast      *ast.File
+	set      *token.FileSet
+}
+
+func (f File) Errorf(pos token.Pos, format string, a ...any) error {
+	p := f.set.Position(pos)
+	return fmt.Errorf("parse file: %s error: %s", p, fmt.Sprintf(format, a...))
 }
 
 func (f *File) getImport(name string) *Import {
@@ -110,7 +117,8 @@ func (f *File) parse(file string) (err error) {
 	if err != nil {
 		return
 	}
-	
+	f.ast = af
+	f.set = set
 	f.comments = ast.NewCommentMap(set, af, af.Comments)
 	
 	for _, i := range af.Imports {

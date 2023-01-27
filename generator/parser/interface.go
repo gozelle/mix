@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"github.com/gozelle/spew"
 	"go/ast"
 )
 
@@ -16,24 +15,54 @@ type Interface struct {
 	includes      []*Interface
 	interfaceType *ast.InterfaceType
 	file          *File
+	loaded        bool
 }
 
-func (i *Interface) Load(pkg *Package, file *File) (err error) {
+func (i *Interface) Load() (err error) {
+	if i.loaded {
+		return
+	}
 	for _, m := range i.interfaceType.Methods.List {
 		switch mt := m.Type.(type) {
-		case *ast.Ident:
-		// TODO parse include
 		case *ast.FuncType:
-			cmt := file.comments.Filter(m).Comments()
-			log.Infof("方法注释: %s", m.Names[0].Name)
-			spew.Json(cmt)
-			i.Methods = append(i.Methods, i.parseMethod(file, m.Names[0].Name, mt))
+			cmt := i.file.comments.Filter(m).Comments()
+			i.Methods = append(i.Methods, i.parseMethod(m.Names[0].Name, mt, cmt))
+		case *ast.SelectorExpr:
+			pkgName := mt.X.(*ast.Ident).String()
+			typeName := mt.Sel.Name
+			imt := i.file.getImport(pkgName)
+			if imt == nil {
+				panic(i.file.Errorf(m.Pos(), "can't found import: %s", pkgName))
+			}
+			def := imt.Package.GetInterface(typeName)
+			if def == nil {
+				panic(i.file.Errorf(m.Pos(), "can't found interface: %s.%s", pkgName, typeName))
+			}
+			err = def.Load()
+			if err != nil {
+				panic(err)
+			}
+			i.Methods = append(i.Methods, def.Methods...)
+		case *ast.Ident:
+			def := i.file.pkg.GetInterface(mt.Name)
+			if def == nil {
+				panic(i.file.Errorf(m.Pos(), "can't found interface: %s", mt.Name))
+			}
+			err = def.Load()
+			if err != nil {
+				panic(err)
+			}
+			i.Methods = append(i.Methods, def.Methods...)
+		default:
+			panic(i.file.Errorf(m.Pos(), "unsupported interface embed type"))
 		}
 	}
+	i.loaded = true
 	return
 }
 
-func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Method) {
+func (i *Interface) parseMethod(name string, t *ast.FuncType, cmt []*ast.CommentGroup) (r *Method) {
+	
 	r = &Method{Name: name}
 	
 	if t.Params != nil {
@@ -42,7 +71,7 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 			if len(names) == 0 {
 				names = append(names, fmt.Sprintf("p%d", index))
 			}
-			r.Params = append(r.Params, i.parseParam(file, names, f.Type))
+			r.Params = append(r.Params, i.parseParam(names, f.Type))
 		}
 	}
 	
@@ -52,7 +81,7 @@ func (i *Interface) parseMethod(file *File, name string, t *ast.FuncType) (r *Me
 			if len(names) == 0 {
 				names = append(names, fmt.Sprintf("r%d", index))
 			}
-			r.Results = append(r.Results, i.parseParam(file, names, f.Type))
+			r.Results = append(r.Results, i.parseParam(names, f.Type))
 		}
 	}
 	
@@ -77,17 +106,13 @@ func (i *Interface) getDef(name string) *Def {
 	return i.defs[name]
 }
 
-func (i *Interface) parseParam(f *File, names []string, t ast.Expr) (r *Param) {
+func (i *Interface) parseParam(names []string, t ast.Expr) (r *Param) {
 	
 	r = &Param{
 		Names: names,
 	}
 	
-	//defer func() {
-	//	log.Infof("param: %v Type: %s", r.Names, r.Type)
-	//}()
-	
-	r.Type = parseType(f, i, "", t)
+	r.Type = parseType(i.file, i, "", t)
 	
 	return
 }
