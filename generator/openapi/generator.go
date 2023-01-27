@@ -93,10 +93,15 @@ func (g Generator) convertMethods(d *DocumentV3, m *render.Method) {
 	if item.Post.Responses == nil {
 		item.Post.Responses = map[string]*openapi3.ResponseRef{}
 	}
-	if m.Replay != nil {
+	// 过滤响应 io.Reader 和 chan
+	if m.Replay != nil && len(m.Replay.StructFields) > 0 &&
+		m.Replay.StructFields[0].Type != parser.TAny &&
+		m.Replay.StructFields[0].Type != parser.TChan {
+		
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
 			Ref: g.makeMethodReplyRef(d, m.Replay),
 		}
+		
 	} else {
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
@@ -228,6 +233,8 @@ func (g Generator) convertType(t string) string {
 		return "number"
 	case parser.TBool:
 		return "boolean"
+	case parser.TStruct, parser.TMap:
+		return "object"
 	}
-	return "object"
+	return ""
 }

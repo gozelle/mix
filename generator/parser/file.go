@@ -101,7 +101,8 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 		if !s.Name.IsExported() {
 			return f
 		}
-		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type})
+		_, isStuct := t.(*ast.StructType)
+		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type, IsStrut: isStuct})
 	
 	default:
 		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))

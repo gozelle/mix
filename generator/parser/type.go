@@ -108,7 +108,11 @@ func handleTypeDef(pkg *Package, i *Interface, field string, r *Type, name strin
 		r.Real = &Type{Type: TString, Field: field}
 	} else {
 		r.Def = def.ShallowFork()
-		r.Real = def.Type
+		if def.Type != nil {
+			r.Real = def.Type
+		} else if def.IsStrut {
+			r.Real = &Type{Type: TStruct}
+		}
 		i.addDef(def)
 	}
 	return def
@@ -138,7 +142,6 @@ func handleStructFields(f *File, i *Interface, node *ast.StructType) (fields []*
 }
 
 func parseType(f *File, i *Interface, field string, t ast.Expr) (r *Type) {
-	
 	r = &Type{Field: field}
 	switch e := t.(type) {
 	case *ast.Ident:

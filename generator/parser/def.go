@@ -11,6 +11,7 @@ type Def struct {
 	File     *File    `json:"-"`
 	Type     *Type    `json:"Type,omitempty"`
 	ToString bool     `json:"ToString,omitempty"`
+	IsStrut  bool     `json:"IsStrut,omitempty"`
 	parsed   bool
 }
 

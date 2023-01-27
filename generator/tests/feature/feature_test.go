@@ -38,7 +38,7 @@ func TestFeature(t *testing.T) {
 	
 	renderInterface := render.Convert(parserInterface)
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
-	t.Log(string(d))
+	//t.Log(string(d))
 	
 	g := openapi.Generator{}
 	

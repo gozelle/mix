@@ -16,6 +16,7 @@ type FeatureAPI interface {
 
 type Sub interface {
 	Download(ctx context.Context) (io.Reader, error)
+	Query() <-chan any
 }
 
 type Feature struct {
