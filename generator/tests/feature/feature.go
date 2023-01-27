@@ -5,7 +5,6 @@ import (
 	"github.com/gozelle/mix/generator/tests/basic"
 	"github.com/gozelle/mix/generator/tests/stringer"
 	"io"
-	"regexp"
 )
 
 type FeatureAPI interface {
@@ -20,7 +19,6 @@ type Sub interface {
 }
 
 type Feature struct {
-	a regexp.Regexp
 	tests_basic.Basic
 	*tests_stringer.Stringer
 	Link           *Feature // 递归定义
