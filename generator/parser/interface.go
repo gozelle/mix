@@ -12,7 +12,7 @@ type Interface struct {
 	defs          map[string]*Def
 	Imports       []*Import
 	imports       map[string]bool
-	includes      []*Interface
+	Includes      []*Interface
 	interfaceType *ast.InterfaceType
 	file          *File
 	loaded        bool
@@ -34,25 +34,27 @@ func (i *Interface) Load() (err error) {
 			if imt == nil {
 				panic(i.file.Errorf(m.Pos(), "can't found import: %s", pkgName))
 			}
-			def := imt.Package.GetInterface(typeName)
-			if def == nil {
+			include := imt.Package.GetInterface(typeName)
+			if include == nil {
 				panic(i.file.Errorf(m.Pos(), "can't found interface: %s.%s", pkgName, typeName))
 			}
-			err = def.Load()
+			err = include.Load()
 			if err != nil {
 				panic(err)
 			}
-			i.Methods = append(i.Methods, def.Methods...)
+			i.Includes = append(i.Includes, include)
+			i.Methods = append(i.Methods, include.Methods...)
 		case *ast.Ident:
-			def := i.file.pkg.GetInterface(mt.Name)
-			if def == nil {
+			include := i.file.pkg.GetInterface(mt.Name)
+			if include == nil {
 				panic(i.file.Errorf(m.Pos(), "can't found interface: %s", mt.Name))
 			}
-			err = def.Load()
+			err = include.Load()
 			if err != nil {
 				panic(err)
 			}
-			i.Methods = append(i.Methods, def.Methods...)
+			i.Includes = append(i.Includes, include)
+			i.Methods = append(i.Methods, include.Methods...)
 		default:
 			panic(i.file.Errorf(m.Pos(), "unsupported interface embed type"))
 		}
