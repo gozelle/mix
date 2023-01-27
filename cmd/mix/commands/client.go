@@ -2,14 +2,13 @@ package commands
 
 import (
 	"github.com/gozelle/cobra"
-	"github.com/gozelle/mix/cmd/mix/example"
 	jsonrpc_client "github.com/gozelle/mix/generator/clients/jsonrpc-client"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-var examples = example.Examples{
+var clientExamples = cobra.Examples{
 	{
 		Usage:   "mix generate client --path ./example --pkg example",
 		Comment: "简单用法",
@@ -24,7 +23,7 @@ var clientCmd = &cobra.Command{
 	Use:     "client",
 	Short:   "生成 RPC 客户端",
 	Long:    ``,
-	Example: examples.String(),
+	Example: clientExamples.String(),
 	Run:     generateClient,
 }
 

@@ -1,14 +1,25 @@
 package commands
 
-import "github.com/gozelle/cobra"
+import (
+	"github.com/gozelle/cobra"
+)
+
+var generateExamples = cobra.Examples{
+	{
+		Usage:   "mix generate client -h",
+		Comment: "查看生成 Client 帮助",
+	},
+	{
+		Usage:   "mix generate sdk -h",
+		Comment: "查看生成 API SDK 帮助",
+	},
+}
 
 var GenerateCmd = &cobra.Command{
-	Use: "generate",
-	Example: `mix generate client -h   # 查看生成 Client 帮助
-mix generate sdk -h      # 查看生成 API SDK 帮助
-`,
-	Short: "生成 RPC Client、API SDK",
-	Long:  ``,
+	Use:     "generate",
+	Example: generateExamples.String(),
+	Short:   "生成 RPC Client、API SDK",
+	Long:    ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
