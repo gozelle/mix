@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/generator/parser"
-	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/openapi/openapi3"
 	"github.com/gozelle/pointer"
 	"github.com/invopop/yaml"
@@ -42,9 +41,9 @@ func Parse(tplFile, path string, api string) (doc *DocumentV3, err error) {
 		return
 	}
 	
-	r := render.Convert(i)
+	r := ConvertAPI(i)
 	
-	Convert(doc, r)
+	ConvertOpenapi(doc, r)
 	
 	return
 }
@@ -86,7 +85,7 @@ func Load(file string) (doc *DocumentV3, err error) {
 	return
 }
 
-func Convert(doc *DocumentV3, r *render.API) {
+func ConvertOpenapi(doc *DocumentV3, r *API) {
 	
 	doc.OpenAPI = "3.0.3"
 	
@@ -95,7 +94,7 @@ func Convert(doc *DocumentV3, r *render.API) {
 	}
 	
 	for _, v := range r.Methods {
-		convertMethods(doc, v)
+		convertOpenapiMethods(doc, v)
 	}
 	
 	if doc.Components == nil {
@@ -106,13 +105,13 @@ func Convert(doc *DocumentV3, r *render.API) {
 	}
 	
 	for _, v := range r.Defs {
-		doc.Components.Schemas[v.Name] = makeSchemaRef(doc, v)
+		doc.Components.Schemas[v.Name] = makeOpenapiSchemaRef(doc, v)
 	}
 	
 	return
 }
 
-func convertMethods(d *DocumentV3, m *render.Method) {
+func convertOpenapiMethods(d *DocumentV3, m *Method) {
 	if d.Paths == nil {
 		d.Paths = map[string]*openapi3.PathItem{}
 	}
@@ -131,7 +130,7 @@ func convertMethods(d *DocumentV3, m *render.Method) {
 	}
 	if m.Request != nil {
 		item.Post.RequestBody = &openapi3.RequestBodyRef{
-			Ref: makeMethodParameterRef(d, m.Request),
+			Ref: makeOpenapiMethodParameterRef(d, m.Request),
 		}
 	}
 	if item.Post.Responses == nil {
@@ -143,7 +142,7 @@ func convertMethods(d *DocumentV3, m *render.Method) {
 		m.Replay.StructFields[0].Type != parser.TChan {
 		
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
-			Ref: makeMethodReplyRef(d, m.Replay),
+			Ref: makeOpenapiMethodReplyRef(d, m.Replay),
 		}
 		
 	} else {
@@ -157,7 +156,7 @@ func convertMethods(d *DocumentV3, m *render.Method) {
 	d.Paths[fmt.Sprintf("/%s", m.Name)] = item
 }
 
-func makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
+func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -169,7 +168,7 @@ func makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
 		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Required: false,
-				Content:  makeContent(d, def),
+				Content:  makeOpenapiContent(d, def),
 			},
 		}
 	} else {
@@ -190,7 +189,7 @@ func makeMethodParameterRef(d *DocumentV3, def *render.Def) (ref string) {
 	return
 }
 
-func makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
+func makeOpenapiMethodReplyRef(d *DocumentV3, def *Def) (ref string) {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
@@ -202,7 +201,7 @@ func makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
 			Value: &openapi3.Response{
 				Description: pointer.ToString(""),
 				Headers:     nil,
-				Content:     makeContent(d, def),
+				Content:     makeOpenapiContent(d, def),
 			},
 		}
 	} else {
@@ -225,20 +224,20 @@ func makeMethodReplyRef(d *DocumentV3, def *render.Def) (ref string) {
 	return
 }
 
-func makeContent(d *DocumentV3, def *render.Def) openapi3.Content {
+func makeOpenapiContent(d *DocumentV3, def *Def) openapi3.Content {
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
 	c[ApplicationJson] = &openapi3.MediaType{
 		Extensions: nil,
-		Schema:     makeSchemaRef(d, def),
+		Schema:     makeOpenapiSchemaRef(d, def),
 	}
 	return c
 }
 
-func makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
+func makeOpenapiSchemaRef(d *DocumentV3, def *Def) (s *openapi3.SchemaRef) {
 	
 	s = &openapi3.SchemaRef{
 		Value: &openapi3.Schema{
-			Type: convertType(def.Type),
+			Type: convertOpenapiType(def.Type),
 		},
 	}
 	
@@ -249,10 +248,10 @@ func makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
 			if v.Json != "" {
 				name = v.Json
 			}
-			s.Value.Properties[name] = makeSchemaRef(d, v)
+			s.Value.Properties[name] = makeOpenapiSchemaRef(d, v)
 		}
 	} else if def.Type == parser.TSlice {
-		s.Value.Items = makeSchemaRef(d, def.Elem)
+		s.Value.Items = makeOpenapiSchemaRef(d, def.Elem)
 	} else if def.Use != nil {
 		s.Ref = fmt.Sprintf("#/components/schemas/%s", def.Use.Name)
 	}
@@ -260,7 +259,7 @@ func makeSchemaRef(d *DocumentV3, def *render.Def) (s *openapi3.SchemaRef) {
 	return
 }
 
-func convertType(t string) string {
+func convertOpenapiType(t string) string {
 	switch t {
 	case parser.TSlice, parser.TArray:
 		return "array"

@@ -1,4 +1,4 @@
-package render
+package openapi
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var log = logging.Logger("convertor")
 
-func Convert(i *parser.Interface) *API {
+func ConvertAPI(i *parser.Interface) *API {
 	
 	r := &API{
 		Name: i.Name,
@@ -27,7 +27,7 @@ func Convert(i *parser.Interface) *API {
 		if v.Type.Type != parser.TStruct {
 			continue
 		}
-		d := convertDef(v)
+		d := convertRenderDef(v)
 		r.Defs = append(r.Defs, d)
 		//fmt.Printf("===============Start Def: %s  ===============\n", v.Name)
 		//dd, _ := json.MarshalIndent(d, "", "\t")
@@ -36,39 +36,33 @@ func Convert(i *parser.Interface) *API {
 	}
 	
 	for _, v := range i.Methods {
-		r.Methods = append(r.Methods, convertMethod(v))
+		r.Methods = append(r.Methods, convertRenderMethod(v))
 	}
 	
 	return r
 }
 
-func convertMethod(m *parser.Method) *Method {
+func convertRenderMethod(m *parser.Method) *Method {
 	
 	r := &Method{
 		Name:    m.Name,
-		Request: convertMethodRequest(m),
-		Replay:  convertMethodReply(m),
-		//Params:  strings.Join(params, ","),
-		//Results: strings.Join(results, ","),
+		Request: convertRenderMethodRequest(m),
+		Replay:  convertRenderMethodReply(m),
 	}
-	//if len(results) > 0 {
-	//	r.Results = fmt.Sprintf("(%s)", r.Results)
-	//}
-	
 	return r
 }
 
-func convertMethodRequest(m *parser.Method) *Def {
+func convertRenderMethodRequest(m *parser.Method) *Def {
 	request := &Def{
 		Field: fmt.Sprintf("%sRequest", m.Name),
 		Type:  parser.TStruct,
 	}
 	params := m.ExportParams()
 	if len(params) == 1 && params[0].Type.NoPointer().Def != nil && params[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		request.Use = convertDef(params[0].Type.NoPointer().Def)
+		request.Use = convertRenderDef(params[0].Type.NoPointer().Def)
 	} else if len(params) > 0 {
 		for _, v := range params {
-			request.StructFields = append(request.StructFields, convertMethodParam(v)...)
+			request.StructFields = append(request.StructFields, convertRenderMethodParam(v)...)
 		}
 	} else {
 		request = nil
@@ -77,7 +71,7 @@ func convertMethodRequest(m *parser.Method) *Def {
 	return request
 }
 
-func convertMethodReply(m *parser.Method) *Def {
+func convertRenderMethodReply(m *parser.Method) *Def {
 	replay := &Def{
 		Field: fmt.Sprintf("%sReplay", m.Name),
 		Type:  parser.TStruct,
@@ -86,10 +80,10 @@ func convertMethodReply(m *parser.Method) *Def {
 	results := m.ExportResults()
 	
 	if len(results) > 0 && results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		replay.Use = convertDef(results[0].Type.NoPointer().Def)
+		replay.Use = convertRenderDef(results[0].Type.NoPointer().Def)
 	} else if len(results) > 0 {
 		for _, v := range results {
-			replay.StructFields = append(replay.StructFields, convertMethodParam(v)...)
+			replay.StructFields = append(replay.StructFields, convertRenderMethodParam(v)...)
 		}
 	} else {
 		replay = nil
@@ -97,12 +91,12 @@ func convertMethodReply(m *parser.Method) *Def {
 	return replay
 }
 
-func convertMethodParam(p *parser.Param) []*Def {
+func convertRenderMethodParam(p *parser.Param) []*Def {
 	r := make([]*Def, 0)
-	//log.Infof("convertMethodParam: %v", p.Names)
+	//log.Infof("convertRenderMethodParam: %v", p.Names)
 	//spew.Json(p)
 	for _, v := range p.Names {
-		d := convertType(p.Type)
+		d := convertRenderType(p.Type)
 		d.Field = Title(v)
 		d.Json = v
 		r = append(r, d)
@@ -114,13 +108,13 @@ func Title(v string) string {
 	return cases.Title(language.English).String(v)
 }
 
-func convertDef(d *parser.Def) *Def {
-	n := convertType(d.Type)
+func convertRenderDef(d *parser.Def) *Def {
+	n := convertRenderType(d.Type)
 	n.Name = d.Name
 	return n
 }
 
-func convertType(t *parser.Type) *Def {
+func convertRenderType(t *parser.Type) *Def {
 	
 	pointer := t.Pointer
 	rt := t.NoPointer().RealType()
@@ -139,11 +133,11 @@ func convertType(t *parser.Type) *Def {
 	switch rt.Type {
 	case parser.TStruct:
 		for _, v := range rt.StructFields {
-			n.StructFields = append(n.StructFields, convertType(v))
+			n.StructFields = append(n.StructFields, convertRenderType(v))
 		}
 	case parser.TSlice, parser.TArray:
 		n.Type = parser.TSlice
-		n.Elem = convertType(rt.Elem)
+		n.Elem = convertRenderType(rt.Elem)
 	}
 	
 	// 处理引用关系

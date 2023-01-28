@@ -1,4 +1,4 @@
-package render
+package openapi
 
 type API struct {
 	Name    string    `json:"Name,omitempty"`

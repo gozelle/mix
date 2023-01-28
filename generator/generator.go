@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/gozelle/mix/generator/render"
+	"github.com/gozelle/mix/generator/openapi"
 )
 
 var (
@@ -14,5 +14,5 @@ type File struct {
 }
 
 type Generator interface {
-	Generate(i *render.API) (files []*File, err error)
+	Generate(i *openapi.API) (files []*File, err error)
 }

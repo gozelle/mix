@@ -9,10 +9,3 @@ type DocumentV3 struct {
 const (
 	ApplicationJson = "application/json"
 )
-const (
-	String = "string"
-	Number = "number"
-	Any    = "any"
-	Object = "object"
-	Array  = "array"
-)

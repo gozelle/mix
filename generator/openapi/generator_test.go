@@ -19,7 +19,7 @@ func TestParser(t *testing.T) {
 	//
 	//g := Generator{}
 	//
-	//v3 := g.Convert(&DocumentV3{}, i)
+	//v3 := g.ConvertOpenapi(&DocumentV3{}, i)
 	//
 	//d, err := v3.MarshalJSON()
 	//require.NoError(t, err)

@@ -1,4 +1,4 @@
-package render
+package openapi
 
 import (
 	"encoding/json"
@@ -111,7 +111,7 @@ func TestConvertType(t *testing.T) {
 	err = json.Unmarshal(d, pDef)
 	require.NoError(t, err)
 	
-	def := convertType(pDef.Type)
+	def := convertRenderType(pDef.Type)
 	
 	d, err = json.Marshal(def)
 	require.NoError(t, err)

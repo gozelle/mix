@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gozelle/fastjson"
 	"github.com/gozelle/fs"
+	"github.com/gozelle/mix/generator/openapi"
 	"github.com/gozelle/mix/generator/parser"
-	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/testify/require"
 	"testing"
 )
@@ -33,7 +33,7 @@ func TestBasic(t *testing.T) {
 	parserInterface := pkg.GetInterface("BasicAPI")
 	require.True(t, parserInterface != nil)
 	
-	renderInterface := render.Convert(parserInterface)
+	renderInterface := openapi.ConvertAPI(parserInterface)
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
 	
 	err = fs.Write("./render_interface.json", d)

@@ -5,7 +5,6 @@ import (
 	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/generator/openapi"
 	"github.com/gozelle/mix/generator/parser"
-	"github.com/gozelle/mix/generator/render"
 	"github.com/gozelle/spew"
 	"github.com/gozelle/testify/require"
 	"testing"
@@ -36,13 +35,13 @@ func TestFeature(t *testing.T) {
 	parserInterface := pkg.GetInterface("FeatureAPI")
 	require.True(t, parserInterface != nil)
 	
-	renderInterface := render.Convert(parserInterface)
+	renderInterface := openapi.ConvertAPI(parserInterface)
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
 	//t.Log(string(d))
 	
 	doc := &openapi.DocumentV3{}
 	
-	openapi.Convert(doc, renderInterface)
+	openapi.ConvertOpenapi(doc, renderInterface)
 	
 	d, err = doc.MarshalJSON()
 	require.NoError(t, err)
