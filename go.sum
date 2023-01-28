@@ -72,10 +72,8 @@ github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1 h1:FxHhtJDTWuNurWrSR
 github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1/go.mod h1:DHZWJhgd/EivRAAzewN+szF5jC4AEDN3tnHdktjVeq8=
 github.com/gozelle/fastjson v1.6.5 h1:WPTxms/7q0dMTrpShZcSFrlKVsBbKvYoiAjq/SZAZmg=
 github.com/gozelle/fastjson v1.6.5/go.mod h1:l5cq4UgbGCxPYv6KuzKWAjFiG0taminzA1oQB+VWg24=
-github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c h1:A1Be+2ThW1hS/l+5VmH0wZudOhA/XWmbahA1YYOFGts=
-github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
-github.com/gozelle/fs v0.0.0-20230128053942-940f6d83322e h1:Ag5k6ZIwBq+0rU9WgAieUVE4yyipolBQ46xhG1GYNM0=
-github.com/gozelle/fs v0.0.0-20230128053942-940f6d83322e/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
+github.com/gozelle/fs v0.0.0-20230128122319-88641b3c5902 h1:Y8mxc8HYO5IxIU7SYdq1m2++4G6qnOwSdgBni+IdLgY=
+github.com/gozelle/fs v0.0.0-20230128122319-88641b3c5902/go.mod h1:s4nIInoY984uZn+DBSz73k7ZXsRbf6dZOGnAYB2PPeA=
 github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9 h1:cniqpd+RC8mXijVrDtMiConDvxG46WtED3LvKmILOwc=
 github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9/go.mod h1:JireDjjNIq7AeXEs9Aqjt9DGBtCahaYDNi5xiGPRlHE=
 github.com/gozelle/go-difflib v1.0.0 h1:BIQXTH387TRKUtDGMTaPmoFKKWZQMRR4mSxxcPLOjXQ=

@@ -169,7 +169,6 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	
 	//log.Debugf("load import: %s", r.Path)
 	realPath := f.mod.GetPackagePath(r.Path)
-	//log.Debugf("load import path: %s", realPath)
 	
 	if f.mod.packages != nil {
 		if v, ok := f.mod.packages[realPath]; ok {

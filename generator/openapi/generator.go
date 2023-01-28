@@ -142,33 +142,35 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 	}
 	// 过滤响应 io.Reader 和 chan
 	if m.Replay != nil {
-		ref := makeOpenapiMethodReplyRef(d, m.Replay)
-		if ref != "" {
+		if m.Replay.Use != nil {
 			item.Post.Responses["200"] = &openapi3.ResponseRef{
 				Value: &openapi3.Response{
 					Description: pointer.ToString("success"),
 					Content: openapi3.Content{
 						ApplicationJson: &openapi3.MediaType{
 							Schema: &openapi3.SchemaRef{
-								Ref: ref,
+								Ref: fmt.Sprintf("#/components/schemas/%s", m.Replay.Use.Name),
 							},
 						},
 					},
 				},
 			}
-		}
-	} else if m.Replay.Use != nil {
-		item.Post.Responses["200"] = &openapi3.ResponseRef{
-			Value: &openapi3.Response{
-				Description: pointer.ToString("success"),
-				Content: openapi3.Content{
-					ApplicationJson: &openapi3.MediaType{
-						Schema: &openapi3.SchemaRef{
-							Ref: fmt.Sprintf("#/components/schemas/%s", m.Replay.Use.Name),
+		} else {
+			ref := makeOpenapiMethodReplyRef(d, m.Replay)
+			if ref != "" {
+				item.Post.Responses["200"] = &openapi3.ResponseRef{
+					Value: &openapi3.Response{
+						Description: pointer.ToString("success"),
+						Content: openapi3.Content{
+							ApplicationJson: &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: ref,
+								},
+							},
 						},
 					},
-				},
-			},
+				}
+			}
 		}
 	}
 	

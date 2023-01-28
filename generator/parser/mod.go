@@ -32,7 +32,7 @@ func PrepareMod() (mod *Mod, err error) {
 	
 	for {
 		var f *os.File
-		if f, err = os.Open(filepath.Join(parent, "go.mod")); err == nil {
+		if f, err = os.Open(fs.Join(parent, "go.mod")); err == nil {
 			var d []byte
 			d, err = io.ReadAll(f)
 			if err != nil {
@@ -54,7 +54,7 @@ func PrepareMod() (mod *Mod, err error) {
 		if len(d) >= len(parent) {
 			return
 		}
-		parent = filepath.Join(parent, "../")
+		parent = fs.Join(parent, "../")
 	}
 	return
 }
@@ -107,21 +107,21 @@ func (m Mod) GetPackagePath(pkg string) string {
 	}
 	for _, v := range m.file.Require {
 		if !v.Indirect && v.Mod.Path == pkg {
-			return filepath.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s", pkg, v.Mod.Version))
+			return fs.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s", pkg, v.Mod.Version))
 		}
 	}
 	
-	src := filepath.Join(m.Gopath(), "src", pkg)
+	src := fs.Join(m.Gopath(), "src", pkg)
 	if fs.Exists(src) {
 		return src
 	}
 	
-	src = filepath.Join(m.Gopath(), "src/vendor", pkg)
+	src = fs.Join(m.Gopath(), "src/vendor", pkg)
 	if fs.Exists(src) {
 		return src
 	}
 	
-	return filepath.Join(m.root, strings.TrimPrefix(pkg, m.file.Module.Mod.Path))
+	return fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.file.Module.Mod.Path), "/"))
 }
 
 func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
@@ -161,7 +161,7 @@ func (m Mod) GetPackageFiles(pkg string) (files []string, err error) {
 	
 	var path string
 	if strings.HasPrefix(pkg, m.ModuleName()) {
-		path = filepath.Join(m.root, strings.TrimPrefix(pkg, m.ModuleName()))
+		path = fs.Join(m.root, strings.TrimPrefix(pkg, m.ModuleName()))
 		
 	} else {
 		path = m.GetPackagePath(pkg)

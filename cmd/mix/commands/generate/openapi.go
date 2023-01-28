@@ -6,7 +6,6 @@ import (
 	"github.com/gozelle/mix/cmd/mix/commands"
 	"github.com/gozelle/mix/generator/openapi"
 	"os"
-	"path/filepath"
 )
 
 var openapiCmd = &cobra.Command{
@@ -41,10 +40,10 @@ func generateOpenapi(cmd *cobra.Command, args []string) {
 		commands.Fatal(err)
 	}
 	
-	openapiPath = filepath.Join(pwd, openapiPath)
-	openapiOutfile = filepath.Join(pwd, openapiOutfile)
+	openapiPath = fs.Join(pwd, openapiPath)
+	openapiOutfile = fs.Join(pwd, openapiOutfile)
 	if openapiTpl != "" {
-		openapiTpl = filepath.Join(pwd, openapiTpl)
+		openapiTpl = fs.Join(pwd, openapiTpl)
 	}
 	
 	doc, err := openapi.Parse(openapiTpl, openapiPath, openapiInterface)

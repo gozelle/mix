@@ -2,10 +2,10 @@ package generateCmd
 
 import (
 	"github.com/gozelle/cobra"
+	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/cmd/mix/commands"
 	jsonrpc_client "github.com/gozelle/mix/generator/clients/jsonrpc-client"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -49,26 +49,26 @@ func init() {
 func generateClient(cmd *cobra.Command, args []string) {
 	if clientOutPkg == "" {
 		clientOutPkg = clientPkg
-		commands.Warning("modify outpkg: %s", clientPkg)
+		commands.Warning("modify --outpkg: %s", clientPkg)
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		commands.Fatal(err)
 	}
 	
-	clientPath = filepath.Join(pwd, clientPath)
+	clientPath = fs.Join(pwd, clientPath)
 	
 	if clientOutfile == "" {
-		clientOutfile = filepath.Join(clientPath, "proxy_gen.go")
-		commands.Warning("modify outfile: %s", clientOutfile)
+		clientOutfile = fs.Join(clientPath, "proxy_gen.go")
+		commands.Warning("modify --outfile: %s", clientOutfile)
 	} else if !strings.HasSuffix(clientOutfile, ".go") {
-		clientOutfile = filepath.Join(pwd, clientOutfile, "proxy_gen.go")
-		commands.Warning("modify outfile: %s", clientOutfile)
+		clientOutfile = fs.Join(pwd, clientOutfile, "proxy_gen.go")
+		commands.Warning("modify --outfile: %s", clientOutfile)
 	} else if !strings.HasSuffix(clientOutfile, "gen_.go") {
-		clientOutfile = filepath.Join(pwd, strings.TrimSuffix(clientOutfile, ".go")+"_gen.go")
-		commands.Warning("modify outfile: %s", clientOutfile)
+		clientOutfile = fs.Join(pwd, strings.TrimSuffix(clientOutfile, ".go")+"_gen.go")
+		commands.Warning("modify --outfile: %s", clientOutfile)
 	} else {
-		clientOutfile = filepath.Join(pwd, clientOutfile)
+		clientOutfile = fs.Join(pwd, clientOutfile)
 	}
 	
 	err = jsonrpc_client.Generate(clientPath, clientPkg, clientOutPkg, clientOutfile)

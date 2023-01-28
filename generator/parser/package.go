@@ -100,14 +100,14 @@ func (p *Package) Parse(mod *Mod, dir string) error {
 	mod.loaded[dir] = true
 	//log.Debugf("parse dir: %s", dir)
 	if !fs.IsDir(dir) {
-		return fmt.Errorf("only accept dir")
+		return fmt.Errorf("only accept dir, get: %s", dir)
 	}
 	files, err := fs.Files(dir, ".go")
 	if err != nil {
 		return err
 	}
 	
-	p.Name, err = mod.GetPackageRealName(p.Path)
+	p.Name, err = mod.GetPackageRealName(dir)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,6 @@ import (
 	typescript_axios "github.com/gozelle/mix/generator/sdks/typescript-axios"
 	"github.com/gozelle/mix/generator/writter"
 	"os"
-	"path/filepath"
 )
 
 var sdkExamples = cobra.Examples{
@@ -49,8 +48,8 @@ func generateSDK(cmd *cobra.Command, args []string) {
 	if err != nil {
 		commands.Fatal(err)
 	}
-	sdkOpenapi = filepath.Join(pwd, sdkOpenapi)
-	sdkOutdir = filepath.Join(pwd, sdkOutdir)
+	sdkOpenapi = fs.Join(pwd, sdkOpenapi)
+	sdkOutdir = fs.Join(pwd, sdkOutdir)
 	
 	if fs.Exists(sdkOutdir) {
 		if !fs.IsDir(sdkOutdir) {

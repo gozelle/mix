@@ -2,7 +2,6 @@ package writter
 
 import (
 	"github.com/gozelle/fs"
-	"path/filepath"
 )
 
 var (
@@ -19,7 +18,7 @@ func WriteFiles(dir string, files []*File) (paths []string, err error) {
 		if v.Name == "" {
 			continue
 		}
-		path := filepath.Join(dir, v.Name)
+		path := fs.Join(dir, v.Name)
 		err = fs.Write(path, []byte(v.Content))
 		if err != nil {
 			return
