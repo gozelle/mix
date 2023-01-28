@@ -5,6 +5,7 @@ import (
 	"github.com/gozelle/mix/generator"
 	"github.com/gozelle/mix/generator/openapi"
 	"github.com/gozelle/openapi/openapi3"
+	"github.com/gozelle/spew"
 	"path/filepath"
 )
 
@@ -47,7 +48,8 @@ func Generate(file string) (files []*generator.File, err error) {
 		return
 	}
 	
-	_ = api
+	fmt.Println("print API:")
+	spew.Json(api)
 	
 	return
 }
@@ -123,12 +125,21 @@ func convertMethod(doc *openapi.DocumentV3, path string, item *openapi3.PathItem
 }
 
 func convertMethodRequestBody(req *openapi3.RequestBodyRef) (t string) {
-	t = filepath.Base(req.Ref)
+	if req.Ref != "" {
+		t = filepath.Base(req.Ref)
+	}
 	return
 }
 
 func convertMethodResponses(resp openapi3.Responses) (t string) {
-	t = filepath.Base(resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref)
+	if resp["200"] != nil &&
+		resp["200"].Value != nil &&
+		resp["200"].Value.Content != nil &&
+		resp["200"].Value.Content[openapi.ApplicationJson] != nil &&
+		resp["200"].Value.Content[openapi.ApplicationJson].Schema != nil &&
+		resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref != "" {
+		t = filepath.Base(resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref)
+	}
 	return
 }
 
@@ -144,7 +155,12 @@ func convertSchemas(schemas openapi3.Schemas) (types []*Type) {
 func convertRequestBodies(reqs openapi3.RequestBodies) (types []*Type) {
 	
 	for name, v := range reqs {
-		types = append(types, convertSchema(name, v.Value.Content[openapi.ApplicationJson].Schema))
+		if v.Value != nil &&
+			v.Value.Content != nil &&
+			v.Value.Content[openapi.ApplicationJson] != nil &&
+			v.Value.Content[openapi.ApplicationJson].Schema != nil {
+			types = append(types, convertSchema(name, v.Value.Content[openapi.ApplicationJson].Schema))
+		}
 	}
 	
 	return
@@ -152,7 +168,12 @@ func convertRequestBodies(reqs openapi3.RequestBodies) (types []*Type) {
 
 func convertResponses(reps openapi3.Responses) (types []*Type) {
 	for name, v := range reps {
-		types = append(types, convertSchema(name, v.Value.Content[openapi.ApplicationJson].Schema))
+		if v.Value != nil &&
+			v.Value.Content != nil &&
+			v.Value.Content[openapi.ApplicationJson] != nil &&
+			v.Value.Content[openapi.ApplicationJson].Schema != nil {
+			types = append(types, convertSchema(name, v.Value.Content[openapi.ApplicationJson].Schema))
+		}
 	}
 	return
 }

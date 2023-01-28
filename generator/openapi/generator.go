@@ -140,11 +140,31 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 	if m.Replay != nil && len(m.Replay.StructFields) > 0 &&
 		m.Replay.StructFields[0].Type != parser.TAny &&
 		m.Replay.StructFields[0].Type != parser.TChan {
-		
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
-			Ref: makeOpenapiMethodReplyRef(d, m.Replay),
+			Value: &openapi3.Response{
+				Description: pointer.ToString("success"),
+				Content: openapi3.Content{
+					ApplicationJson: &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: makeOpenapiMethodReplyRef(d, m.Replay),
+						},
+					},
+				},
+			},
 		}
-		
+	} else if m.Replay.Use != nil {
+		item.Post.Responses["200"] = &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Description: pointer.ToString("success"),
+				Content: openapi3.Content{
+					ApplicationJson: &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: fmt.Sprintf("#/components/schemas/%s", m.Replay.Use.Name),
+						},
+					},
+				},
+			},
+		}
 	} else {
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
