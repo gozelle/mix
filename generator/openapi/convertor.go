@@ -23,16 +23,9 @@ func ConvertAPI(i *parser.Interface) *API {
 	//	})
 	//}
 	
-	for _, v := range i.Defs {
-		if v.Type.Type != parser.TStruct {
-			continue
-		}
-		d := convertRenderDef(v)
-		r.Defs = append(r.Defs, d)
-		//fmt.Printf("===============Start Def: %s  ===============\n", v.Name)
-		//dd, _ := json.MarshalIndent(d, "", "\t")
-		//fmt.Println(string(dd))
-		//fmt.Printf("===============End Def: %s ===============\n", v.Name)
+	convertDefs(r, i)
+	for _, v := range i.Includes {
+		convertDefs(r, v)
 	}
 	
 	for _, v := range i.Methods {
@@ -40,6 +33,16 @@ func ConvertAPI(i *parser.Interface) *API {
 	}
 	
 	return r
+}
+
+func convertDefs(r *API, i *parser.Interface) {
+	for _, v := range i.Defs {
+		if v.Type.Type != parser.TStruct {
+			continue
+		}
+		d := convertRenderDef(v)
+		r.Defs = append(r.Defs, d)
+	}
 }
 
 func convertRenderMethod(m *parser.Method) *Method {

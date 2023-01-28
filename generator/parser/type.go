@@ -104,15 +104,11 @@ func handleTypeDef(pkg *Package, i *Interface, field string, r *Type, name strin
 		def.parsed = true
 		def.Type = parseType(def.File, i, "", def.Expr)
 	}
+	
 	if def.ToString {
 		r.Real = &Type{Type: TString, Field: field}
 	} else {
 		r.Def = def.ShallowFork()
-		//if def.Type != nil {
-		//	r.Def = def
-		//} else if def.IsStrut {
-		//	r.Def.Type = &Type{Type: TStruct}
-		//}
 		i.addDef(def)
 	}
 	return def
@@ -121,7 +117,7 @@ func handleTypeDef(pkg *Package, i *Interface, field string, r *Type, name strin
 func handleStructFields(f *File, i *Interface, node *ast.StructType) (fields []*Type) {
 	for _, fd := range node.Fields.List {
 		nl := len(fd.Names)
-		if nl == 0 { // 处理嵌套结构
+		if nl == 0 { // 处理联合结构
 			t := parseType(f, i, "", fd.Type)
 			fields = append(fields, t.NoPointer().Def.Type.StructFields...)
 		} else if nl > 1 {
@@ -146,11 +142,8 @@ func parseType(f *File, i *Interface, field string, t ast.Expr) (r *Type) {
 	switch e := t.(type) {
 	case *ast.Ident:
 		r.Type = e.Name
-		if !isReserved(r.Type) && token.IsExported(r.Type) {
-			def := handleTypeDef(f.pkg, i, field, r, r.Type)
-			if def == nil {
-				panic(fmt.Errorf("can't fond type: '%s' in package: %s", r.Type, f.path))
-			}
+		if token.IsExported(r.Type) {
+			handleTypeDef(f.pkg, i, field, r, r.Type)
 		}
 	case *ast.InterfaceType:
 		r.Type = TAny
@@ -203,31 +196,4 @@ func parseType(f *File, i *Interface, field string, t ast.Expr) (r *Type) {
 	}
 	
 	return
-}
-
-func isReserved(t string) bool {
-	switch t {
-	case "int",
-		"int8",
-		"int16",
-		"int32",
-		"int64",
-		"uint",
-		"uint8",
-		"uint16",
-		"uint32",
-		"uint64",
-		"float32",
-		"float64",
-		"string",
-		"bool",
-		"byte",
-		"rune",
-		"uintptr",
-		"map",
-		"any",
-		"error":
-		return true
-	}
-	return false
 }

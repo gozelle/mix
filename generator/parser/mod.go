@@ -161,8 +161,7 @@ func (m Mod) GetPackageFiles(pkg string) (files []string, err error) {
 	
 	var path string
 	if strings.HasPrefix(pkg, m.ModuleName()) {
-		path = fs.Join(m.root, strings.TrimPrefix(pkg, m.ModuleName()))
-		
+		path = fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.ModuleName()), "/"))
 	} else {
 		path = m.GetPackagePath(pkg)
 	}

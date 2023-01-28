@@ -1,7 +1,10 @@
 package test
 
 import (
+	"encoding/json"
 	"github.com/gozelle/fs"
+	"github.com/gozelle/mix/generator/openapi"
+	"github.com/gozelle/mix/generator/parser"
 	"github.com/gozelle/testify/require"
 	"os"
 	"os/exec"
@@ -101,4 +104,43 @@ func testGenSDK(t *testing.T) {
 	d, err := cmd.CombinedOutput()
 	require.NoError(t, err)
 	t.Log("exec Result", string(d))
+}
+
+func TestHandleGenOpenapi(t *testing.T) {
+	mod, err := parser.PrepareMod()
+	require.NoError(t, err)
+	
+	dir, err := fs.Lookup("./example/api")
+	require.NoError(t, err)
+	
+	pkg, err := parser.Parse(mod, dir)
+	require.NoError(t, err)
+	
+	defJson, err := json.Marshal(pkg.GetInterface("FullAPI"))
+	require.NoError(t, err)
+	
+	t.Log(string(defJson))
+	
+	//c, err := fs.Read("./parser_basic_def.json")
+	//require.NoError(t, err)
+	//
+	//// 比较 Parser 类型定义
+	//err = fastjson.EqualsBytes(c, defJson)
+	//require.NoError(t, err)
+	//
+	parserInterface := pkg.GetInterface("FullAPI")
+	require.True(t, parserInterface != nil)
+	
+	renderInterface := openapi.ConvertAPI(parserInterface)
+	d, _ := json.MarshalIndent(renderInterface, "", "\t")
+	t.Log(string(d))
+	
+	doc := &openapi.DocumentV3{}
+	
+	openapi.ConvertOpenapi(doc, renderInterface)
+	
+	d, err = doc.MarshalJSON()
+	require.NoError(t, err)
+	
+	t.Log(string(d))
 }
