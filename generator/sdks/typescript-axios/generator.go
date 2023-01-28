@@ -6,7 +6,6 @@ import (
 	"github.com/gozelle/mix/generator/writter"
 	"github.com/gozelle/openapi/openapi3"
 	"github.com/gozelle/pongo2"
-	"github.com/gozelle/spew"
 	"github.com/gozelle/structs"
 	"path/filepath"
 	"strings"
@@ -49,8 +48,8 @@ func Generate(file string) (files []*writter.File, err error) {
 		return
 	}
 	
-	fmt.Println("print API:")
-	spew.Json(api)
+	//fmt.Println("print API:")
+	//spew.Json(api)
 	
 	tpl, err := pongo2.FromString(typesTpl)
 	if err != nil {
@@ -207,13 +206,14 @@ func convertSchema(doc *openapi.DocumentV3, name string, value *openapi3.Schema)
 	field = &Type{
 		Name: name,
 	}
+	
 	switch value.Type {
 	case openapi.Object:
 		if value.Properties != nil {
 			field.Type = openapi.Object
 			for k, v := range value.Properties {
 				if v.Ref != "" {
-					field.Ref = filepath.Base(v.Ref)
+					field.Fields = append(field.Fields, &Type{Name: k, Type: filepath.Base(v.Ref)})
 				} else if v.Value != nil {
 					field.Fields = append(field.Fields, convertSchema(doc, k, v.Value))
 				}
@@ -261,14 +261,21 @@ import {BaseAPI} from "./base";
 import {AxiosRequestConfig} from "axios";
 
 export class API extends BaseAPI {
-{%- for method in Methods %}
-    public {{method.Name}} ({% if method.Request %}request?: {{method.Request}}, {% endif %}options?: AxiosRequestConfig):Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
-        return this.client.{{ method.Method }}('{{ method.Path }}',{% if method.Request %}request{% else %}null{% endif %}, options)
+
+	constructor(config: AxiosRequestConfig) {
+        super(config);
     }
+{%- for method in Methods %}
+
+    public {{method.Name}}({% if method.Request %}request?: {{method.Request}}, {% endif %}options?: AxiosRequestConfig): Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
+        return this.client.{{ method.Method }}('{{ method.Path }}', {% if method.Request %}request{% else %}null{% endif %}, options)
+    }
+
 {%- endfor %}
 }
 
 {%- for type in Types %}
+
 export interface {{ type.Name }} {
 	{%- for field in type.Fields %}
     {{ field.Name }}?: {{ field.Type }};

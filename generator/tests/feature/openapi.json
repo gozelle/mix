@@ -29,6 +29,38 @@
         }
       }
     },
+    "responses": {
+      "Test1Replay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Basic"
+            }
+          }
+        },
+        "description": ""
+      },
+      "Test2Replay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Basic"
+            }
+          }
+        },
+        "description": ""
+      },
+      "TestReplay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Feature"
+            }
+          }
+        },
+        "description": ""
+      }
+    },
     "schemas": {
       "Basic": {
         "properties": {
@@ -110,18 +142,18 @@
             "type": "integer"
           },
           "Link": {
-            "type": "object"
+            "$ref": "#/components/schemas/Feature"
           },
           "LinkArray": {
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/Feature"
             },
             "type": "array"
           },
           "LinkArrayArray": {
             "items": {
               "items": {
-                "type": "object"
+                "$ref": "#/components/schemas/Feature"
               },
               "type": "array"
             },
@@ -234,7 +266,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feature"
+                  "$ref": "#/components/responses/TestReplay"
                 }
               }
             },
@@ -254,7 +286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Basic"
+                  "$ref": "#/components/responses/Test1Replay"
                 }
               }
             },
@@ -274,7 +306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Basic"
+                  "$ref": "#/components/responses/Test2Replay"
                 }
               }
             },

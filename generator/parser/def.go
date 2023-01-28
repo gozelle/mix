@@ -22,6 +22,7 @@ func (d Def) ShallowFork() *Def {
 		File:     d.File,
 		Type:     d.Type,
 		ToString: d.ToString,
+		IsStrut:  d.IsStrut,
 		parsed:   d.parsed,
 	}
 	return n

@@ -105,7 +105,9 @@ func ConvertOpenapi(doc *DocumentV3, r *API) {
 	}
 	
 	for _, v := range r.Defs {
-		doc.Components.Schemas[v.Name] = makeOpenapiSchemaRef(doc, v)
+		if ref := makeOpenapiSchemaRef(doc, v); ref != nil {
+			doc.Components.Schemas[v.Name] = ref
+		}
 	}
 	
 	return
@@ -129,28 +131,31 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 		},
 	}
 	if m.Request != nil {
-		item.Post.RequestBody = &openapi3.RequestBodyRef{
-			Ref: makeOpenapiMethodParameterRef(d, m.Request),
+		if ref := makeOpenapiMethodParameterRef(d, m.Request); ref != "" {
+			item.Post.RequestBody = &openapi3.RequestBodyRef{
+				Ref: ref,
+			}
 		}
 	}
 	if item.Post.Responses == nil {
 		item.Post.Responses = map[string]*openapi3.ResponseRef{}
 	}
 	// 过滤响应 io.Reader 和 chan
-	if m.Replay != nil && len(m.Replay.StructFields) > 0 &&
-		m.Replay.StructFields[0].Type != parser.TAny &&
-		m.Replay.StructFields[0].Type != parser.TChan {
-		item.Post.Responses["200"] = &openapi3.ResponseRef{
-			Value: &openapi3.Response{
-				Description: pointer.ToString("success"),
-				Content: openapi3.Content{
-					ApplicationJson: &openapi3.MediaType{
-						Schema: &openapi3.SchemaRef{
-							Ref: makeOpenapiMethodReplyRef(d, m.Replay),
+	if m.Replay != nil {
+		ref := makeOpenapiMethodReplyRef(d, m.Replay)
+		if ref != "" {
+			item.Post.Responses["200"] = &openapi3.ResponseRef{
+				Value: &openapi3.Response{
+					Description: pointer.ToString("success"),
+					Content: openapi3.Content{
+						ApplicationJson: &openapi3.MediaType{
+							Schema: &openapi3.SchemaRef{
+								Ref: ref,
+							},
 						},
 					},
 				},
-			},
+			}
 		}
 	} else if m.Replay.Use != nil {
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
@@ -165,7 +170,9 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 				},
 			},
 		}
-	} else {
+	}
+	
+	if item.Post.Responses["200"] == nil {
 		item.Post.Responses["200"] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
 				Description: pointer.ToString("success"),
@@ -176,14 +183,14 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 	d.Paths[fmt.Sprintf("/%s", m.Name)] = item
 }
 
-func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) (ref string) {
+func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) string {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
 	if d.Components.RequestBodies == nil {
 		d.Components.RequestBodies = map[string]*openapi3.RequestBodyRef{}
 	}
-	
+	ref := fmt.Sprintf("#/components/requestBodies/%s", def.Field)
 	if def.Use == nil {
 		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
@@ -191,7 +198,8 @@ func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) (ref string) {
 				Content:  makeOpenapiContent(d, def),
 			},
 		}
-	} else {
+		return ref
+	} else if def.Use.Type == parser.TStruct {
 		d.Components.RequestBodies[def.Field] = &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Required: false,
@@ -204,27 +212,32 @@ func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) (ref string) {
 				},
 			},
 		}
+		return ref
 	}
-	ref = fmt.Sprintf("#/components/requestBodies/%s", def.Field)
-	return
+	
+	return ""
 }
 
-func makeOpenapiMethodReplyRef(d *DocumentV3, def *Def) (ref string) {
+func makeOpenapiMethodReplyRef(d *DocumentV3, def *Def) string {
 	if d.Components == nil {
 		d.Components = &openapi3.Components{}
 	}
 	if d.Components.Responses == nil {
 		d.Components.Responses = map[string]*openapi3.ResponseRef{}
 	}
+	ref := fmt.Sprintf("#/components/responses/%s", def.Field)
 	if def.Use == nil {
-		d.Components.Responses[def.Field] = &openapi3.ResponseRef{
-			Value: &openapi3.Response{
-				Description: pointer.ToString(""),
-				Headers:     nil,
-				Content:     makeOpenapiContent(d, def),
-			},
+		if c := makeOpenapiContent(d, def); len(c) > 0 {
+			d.Components.Responses[def.Field] = &openapi3.ResponseRef{
+				Value: &openapi3.Response{
+					Description: pointer.ToString(""),
+					Headers:     nil,
+					Content:     c,
+				},
+			}
+			return ref
 		}
-	} else {
+	} else if def.Use.Type == parser.TStruct {
 		d.Components.Responses[def.Field] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
 				Description: pointer.ToString(""),
@@ -238,17 +251,19 @@ func makeOpenapiMethodReplyRef(d *DocumentV3, def *Def) (ref string) {
 				},
 			},
 		}
+		return ref
 	}
-	ref = fmt.Sprintf("#/components/responses/%s", def.Field)
 	
-	return
+	return ""
 }
 
 func makeOpenapiContent(d *DocumentV3, def *Def) openapi3.Content {
 	var c openapi3.Content = map[string]*openapi3.MediaType{}
-	c[ApplicationJson] = &openapi3.MediaType{
-		Extensions: nil,
-		Schema:     makeOpenapiSchemaRef(d, def),
+	if ref := makeOpenapiSchemaRef(d, def); ref != nil {
+		c[ApplicationJson] = &openapi3.MediaType{
+			Extensions: nil,
+			Schema:     ref,
+		}
 	}
 	return c
 }
@@ -257,30 +272,47 @@ func makeOpenapiSchemaRef(d *DocumentV3, def *Def) (s *openapi3.SchemaRef) {
 	
 	s = &openapi3.SchemaRef{
 		Value: &openapi3.Schema{
-			Type: convertOpenapiType(def.Type),
+			Type: convertOpenapiType(def),
 		},
 	}
 	
-	if def.Type == parser.TStruct {
+	// 过滤不支持的类型
+	if s.Value.Type == "" {
+		return nil
+	}
+	
+	if def.Use != nil && def.Use.Type == parser.TStruct {
+		s.Ref = fmt.Sprintf("#/components/schemas/%s", def.Use.Name)
+	} else if def.Type == parser.TStruct {
 		s.Value.Properties = map[string]*openapi3.SchemaRef{}
 		for _, v := range def.StructFields {
 			name := v.Field
 			if v.Json != "" {
 				name = v.Json
 			}
-			s.Value.Properties[name] = makeOpenapiSchemaRef(d, v)
+			if ref := makeOpenapiSchemaRef(d, v); ref != nil {
+				s.Value.Properties[name] = ref
+			}
+		}
+		if len(s.Value.Properties) == 0 {
+			return nil
 		}
 	} else if def.Type == parser.TSlice {
-		s.Value.Items = makeOpenapiSchemaRef(d, def.Elem)
-	} else if def.Use != nil {
-		s.Ref = fmt.Sprintf("#/components/schemas/%s", def.Use.Name)
+		if ref := makeOpenapiSchemaRef(d, def.Elem); ref != nil {
+			s.Value.Items = ref
+		}
 	}
-	
 	return
 }
 
-func convertOpenapiType(t string) string {
-	switch t {
+func convertOpenapiType(def *Def) string {
+	
+	typ := def.Type
+	if def.Use != nil {
+		typ = def.Use.Type
+	}
+	
+	switch typ {
 	case parser.TSlice, parser.TArray:
 		return Array
 	case parser.TString:
@@ -295,5 +327,6 @@ func convertOpenapiType(t string) string {
 	case parser.TStruct, parser.TMap:
 		return Object
 	}
+	
 	return ""
 }

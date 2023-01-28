@@ -141,8 +141,13 @@ func convertRenderType(t *parser.Type) *Def {
 	}
 	
 	// 处理引用关系
-	if rt.Def != nil && rt.Def.Name == rt.Type {
+	if rt.Def != nil {
 		n.Use = &Def{Name: rt.Def.Name}
+		if rt.Def.IsStrut {
+			n.Use.Type = parser.TStruct
+		} else if rt.Def.Type != nil {
+			n.Use.Type = rt.Def.Type.Type
+		}
 	}
 	
 	return n

@@ -11,11 +11,19 @@ import (
 	"path/filepath"
 )
 
+var sdkExamples = cobra.Examples{
+	{
+		Usage:   "mix generate sdk --openapi ./example/openapi.json --sdk axios --outdir ./sdk",
+		Comment: "生成 Axios SDK",
+	},
+}
+
 var sdkCmd = &cobra.Command{
-	Use:   "sdk",
-	Short: "生成 API SDK",
-	Long:  ``,
-	Run:   generateSDK,
+	Use:     "sdk",
+	Short:   "生成 API SDK",
+	Long:    ``,
+	Example: sdkExamples.String(),
+	Run:     generateSDK,
 }
 
 var (
@@ -71,6 +79,7 @@ func generateSDK(cmd *cobra.Command, args []string) {
 	if err != nil {
 		commands.Fatal(fmt.Errorf("write file error: %s", err))
 	}
+	
 	for _, v := range paths {
 		commands.Info("write file: %s", v)
 	}

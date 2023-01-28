@@ -20,7 +20,7 @@ func TestFeature(t *testing.T) {
 	pkg, err := parser.Parse(mod, dir)
 	require.NoError(t, err)
 	
-	defJson, err := json.Marshal(pkg.GetDef("Feature"))
+	defJson, err := json.Marshal(pkg.GetInterface("FeatureAPI"))
 	require.NoError(t, err)
 	
 	t.Log(string(defJson))
@@ -37,7 +37,7 @@ func TestFeature(t *testing.T) {
 	
 	renderInterface := openapi.ConvertAPI(parserInterface)
 	d, _ := json.MarshalIndent(renderInterface, "", "\t")
-	//t.Log(string(d))
+	t.Log(string(d))
 	
 	doc := &openapi.DocumentV3{}
 	

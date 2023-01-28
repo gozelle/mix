@@ -108,11 +108,11 @@ func handleTypeDef(pkg *Package, i *Interface, field string, r *Type, name strin
 		r.Real = &Type{Type: TString, Field: field}
 	} else {
 		r.Def = def.ShallowFork()
-		if def.Type != nil {
-			r.Real = def.Type
-		} else if def.IsStrut {
-			r.Real = &Type{Type: TStruct}
-		}
+		//if def.Type != nil {
+		//	r.Def = def
+		//} else if def.IsStrut {
+		//	r.Def.Type = &Type{Type: TStruct}
+		//}
 		i.addDef(def)
 	}
 	return def
