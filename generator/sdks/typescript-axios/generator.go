@@ -51,7 +51,7 @@ func Generate(file string) (files []*writter.File, err error) {
 	//fmt.Println("print API:")
 	//spew.Json(api)
 	
-	tpl, err := pongo2.FromString(typesTpl)
+	tpl, err := pongo2.FromString(apiTpl)
 	if err != nil {
 		err = fmt.Errorf("preprea tpl error: %s", err)
 		return
@@ -223,6 +223,15 @@ func convertSchema(doc *openapi.DocumentV3, name string, value *openapi3.Schema)
 					field.Fields = append(field.Fields, convertSchema(doc, k, v.Value))
 				}
 			}
+			o, err := pongo2.FromString(objectTpl)
+			if err != nil {
+				panic(fmt.Errorf("prepare object tpl error: %s", err))
+			}
+			t, err := o.Execute(structs.Map(field))
+			if err != nil {
+				panic(fmt.Errorf("render object tpl error: %s", err))
+			}
+			field.Type = t
 		} else {
 			field.Type = "any"
 		}
@@ -261,7 +270,7 @@ func getSchemaRef(doc *openapi.DocumentV3, name string) *openapi3.SchemaRef {
 	return nil
 }
 
-const typesTpl = `
+const apiTpl = `
 import {BaseAPI} from "./base";
 // @ts-ignore
 import {AxiosRequestConfig} from "axios";
@@ -288,4 +297,12 @@ export interface {{ type.Name }} {
 	{%- endfor %}
 }
 {%- endfor %}
+`
+
+const objectTpl = `
+{
+	{%- for field in Fields %}
+	    {{ field.Name }}?: {{ field.Type }};
+	{%- endfor %}
+}
 `

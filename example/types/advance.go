@@ -6,7 +6,11 @@ import (
 )
 
 type Advance struct {
-	Name      TString
+	Name  TString
+	Inner struct {
+		Title   string
+		Content *string
+	}
 	Num       *TInt
 	Count     Decimal
 	Total     decimal.Decimal

@@ -9,6 +9,7 @@ import (
 )
 
 type Message struct {
+	Msg string // TODO test remove
 }
 
 type FullAPI interface {
