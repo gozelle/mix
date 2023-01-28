@@ -258,6 +258,7 @@ func getSchemaRef(doc *openapi.DocumentV3, name string) *openapi3.SchemaRef {
 
 const typesTpl = `
 import {BaseAPI} from "./base";
+// @ts-ignore
 import {AxiosRequestConfig} from "axios";
 
 export class API extends BaseAPI {
@@ -267,7 +268,7 @@ export class API extends BaseAPI {
     }
 {%- for method in Methods %}
 
-    public {{method.Name}}({% if method.Request %}request?: {{method.Request}}, {% endif %}options?: AxiosRequestConfig): Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
+    public {{method.Name}}({% if method.Request %}request: {{method.Request}}, {% endif %}options?: AxiosRequestConfig): Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
         return this.client.{{ method.Method }}('{{ method.Path }}', {% if method.Request %}request{% else %}null{% endif %}, options)
     }
 
