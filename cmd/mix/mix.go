@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/gozelle/cobra"
 	"github.com/gozelle/mix/cmd/mix/commands/generate"
+	initCmd "github.com/gozelle/mix/cmd/mix/commands/init"
 	"os"
 )
 
@@ -54,7 +55,7 @@ func init() {
 
 func main() {
 	rootCmd.AddCommand(
-		init.InitCmd,
+		initCmd.InitCmd,
 		generateCmd.GenerateCmd,
 	)
 	Execute()

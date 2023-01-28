@@ -282,18 +282,18 @@ func makeOpenapiSchemaRef(d *DocumentV3, def *Def) (s *openapi3.SchemaRef) {
 func convertOpenapiType(t string) string {
 	switch t {
 	case parser.TSlice, parser.TArray:
-		return "array"
+		return Array
 	case parser.TString:
-		return "string"
+		return String
 	case parser.TInt, parser.TInt8, parser.TInt16, parser.TInt32, parser.TInt64,
 		parser.TUint, parser.TUint8, parser.TUint16, parser.TUint32, parser.TUint64:
-		return "integer"
+		return Integer
 	case parser.TFloat32, parser.TFloat64:
-		return "number"
+		return Number
 	case parser.TBool:
-		return "boolean"
+		return Boolean
 	case parser.TStruct, parser.TMap:
-		return "object"
+		return Object
 	}
 	return ""
 }

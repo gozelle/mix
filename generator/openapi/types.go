@@ -9,3 +9,12 @@ type DocumentV3 struct {
 const (
 	ApplicationJson = "application/json"
 )
+
+const (
+	Array   = "array"
+	String  = "string"
+	Integer = "integer"
+	Number  = "number"
+	Boolean = "boolean"
+	Object  = "object"
+)

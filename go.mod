@@ -6,7 +6,7 @@ require (
 	github.com/gozelle/cobra v1.6.3
 	github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1
 	github.com/gozelle/fastjson v1.6.5
-	github.com/gozelle/fs v0.0.0-20230125035049-687c7665623c
+	github.com/gozelle/fs v0.0.0-20230128053942-940f6d83322e
 	github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9
 	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
 	github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46
@@ -40,6 +40,8 @@ require (
 	github.com/gozelle/isatty v0.0.17 // indirect
 	github.com/gozelle/multierr v1.9.10 // indirect
 	github.com/gozelle/opencensus v0.24.1 // indirect
+	github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621 // indirect
+	github.com/gozelle/structs v1.1.0 // indirect
 	github.com/gozelle/websocket v1.5.0 // indirect
 	github.com/gozelle/yaml v0.0.0-20230127161149-50ad9e131615 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect

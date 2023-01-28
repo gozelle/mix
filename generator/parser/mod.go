@@ -112,12 +112,12 @@ func (m Mod) GetPackagePath(pkg string) string {
 	}
 	
 	src := filepath.Join(m.Gopath(), "src", pkg)
-	if err := fs.Exists(src); err == nil {
+	if fs.Exists(src) {
 		return src
 	}
 	
 	src = filepath.Join(m.Gopath(), "src/vendor", pkg)
-	if err := fs.Exists(src); err == nil {
+	if fs.Exists(src) {
 		return src
 	}
 	
