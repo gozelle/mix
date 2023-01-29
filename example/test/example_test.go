@@ -5,7 +5,10 @@ import (
 	"github.com/gozelle/fs"
 	"github.com/gozelle/mix/generator/openapi"
 	"github.com/gozelle/mix/generator/parser"
+<<<<<<< HEAD
 	typescript_axios "github.com/gozelle/mix/generator/sdks/typescript-axios"
+=======
+>>>>>>> c8027ca4e8e32f877d146d38865acee266e07539
 	"github.com/gozelle/testify/require"
 	"os"
 	"os/exec"
@@ -117,11 +120,18 @@ func TestHandleGenOpenapi(t *testing.T) {
 	pkg, err := parser.Parse(mod, dir)
 	require.NoError(t, err)
 	
+<<<<<<< HEAD
 	api := pkg.GetInterface("FullAPI")
 	require.True(t, api != nil)
 	d, err := json.Marshal(api)
 	require.NoError(t, err)
 	t.Log(string(d))
+=======
+	defJson, err := json.Marshal(pkg.GetInterface("FullAPI"))
+	require.NoError(t, err)
+	
+	t.Log(string(defJson))
+>>>>>>> c8027ca4e8e32f877d146d38865acee266e07539
 	
 	//c, err := fs.Read("./parser_basic_def.json")
 	//require.NoError(t, err)
@@ -130,13 +140,22 @@ func TestHandleGenOpenapi(t *testing.T) {
 	//err = fastjson.EqualsBytes(c, defJson)
 	//require.NoError(t, err)
 	//
+<<<<<<< HEAD
 	
 	r := openapi.ConvertAPI(api)
 	d, _ = json.Marshal(r)
+=======
+	parserInterface := pkg.GetInterface("FullAPI")
+	require.True(t, parserInterface != nil)
+	
+	renderInterface := openapi.ConvertAPI(parserInterface)
+	d, _ := json.MarshalIndent(renderInterface, "", "\t")
+>>>>>>> c8027ca4e8e32f877d146d38865acee266e07539
 	t.Log(string(d))
 	
 	doc := &openapi.DocumentV3{}
 	
+<<<<<<< HEAD
 	openapi.ConvertOpenapi(doc, r)
 	
 	d, err = doc.MarshalJSON()
@@ -148,5 +167,12 @@ func TestHandleGenOpenapi(t *testing.T) {
 	
 	d, err = json.Marshal(a)
 	require.NoError(t, err)
+=======
+	openapi.ConvertOpenapi(doc, renderInterface)
+	
+	d, err = doc.MarshalJSON()
+	require.NoError(t, err)
+	
+>>>>>>> c8027ca4e8e32f877d146d38865acee266e07539
 	t.Log(string(d))
 }
