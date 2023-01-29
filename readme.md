@@ -65,6 +65,7 @@ go install github.com/gozelle/mix/cmd/mix@latest
 ## Client 生成
 
 ```
+# 生成 jsonrpc client
 mix generate client --path ./example/api --pkg example_api --outpkg example_api --outfile ./example/api/proxy_gen.go
 ```
 
