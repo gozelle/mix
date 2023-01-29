@@ -35,13 +35,16 @@ export const responseInterceptorExample: any = [function (response: AxiosRespons
     if (error.response) {
         const data = error.response.data as any;
         if (error.response.status >= 400 && error.response.status < 500) {
-            console.warn(data ? data.message : 'api error')
+            console.warn({ content: data ? data.message : 'custom error'})
         } else {
-            console.error(data ? data?.message : error.response.statusText)
+            console.error({ content: data ? data.message : 'system error' })
         }
     } else {
         console.error('unknown error:', JSON.stringify(error))
     }
-    return Promise.reject(error);
+	// 会阻止后续的业务处理逻辑
+    return Promise.reject(error).catch(err => {
+        // report
+    });
 }]
 `
