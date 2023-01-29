@@ -162,9 +162,10 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	var err error
 	if r.Alias == "" {
 		r.Alias, err = f.mod.GetPackageRealName(r.Path)
-		if err != nil {
-			panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
-		}
+		//TODO
+		//if err != nil {
+		//	panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
+		//}
 	}
 	
 	//log.Debugf("load import: %s", r.Path)
@@ -182,7 +183,8 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	
 	err = r.Package.Parse(f.mod, realPath)
 	if err != nil {
-		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
+		// panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
+		return nil
 	}
 	
 	return r
