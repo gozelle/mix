@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gozelle/gin"
+	"github.com/gozelle/openapi/openapi3"
+	"github.com/gozelle/testify/require"
 	"io"
 	"testing"
 )
@@ -72,4 +74,42 @@ func TestServer(t *testing.T) {
 	}))
 	
 	//require.NoError(t, server.Run(":11111"))
+}
+
+func TestOpenAPI(t *testing.T) {
+	doc := &openapi3.T{}
+	doc.Paths = map[string]*openapi3.PathItem{
+		"/Ping": {
+			Post: &openapi3.Operation{
+				//Extensions:  map[string]interface{}{},
+				Tags:        []string{"Tag1"},
+				Summary:     "一点简介",
+				Description: "一点描述",
+				OperationID: "TestPing",
+				Parameters: openapi3.Parameters{
+					{
+						Ref:   "",
+						Value: &openapi3.Parameter{}, // TODO 不能为空
+					},
+				},
+				
+				RequestBody: &openapi3.RequestBodyRef{
+					Value: &openapi3.RequestBody{
+						Required: true,
+						Content: map[string]*openapi3.MediaType{
+							"application/json": &openapi3.MediaType{
+								Schema: &openapi3.SchemaRef{
+									Ref: "#/components/schemas/centaurus.v1.LoginByLdapRequest",
+								},
+							},
+						},
+					},
+				},
+				Responses: map[string]*openapi3.ResponseRef{},
+			},
+		},
+	}
+	d, err := doc.MarshalJSON()
+	require.NoError(t, err)
+	t.Log(string(d))
 }

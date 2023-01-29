@@ -1,0 +1,398 @@
+{
+  "components": {
+    "requestBodies": {
+      "GetInfoRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Info"
+            }
+          }
+        }
+      },
+      "GetOrderByIDRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      "GetOrderPrice2Request": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      "GetOrderPriceRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      "GetUserRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      "RegisterByEmailRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RegisterByEmailRequest"
+            }
+          }
+        }
+      },
+      "RegisterRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "password": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        }
+      },
+      "SaveAppleRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Apple"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "GetOrderByIDReplay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "user": {
+                  "items": {
+                    "properties": {
+                      "Active": {
+                        "type": "boolean"
+                      },
+                      "CreatedAt": {
+                        "type": "string"
+                      },
+                      "Price": {
+                        "type": "string"
+                      },
+                      "UpdatedAt": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "tags": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "description": ""
+      },
+      "GetOrderPrice2Replay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "price": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "description": ""
+      },
+      "GetOrderPriceReplay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "price": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "description": ""
+      },
+      "RegisterReplay": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "description": ""
+      }
+    },
+    "schemas": {
+      "Apple": {
+        "properties": {
+          "Color": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExampleUser": {
+        "properties": {
+          "Active": {
+            "type": "boolean"
+          },
+          "CreatedAt": {
+            "type": "string"
+          },
+          "Price": {
+            "type": "string"
+          },
+          "UpdatedAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "Info": {
+        "properties": {
+          "Req": {
+            "properties": {
+              "Email": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "Users": {
+            "properties": {
+              "Active": {
+                "type": "boolean"
+              },
+              "CreatedAt": {
+                "type": "string"
+              },
+              "Price": {
+                "type": "string"
+              },
+              "UpdatedAt": {
+                "type": "string"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "tags": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "RegisterByEmailRequest": {
+        "properties": {
+          "Email": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about\nSwagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!\nYou can now help us improve the API whether it's by making changes to the definition itself or to the code.\nThat way, with time, we can improve the API in general, and expose some of the new features in OAS3.\n\n_If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit \u003e Load Petstore OAS 2.0` menu option!_\n\nSome useful links:\n- [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)\n- [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)",
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "version": ""
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/GetInfo": {
+      "post": {
+        "operationId": "GetInfo",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/GetInfoRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/GetOrderByID": {
+      "post": {
+        "operationId": "GetOrderByID",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/GetOrderByIDRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetOrderByIDReplay"
+          }
+        }
+      }
+    },
+    "/GetOrderPrice": {
+      "post": {
+        "operationId": "GetOrderPrice",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/GetOrderPriceRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetOrderPriceReplay"
+          }
+        }
+      }
+    },
+    "/GetOrderPrice2": {
+      "post": {
+        "operationId": "GetOrderPrice2",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/GetOrderPrice2Request"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetOrderPrice2Replay"
+          }
+        }
+      }
+    },
+    "/GetUser": {
+      "post": {
+        "operationId": "GetUser",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/GetUserRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/Register": {
+      "post": {
+        "operationId": "Register",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RegisterRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RegisterReplay"
+          }
+        }
+      }
+    },
+    "/RegisterByEmail": {
+      "post": {
+        "operationId": "RegisterByEmail",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RegisterByEmailRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    },
+    "/SaveApple": {
+      "post": {
+        "operationId": "SaveApple",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SaveAppleRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    }
+  }
+}
