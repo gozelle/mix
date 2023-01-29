@@ -60,6 +60,7 @@ curl --location --request POST '127.0.0.1:1332/rpc/v1/' \
 
 ```
 go install github.com/gozelle/mix/cmd/mix@latest
+mix -h
 ```
 
 ## Client 生成
