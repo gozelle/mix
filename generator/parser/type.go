@@ -164,11 +164,7 @@ func parseType(f *File, i *Interface, field string, t ast.Expr) (r *Type) {
 		r.Type = fmt.Sprintf("%s.%s", pkgName, typeName)
 		imt := f.getImport(pkgName)
 		if imt == nil {
-			log.Infof("import file path: %s", f.path)
-			for k, v := range f.Imports {
-				log.Infof("name: %s, import path:%s", k, v.Path)
-			}
-			panic(fmt.Errorf("cant' get import: %s in: %s", pkgName, f.path))
+			panic(f.Errorf(t.Pos(), "import %s is nil, try: go mod tidy", r.Type))
 		}
 		if imt.Package == nil {
 			panic(fmt.Errorf("import: %s Package is nil in: %s", pkgName, f.path))
