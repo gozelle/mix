@@ -70,12 +70,12 @@ mix -h
 mix generate client --path ./example/api --pkg example_api --outpkg example_api --outfile ./example/api/proxy_gen.go
 ```
 
-## Axios SDK 生成
+## SDK 生成
 
 ```
 # 生成 Openapi 文件
 mix generate openapi --path ./example/api --interface FullAPI --outfile ./openapi.json 
 
-# 根据 Openapi 文件生成 SDK
+# 根据 Openapi 文件生成 typescript axios SDK
 mix generate sdk --openapi ./example/dist/openapi.json --sdk axios --outdir ./example/dist/sdk
 ```
