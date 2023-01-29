@@ -25,6 +25,17 @@ export class BaseAPI {
     }
 }
 
+export const requestInterceptorExample: any = [function (request: AxiosRequestConfig) {
+    // 在发送请求之前做些什么
+    if (request.headers) {
+        request.headers['Authorization'] = ` + "`Bearer ${localStorage.getItem('access_token')}`" + `;
+    }
+    return request;
+}, function (error: AxiosError) {
+    // 对请求错误做些什么
+    return Promise.reject(error);
+}]
+
 export const responseInterceptorExample: any = [function (response: AxiosResponse) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
