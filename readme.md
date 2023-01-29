@@ -71,8 +71,10 @@ mix generate client --path ./example/api --pkg example_api --outpkg example_api 
 ```
 
 ## SDK 生成
-
+> 注意：仅支持项目直接或间接依赖的包引用，建议生成前先使用: go mod tidy
 ```
+# go mod tidy
+
 # 生成 Openapi 文件
 mix generate openapi --path ./example/api --interface FullAPI --outfile ./openapi.json 
 
