@@ -75,22 +75,20 @@ func convertRenderMethodRequest(m *parser.Method) *Def {
 }
 
 func convertRenderMethodReply(m *parser.Method) *Def {
-	replay := &Def{
-		Field: fmt.Sprintf("%sReplay", m.Name),
-		Type:  parser.TStruct,
-	}
+	var replay *Def
 	
 	results := m.ExportResults()
 	
-	if len(results) > 0 && results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		replay.Use = convertRenderDef(results[0].Type.NoPointer().Def)
-	} else if len(results) > 0 {
-		for _, v := range results {
-			replay.StructFields = append(replay.StructFields, convertRenderMethodParam(v)...)
-		}
-	} else {
-		replay = nil
+	if len(results) == 0 {
+		return nil
 	}
+	
+	if results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
+		replay = &Def{Use: convertRenderDef(results[0].Type.NoPointer().Def)}
+	} else {
+		replay = convertRenderType(results[0].Type)
+	}
+	replay.Name = fmt.Sprintf("%sReply", m.Name)
 	return replay
 }
 

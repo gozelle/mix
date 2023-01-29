@@ -129,7 +129,7 @@ func convertMethod(doc *openapi.DocumentV3, path string, item *openapi3.PathItem
 	}
 	
 	if op.Responses != nil {
-		m.Response = convertMethodResponses(op.Responses)
+		m.Response = convertMethodResponses(doc, op.Responses)
 	}
 	
 	return
@@ -142,14 +142,17 @@ func convertMethodRequestBody(req *openapi3.RequestBodyRef) (t string) {
 	return
 }
 
-func convertMethodResponses(resp openapi3.Responses) (t string) {
+func convertMethodResponses(doc *openapi.DocumentV3, resp openapi3.Responses) (t string) {
 	if resp["200"] != nil &&
 		resp["200"].Value != nil &&
 		resp["200"].Value.Content != nil &&
-		resp["200"].Value.Content[openapi.ApplicationJson] != nil &&
-		resp["200"].Value.Content[openapi.ApplicationJson].Schema != nil &&
-		resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref != "" {
-		t = filepath.Base(resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref)
+		resp["200"].Value.Content[openapi.ApplicationJson] != nil {
+		if resp["200"].Value.Content[openapi.ApplicationJson].Schema != nil &&
+			resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref != "" {
+			t = filepath.Base(resp["200"].Value.Content[openapi.ApplicationJson].Schema.Ref)
+		} else if resp["200"].Value.Content[openapi.ApplicationJson].Schema.Value != nil {
+			t = convertSchema(doc, "", resp["200"].Value.Content[openapi.ApplicationJson].Schema.Value).Type
+		}
 	}
 	return
 }
@@ -200,6 +203,7 @@ func convertSchemaRef(doc *openapi.DocumentV3, name string, schema *openapi3.Sch
 			
 		}
 	}
+	
 	if schema.Value != nil {
 		t = convertSchema(doc, name, schema.Value)
 	}
@@ -253,6 +257,7 @@ func convertSchema(doc *openapi.DocumentV3, name string, value *openapi3.Schema)
 	case openapi.Integer, openapi.Number:
 		field.Type = openapi.Number
 	}
+	
 	return
 }
 
