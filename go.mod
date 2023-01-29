@@ -8,7 +8,7 @@ require (
 	github.com/gozelle/fastjson v1.6.5
 	github.com/gozelle/fs v0.0.0-20230128122319-88641b3c5902
 	github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9
-	github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5
+	github.com/gozelle/jsonrpc v0.2.0
 	github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46
 	github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc
 	github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab
