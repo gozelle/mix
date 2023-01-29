@@ -19,13 +19,13 @@ type Server struct {
 	*gin.Engine
 }
 
-func RegisterRPC(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
+func (s *Server) RegisterRPC(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
 	rpcServer := jsonrpc.NewServer()
 	rpcServer.Register(namespace, handler)
 	router.POST("", append([]gin.HandlerFunc{gin.WrapH(rpcServer)}, middlewares...)...)
 }
 
-func RegisterAPI(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
+func (s *Server) RegisterAPI(router gin.IRouter, namespace string, handler any, middlewares ...gin.HandlerFunc) {
 	
 	var path string
 	if strings.TrimSpace(namespace) == "" {

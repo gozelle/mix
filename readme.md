@@ -28,8 +28,8 @@ func main() {
 	h := &Handler{}
 	s := mix.NewServer()
 	
-	mix.RegisterRPC(s.Group("/rpc/v1"), "foo", h)
-	mix.RegisterAPI(s.Group("/api/v1"), "foo", h)
+	s.RegisterRPC(s.Group("/rpc/v1"), "foo", h)
+	s.RegisterAPI(s.Group("/api/v1"), "foo", h)
 	
 	s.Run(":1332")
 }
