@@ -131,9 +131,22 @@ func convertOpenapiMethods(d *DocumentV3, m *Method) {
 		},
 	}
 	if m.Request != nil {
-		if ref := makeOpenapiMethodParameterRef(d, m.Request); ref != "" {
-			item.Post.RequestBody = &openapi3.RequestBodyRef{
-				Ref: ref,
+		if m.Request.Type == ArrayParams {
+			for _, v := range m.Request.ArrayFields {
+				ref := makeOpenapiSchemaRef(d, v)
+				if ref == nil {
+					panic(fmt.Errorf("parse param: %s get nil ref", v.Field))
+				}
+				param := &openapi3.ParameterRef{Value: &openapi3.Parameter{}}
+				param.Value.Name = v.Field
+				param.Value.Schema = ref
+				item.Post.Parameters = append(item.Post.Parameters, param)
+			}
+		} else {
+			if ref := makeOpenapiMethodParameterRef(d, m.Request); ref != "" {
+				item.Post.RequestBody = &openapi3.RequestBodyRef{
+					Ref: ref,
+				}
 			}
 		}
 	}
@@ -219,23 +232,6 @@ func makeOpenapiMethodParameterRef(d *DocumentV3, def *Def) string {
 	
 	return ""
 }
-
-//func makeOpenapiMethodReply(d *DocumentV3, def *Def) {
-//	if d.Components == nil {
-//		d.Components = &openapi3.Components{}
-//	}
-//	if d.Components.Responses == nil {
-//		d.Components.Responses = map[string]*openapi3.ResponseRef{}
-//	}
-//
-//	d.Components.Responses[def.Field] = &openapi3.ResponseRef{
-//		Value: &openapi3.Response{
-//			Description: pointer.ToString(""),
-//			Headers:     nil,
-//			Content:     makeOpenapiContent(d, def),
-//		},
-//	}
-//}
 
 func makeOpenapiContent(d *DocumentV3, def *Def) openapi3.Content {
 	var c openapi3.Content = map[string]*openapi3.MediaType{}

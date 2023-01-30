@@ -44,7 +44,8 @@ func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 		}
 		var params []byte
 		if len(d) > 0 {
-			params = bytes.Join([][]byte{{91}, d, {93}}, []byte{})
+			//params = bytes.Join([][]byte{{91}, d, {93}}, []byte{})
+			params = d
 		} else {
 			params = []byte{91, 93}
 		}

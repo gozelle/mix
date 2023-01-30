@@ -23,6 +23,7 @@ type Method struct {
 	Name     string `json:"Name,omitempty"`
 	Request  string `json:"Request,omitempty"`
 	Response string `json:"Response,omitempty"`
+	Data     string `json:"Data,omitempty"`
 	Comment  string `json:"Comment,omitempty"`
 }
 
@@ -124,9 +125,7 @@ func convertMethod(doc *openapi.DocumentV3, path string, item *openapi3.PathItem
 		Response: "",
 	}
 	
-	if op.RequestBody != nil {
-		m.Request = convertMethodRequestBody(op.RequestBody)
-	}
+	m.Request, m.Data = convertMethodRequestBody(doc, op)
 	
 	if op.Responses != nil {
 		m.Response = convertMethodResponses(doc, op.Responses)
@@ -135,10 +134,26 @@ func convertMethod(doc *openapi.DocumentV3, path string, item *openapi3.PathItem
 	return
 }
 
-func convertMethodRequestBody(req *openapi3.RequestBodyRef) (t string) {
-	if req.Ref != "" {
-		t = filepath.Base(req.Ref)
+func convertMethodRequestBody(doc *openapi.DocumentV3, op *openapi3.Operation) (t, d string) {
+	
+	if len(op.Parameters) > 0 {
+		d = "["
+		for _, v := range op.Parameters {
+			t += fmt.Sprintf("%s: %s,", v.Value.Name, convertSchema(doc, "", v.Value.Schema.Value).Type)
+			d += fmt.Sprintf("%s,", v.Value.Name)
+		}
+		t = strings.TrimSuffix(t, ",")
+		d = strings.TrimSuffix(d, ",")
+		d += "]"
+		return
 	}
+	
+	if op.RequestBody != nil && op.RequestBody.Ref != "" {
+		t = fmt.Sprintf("request: %s", filepath.Base(op.RequestBody.Ref))
+		d = fmt.Sprintf("[request]")
+		return
+	}
+	
 	return
 }
 
@@ -215,7 +230,6 @@ func convertSchema(doc *openapi.DocumentV3, name string, value *openapi3.Schema)
 	field = &Type{
 		Name: name,
 	}
-	
 	switch value.Type {
 	case openapi.Object:
 		if value.Properties != nil {
@@ -308,8 +322,8 @@ export class API extends BaseAPI {
     }
 {%- for method in Methods %}
 
-    public {{method.Name}}({% if method.Request %}request: {{method.Request}}, {% endif %}options?: AxiosRequestConfig): Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
-        return this.client.{{ method.Method }}('{{ method.Path }}', {% if method.Request %}request{% else %}null{% endif %}, options)
+    public {{method.Name}}({% if method.Request %}{{method.Request}}, {% endif %}options?: AxiosRequestConfig): Promise<{% if method.Response %}{{method.Response}}{% else %}null{% endif %}> {
+        return this.client.{{ method.Method }}('{{ method.Path }}', {% if method.Request %}{{method.Data}}{% else %}null{% endif %}, options)
     }
 
 {%- endfor %}

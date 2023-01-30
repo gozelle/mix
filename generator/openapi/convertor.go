@@ -57,15 +57,14 @@ func convertRenderMethod(m *parser.Method) *Method {
 
 func convertRenderMethodRequest(m *parser.Method) *Def {
 	request := &Def{
-		Field: fmt.Sprintf("%sRequest", m.Name),
-		Type:  parser.TStruct,
+		Type: ArrayParams,
 	}
 	params := m.ExportParams()
 	if len(params) == 1 && params[0].Type.NoPointer().Def != nil && params[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
 		request.Use = convertRenderDef(params[0].Type.NoPointer().Def)
 	} else if len(params) > 0 {
 		for _, v := range params {
-			request.StructFields = append(request.StructFields, convertRenderMethodParam(v)...)
+			request.ArrayFields = append(request.ArrayFields, convertRenderMethodParam(v)...)
 		}
 	} else {
 		request = nil
@@ -94,11 +93,9 @@ func convertRenderMethodReply(m *parser.Method) *Def {
 
 func convertRenderMethodParam(p *parser.Param) []*Def {
 	r := make([]*Def, 0)
-	//log.Infof("convertRenderMethodParam: %v", p.Names)
-	//spew.Json(p)
 	for _, v := range p.Names {
 		d := convertRenderType(p.Type)
-		d.Field = Title(v)
+		d.Field = v
 		d.Json = v
 		r = append(r, d)
 	}

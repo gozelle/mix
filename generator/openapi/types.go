@@ -11,10 +11,11 @@ const (
 )
 
 const (
-	Array   = "array"
-	String  = "string"
-	Integer = "integer"
-	Number  = "number"
-	Boolean = "boolean"
-	Object  = "object"
+	Array       = "array"
+	ArrayParams = "array_params"
+	String      = "string"
+	Integer     = "integer"
+	Number      = "number"
+	Boolean     = "boolean"
+	Object      = "object"
 )

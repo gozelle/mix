@@ -30,7 +30,7 @@ export const requestInterceptorExample: any = [function (request: AxiosRequestCo
     if (request.headers) {
         request.headers['Authorization'] = ` + "`Bearer ${localStorage.getItem('access_token')}`" + `;
     }
-    return request;
+    return request;x
 }, function (error: AxiosError) {
     // 对请求错误做些什么
     return Promise.reject(error);
