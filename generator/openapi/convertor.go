@@ -61,7 +61,7 @@ func convertRenderMethodRequest(m *parser.Method) *Def {
 	}
 	params := m.ExportParams()
 	if len(params) == 1 && params[0].Type.NoPointer().Def != nil && params[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		request.Use = convertRenderDef(params[0].Type.NoPointer().Def)
+		request.ArrayFields = append(request.ArrayFields, convertRenderMethodParam(params[0])[0])
 	} else if len(params) > 0 {
 		for _, v := range params {
 			request.ArrayFields = append(request.ArrayFields, convertRenderMethodParam(v)...)

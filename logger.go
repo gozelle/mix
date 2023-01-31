@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var log = logging.Logger("[gin]")
+var log = logging.Logger("[mix]")
 
 // LoggerConfig defines the config for Logger middleware.
 type LoggerConfig struct {
@@ -78,7 +78,7 @@ func LoggerWithConfig(conf LoggerConfig) gin.HandlerFunc {
 				fields = append(fields, zap.String("id", i))
 			}
 			
-			if h := c.Request.Header.Get(jsonrpc.X_RPC_Handler); h != "" {
+			if h := c.Writer.Header().Get(jsonrpc.X_RPC_Handler); h != "" {
 				fields = append(fields, zap.String("handler", h))
 			}
 			

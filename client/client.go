@@ -44,10 +44,9 @@ func NewClient(addr, namespace string, opts ...Option) (jsonrpc.ClientCloser, er
 	for _, v := range opts {
 		v(conf)
 	}
-
+	
 	if len(conf.out) == 0 {
 		return nil, fmt.Errorf("please assign out use WithOut function")
 	}
-
 	return jsonrpc.NewMergeClient(context.Background(), conf.addr, conf.namespace, conf.out, nil)
 }

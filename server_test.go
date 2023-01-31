@@ -65,8 +65,8 @@ func TestServer(t *testing.T) {
 	server := NewServer()
 	group := server.Group("/api/v1")
 	
-	RegisterRPC(server.Group("/rpc/v1"), "", h)
-	RegisterAPI(group, "", h)
+	server.RegisterRPC(server.Group("/rpc/v1"), "", h)
+	server.RegisterAPI(group, "", h)
 	
 	group.GET("/download", WrapHandler(func(ctx *gin.Context) (data any, err error) {
 		ctx.Header("Content-Type", "text/html; charset=UTF-8")

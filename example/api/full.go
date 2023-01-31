@@ -40,6 +40,8 @@ type BasicAPI interface {
 	AddDecimal(ctx context.Context, p1 decimal.Decimal) error
 	AddMap(ctx context.Context, m1 map[string]string) error
 	
+	AddIntArray(ctx context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error
+	
 	GetInt(ctx context.Context) (p1 int, err error)
 	GetUint(ctx context.Context) (p1 uint, err error)
 	GetString(ctx context.Context) (p1 string, err error)
@@ -48,6 +50,8 @@ type BasicAPI interface {
 	GetTime(ctx context.Context) (p1 time.Time, err error)
 	GetDecimal(ctx context.Context) (p1 decimal.Decimal, err error)
 	GetMap(ctx context.Context) (m1 map[string]string, err error)
+	
+	GetIntArray(ctx context.Context) (int []int, err error)
 	
 	//AddIntPointer(context.Context, *int, *int8, *int16, *int32, *int64) error
 	//AddUIntPointer(context.Context, *uint, *uint8, *uint16, *uint32, *int64) error

@@ -37,6 +37,8 @@ type BasicAPIStruct struct {
 
 		AddInt func(p0 context.Context, p1 int, p2 int8, p3 int16, p4 int32, p5 int64) error ``
 
+		AddIntArray func(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error ``
+
 		AddMap func(p0 context.Context, p1 map[string]string) error ``
 
 		AddString func(p0 context.Context, p1 string) error ``
@@ -52,6 +54,8 @@ type BasicAPIStruct struct {
 		GetFloat func(p0 context.Context) (float32, error) ``
 
 		GetInt func(p0 context.Context) (int, error) ``
+
+		GetIntArray func(p0 context.Context) ([]int, error) ``
 
 		GetMap func(p0 context.Context) (map[string]string, error) ``
 
@@ -200,6 +204,17 @@ func (s *BasicAPIStub) AddInt(p0 context.Context, p1 int, p2 int8, p3 int16, p4 
 	return ErrNotSupported
 }
 
+func (s *BasicAPIStruct) AddIntArray(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error {
+	if s.Internal.AddIntArray == nil {
+		return ErrNotSupported
+	}
+	return s.Internal.AddIntArray(p0, p1, p2, p3, p4, p5)
+}
+
+func (s *BasicAPIStub) AddIntArray(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error {
+	return ErrNotSupported
+}
+
 func (s *BasicAPIStruct) AddMap(p0 context.Context, p1 map[string]string) error {
 	if s.Internal.AddMap == nil {
 		return ErrNotSupported
@@ -286,6 +301,17 @@ func (s *BasicAPIStruct) GetInt(p0 context.Context) (int, error) {
 
 func (s *BasicAPIStub) GetInt(p0 context.Context) (int, error) {
 	return 0, ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetIntArray(p0 context.Context) ([]int, error) {
+	if s.Internal.GetIntArray == nil {
+		return *new([]int), ErrNotSupported
+	}
+	return s.Internal.GetIntArray(p0)
+}
+
+func (s *BasicAPIStub) GetIntArray(p0 context.Context) ([]int, error) {
+	return *new([]int), ErrNotSupported
 }
 
 func (s *BasicAPIStruct) GetMap(p0 context.Context) (map[string]string, error) {

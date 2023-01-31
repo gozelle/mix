@@ -139,18 +139,17 @@ func convertMethodRequestBody(doc *openapi.DocumentV3, op *openapi3.Operation) (
 	if len(op.Parameters) > 0 {
 		d = "["
 		for _, v := range op.Parameters {
-			t += fmt.Sprintf("%s: %s,", v.Value.Name, convertSchema(doc, "", v.Value.Schema.Value).Type)
+			if v.Value.Schema.Ref != "" {
+				t += fmt.Sprintf("%s: %s,", v.Value.Name, filepath.Base(v.Value.Schema.Ref))
+				
+			} else {
+				t += fmt.Sprintf("%s: %s,", v.Value.Name, convertSchema(doc, "", v.Value.Schema.Value).Type)
+			}
 			d += fmt.Sprintf("%s,", v.Value.Name)
 		}
 		t = strings.TrimSuffix(t, ",")
 		d = strings.TrimSuffix(d, ",")
 		d += "]"
-		return
-	}
-	
-	if op.RequestBody != nil && op.RequestBody.Ref != "" {
-		t = fmt.Sprintf("request: %s", filepath.Base(op.RequestBody.Ref))
-		d = fmt.Sprintf("[request]")
 		return
 	}
 	

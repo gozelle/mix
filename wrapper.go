@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gozelle/fastjson"
 	"github.com/gozelle/gin"
 	"github.com/gozelle/jsonrpc"
 	"io"
@@ -21,7 +22,7 @@ const module = "module"
 func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		body := ctx.Request.Body
-		d, err := ioutil.ReadAll(body)
+		data, err := ioutil.ReadAll(body)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("read request body error:%s", err))
 		}
@@ -31,33 +32,47 @@ func wrapAPI(ns string, h http.Handler) gin.HandlerFunc {
 		} else {
 			m = fmt.Sprintf("%s.%s", ctx.Param(module), ctx.Param(method))
 		}
-		
 		r := map[string]interface{}{
-			"jsonrpc": "2.0",
-			"method":  m,
-			"params":  placeholder,
+			"method": m,
+			"params": placeholder,
 		}
 		i, err := json.Marshal(r)
 		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("prepare params error:%s", err))
+			_ = ctx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("prepare params error: %s", err))
 			return
 		}
 		var params []byte
-		if len(d) > 0 {
-			//params = bytes.Join([][]byte{{91}, d, {93}}, []byte{})
-			params = d
+		if len(data) > 0 {
+			params, err = wrapData(data)
+			if err != nil {
+				_ = ctx.AbortWithError(http.StatusNotAcceptable, err)
+				return
+			}
+			
 		} else {
 			params = []byte{91, 93}
 		}
 		i = bytes.Replace(i, []byte(fmt.Sprintf("\"%s\"", placeholder)), params, 1)
 		ctx.Request.Body = ioutil.NopCloser(bytes.NewBuffer(i))
-		
 		if err != nil {
 			log.Errorf(" error: %s", err)
 			return
 		}
 		h.ServeHTTP(ctx.Writer, ctx.Request)
 	}
+}
+
+func wrapData(data []byte) ([]byte, error) {
+	j, err := fastjson.ParseBytes(data)
+	if err != nil {
+		err = fmt.Errorf("parse data json error: %s", err)
+		return nil, fmt.Errorf("parse data json error: %s", err)
+	}
+	switch j.Type() {
+	case fastjson.TypeArray:
+		return data, nil
+	}
+	return bytes.Join([][]byte{{91}, data, {93}}, []byte{}), nil
 }
 
 func WrapHandler(wrap func(ctx *gin.Context) (any, error)) gin.HandlerFunc {
