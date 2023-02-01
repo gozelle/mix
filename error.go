@@ -5,16 +5,20 @@ import (
 	"github.com/gozelle/jsonrpc"
 )
 
-type Error = jsonrpc.Error
+type Warn = jsonrpc.Error
 
-func Errorf(format string, a ...any) *Error {
-	return &Error{
+func NewWarn(code int, message string, detail any) *Warn {
+	return &Warn{Code: code, Message: message, Detail: detail}
+}
+
+func Warnf(format string, a ...any) *Warn {
+	return &Warn{
 		Message: fmt.Sprintf(format, a...),
 	}
 }
 
-func Codef(code int, format string, a ...any) *Error {
-	return &Error{
+func Codef(code int, format string, a ...any) *Warn {
+	return &Warn{
 		Code:    code,
 		Message: fmt.Sprintf(format, a...),
 	}

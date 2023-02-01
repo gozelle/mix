@@ -35,7 +35,7 @@ func (t TestHandler) Error(ctx context.Context) error {
 }
 
 func (t TestHandler) Code(ctx context.Context) error {
-	return &Error{
+	return &Warn{
 		Code:    1000,
 		Message: "自定义错误",
 		Detail:  "一些详情",
