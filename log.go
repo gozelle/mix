@@ -10,6 +10,10 @@ import (
 
 var log = logging.Logger("[mix]")
 
+const (
+	X_Bearer = "X-Bearer"
+)
+
 // LoggerConfig defines the config for Logger middleware.
 type LoggerConfig struct {
 	// SkipPaths is an url path array which logs are not written.
@@ -19,6 +23,10 @@ type LoggerConfig struct {
 
 func Logger() gin.HandlerFunc {
 	return LoggerWithConfig(LoggerConfig{})
+}
+
+func SetBearer(ctx *gin.Context, bearer string) {
+	ctx.Header(X_Bearer, bearer)
 }
 
 func LoggerWithConfig(conf LoggerConfig) gin.HandlerFunc {
@@ -84,6 +92,10 @@ func LoggerWithConfig(conf LoggerConfig) gin.HandlerFunc {
 			
 			if m := c.Writer.Header().Get(jsonrpc.X_RPC_ERROR); m != "" {
 				fields = append(fields, zap.String("message", m))
+			}
+			
+			if m := c.Writer.Header().Get(X_Bearer); m != "" {
+				fields = append(fields, zap.String("bearer", m))
 			}
 			
 			if 200 <= param.StatusCode && param.StatusCode < 300 {
