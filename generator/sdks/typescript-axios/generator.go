@@ -1,6 +1,7 @@
 package typescript_axios
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gozelle/mix/generator/openapi"
 	"github.com/gozelle/mix/generator/writter"
@@ -35,7 +36,23 @@ type Type struct {
 	Ref    string  `json:"Ref,omitempty"`
 }
 
-func Generate(file string) (files []*writter.File, err error) {
+type Options struct {
+	Name string
+}
+
+func Generate(file string, options string) (files []*writter.File, err error) {
+	
+	opt := Options{}
+	if options != "" {
+		err = json.Unmarshal([]byte(options), &opt)
+		if err != nil {
+			err = fmt.Errorf("parse options error: %s", err)
+			return
+		}
+	}
+	if opt.Name == "" {
+		opt.Name = "SDK"
+	}
 	
 	doc, err := openapi.Load(file)
 	if err != nil {
@@ -57,7 +74,11 @@ func Generate(file string) (files []*writter.File, err error) {
 		err = fmt.Errorf("preprea tpl error: %s", err)
 		return
 	}
-	c, err := tpl.Execute(structs.Map(api))
+	
+	params := structs.Map(api)
+	params["opt"] = opt
+	
+	c, err := tpl.Execute(params)
 	files = append(files, []*writter.File{
 		{Name: "api.ts", Content: c},
 		{Name: "base.ts", Content: baseTpl},
@@ -308,13 +329,13 @@ import {AxiosInstance,AxiosRequestConfig} from "axios";
 
 /**
 Example:
-  export const api = new API(axios.create({
+  export const api = new {{ opt.Name }}(axios.create({
     baseURL: 'http://127.0.0.1:8080/api/v1/module',
   }));
   api.client.interceptors.request.use(...requestInterceptorExample);
   api.client.interceptors.response.use(...responseInterceptorExample);
 */
-export class API extends BaseAPI {
+export class {{ opt.Name }} extends BaseAPI {
 
 	constructor(instance: AxiosInstance) {
         super(instance);

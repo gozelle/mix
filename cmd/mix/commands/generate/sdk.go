@@ -1,4 +1,4 @@
-package generateCmd
+package cmdGenerate
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ func init() {
 	sdkCmd.Flags().StringVar(&sdkOpenapi, "openapi", "", "[必填] OpenAPI 文件")
 	sdkCmd.Flags().StringVar(&sdkType, "sdk", "", "[必填] SDK 类型，如：axios")
 	sdkCmd.Flags().StringVar(&sdkOutdir, "outdir", "", "[必填] SDK 存放目录")
-	sdkCmd.Flags().StringVar(&sdkOptions, "options", "", "[可选]配置参数，请查看不同 SDK 配置选项")
+	sdkCmd.Flags().StringVar(&sdkOptions, "option", "", "[可选]配置选项，请查看不同 SDK 配置选项")
 	err := sdkCmd.MarkFlagsRequired("openapi", "sdk", "outdir")
 	if err != nil {
 		panic(err)
@@ -66,7 +66,7 @@ func generateSDK(cmd *cobra.Command, args []string) {
 	var files []*writter.File
 	switch sdkType {
 	case "axios":
-		files, err = typescript_axios.Generate(sdkOpenapi)
+		files, err = typescript_axios.Generate(sdkOpenapi, sdkOptions)
 	default:
 		commands.Fatal(fmt.Errorf("sdk type: %s unsupported", sdkType))
 	}
