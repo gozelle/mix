@@ -36,17 +36,17 @@ type Type struct {
 	Ref    string  `json:"Ref,omitempty"`
 }
 
-type Options struct {
-	Name string
+type Option struct {
+	Name string `json:"name"`
 }
 
-func Generate(file string, options string) (files []*writter.File, err error) {
+func Generate(file string, option string) (files []*writter.File, err error) {
 	
-	opt := Options{}
-	if options != "" {
-		err = json.Unmarshal([]byte(options), &opt)
+	opt := Option{}
+	if option != "" {
+		err = json.Unmarshal([]byte(option), &opt)
 		if err != nil {
-			err = fmt.Errorf("parse options error: %s", err)
+			err = fmt.Errorf("parse option: '%s' error: %s", option, err)
 			return
 		}
 	}
