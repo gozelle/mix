@@ -81,7 +81,7 @@ func Generate(file string, option string) (files []*writter.File, err error) {
 	c, err := tpl.Execute(params)
 	files = append(files, []*writter.File{
 		{Name: fmt.Sprintf("%s.ts", opt.Name), Content: c},
-		{Name: "Base.ts", Content: baseTpl},
+		{Name: "base.ts", Content: baseTpl},
 	}...)
 	
 	return
