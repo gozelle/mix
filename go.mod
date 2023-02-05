@@ -3,6 +3,7 @@ module github.com/gozelle/mix
 go 1.18
 
 require (
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gozelle/cobra v1.6.3
 	github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1
 	github.com/gozelle/fastjson v1.6.5
@@ -34,7 +35,6 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
-	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/gozelle/atomic v1.10.10 // indirect

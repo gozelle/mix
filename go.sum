@@ -86,8 +86,6 @@ github.com/gozelle/go-spew v1.1.10/go.mod h1:qwUFQBhiE5zwtTAfe/m87+73t2jRbNHwGOv
 github.com/gozelle/goleak v1.2.1 h1:e9B5tGt96ak+/85Nv0rj2DjoehP7FgqwlFvHlzIr5ts=
 github.com/gozelle/isatty v0.0.17 h1:1ka2GcKL1hNwIHIl5JFHfHOAzl+vXRH4Jx3dlFa88nM=
 github.com/gozelle/isatty v0.0.17/go.mod h1:u77FICFTx4IXjAoAaYstj8NvStDRVhwe3NNZCKzXVGo=
-github.com/gozelle/jsonrpc v0.2.2-0.20230131135329-bd6d6a8b9f5a h1:oG554mNUsZzqZQgj4/CHJ3VfmReIUbHeDIKwOCR3Bgk=
-github.com/gozelle/jsonrpc v0.2.2-0.20230131135329-bd6d6a8b9f5a/go.mod h1:LI3nXlYirSES3oY9wNtkDyu+IB7MzbPFt5Xspu+JBJE=
 github.com/gozelle/jsonrpc v0.2.2 h1:es6irzs4VS73DYg2tHGSh/UipKKRR8sT7VMEDxgPXCA=
 github.com/gozelle/jsonrpc v0.2.2/go.mod h1:LI3nXlYirSES3oY9wNtkDyu+IB7MzbPFt5Xspu+JBJE=
 github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46 h1:hV0LqMjLl6oDbp4qXvia9pplS95kQtfq92YHvDZFGww=
