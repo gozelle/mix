@@ -54,8 +54,6 @@ export const responseInterceptorExample: any = [function (response: AxiosRespons
         console.error('unknown error:', JSON.stringify(error))
     }
 	// 会阻止后续的业务处理逻辑
-    return Promise.reject(error).catch(err => {
-        // report
-    });
+    return Promise.reject(error));
 }]
 `
