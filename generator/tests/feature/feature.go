@@ -10,6 +10,7 @@ import (
 type FeatureAPI interface {
 	tests_basic.BasicAPI
 	Sub
+	Ping(ctx context.Context) (msg string, err error)
 	Test(ctx context.Context, in *Feature) (out Feature, err error) // 测试2
 }
 

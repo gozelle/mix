@@ -36,7 +36,7 @@ func TestFeature(t *testing.T) {
 	require.True(t, parserInterface != nil)
 	
 	renderInterface := openapi.ConvertAPI(parserInterface)
-	d, _ := json.MarshalIndent(renderInterface, "", "\t")
+	d, _ := json.Marshal(renderInterface)
 	t.Log(string(d))
 	
 	doc := &openapi.DocumentV3{}

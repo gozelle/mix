@@ -31,33 +31,39 @@ type BasicAPIStruct struct {
 	Internal struct {
 		AddBool func(p0 context.Context, p1 bool) error ``
 
-		AddBoolPointer func(p0 context.Context, p1 *bool) error ``
-
 		AddDecimal func(p0 context.Context, p1 decimal.Decimal) error ``
-
-		AddDecimalPinter func(p0 context.Context, p1 *decimal.Decimal) error ``
 
 		AddFloat func(p0 context.Context, p1 float32, p2 float64) error ``
 
-		AddFloatPointer func(p0 context.Context, p1 *float32, p2 *float64) error ``
-
 		AddInt func(p0 context.Context, p1 int, p2 int8, p3 int16, p4 int32, p5 int64) error ``
 
-		AddIntPointer func(p0 context.Context, p1 *int, p2 *int8, p3 *int16, p4 *int32, p5 *int64) error ``
+		AddIntArray func(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error ``
 
 		AddMap func(p0 context.Context, p1 map[string]string) error ``
 
 		AddString func(p0 context.Context, p1 string) error ``
 
-		AddStringPointer func(p0 context.Context, p1 *string) error ``
-
 		AddTime func(p0 context.Context, p1 time.Time) error ``
 
-		AddTimePointer func(p0 context.Context, p1 *time.Time) error ``
-
-		AddUIntPointer func(p0 context.Context, p1 *uint, p2 *uint8, p3 *uint16, p4 *uint32, p5 *int64) error ``
-
 		AddUint func(p0 context.Context, p1 uint, p2 uint8, p3 uint16, p4 uint32, p5 uint64) error ``
+
+		GetBool func(p0 context.Context) (bool, error) ``
+
+		GetDecimal func(p0 context.Context) (decimal.Decimal, error) ``
+
+		GetFloat func(p0 context.Context) (float32, error) ``
+
+		GetInt func(p0 context.Context) (int, error) ``
+
+		GetIntArray func(p0 context.Context) ([]int, error) ``
+
+		GetMap func(p0 context.Context) (map[string]string, error) ``
+
+		GetString func(p0 context.Context) (string, error) ``
+
+		GetTime func(p0 context.Context) (time.Time, error) ``
+
+		GetUint func(p0 context.Context) (uint, error) ``
 	}
 }
 
@@ -165,17 +171,6 @@ func (s *BasicAPIStub) AddBool(p0 context.Context, p1 bool) error {
 	return ErrNotSupported
 }
 
-func (s *BasicAPIStruct) AddBoolPointer(p0 context.Context, p1 *bool) error {
-	if s.Internal.AddBoolPointer == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddBoolPointer(p0, p1)
-}
-
-func (s *BasicAPIStub) AddBoolPointer(p0 context.Context, p1 *bool) error {
-	return ErrNotSupported
-}
-
 func (s *BasicAPIStruct) AddDecimal(p0 context.Context, p1 decimal.Decimal) error {
 	if s.Internal.AddDecimal == nil {
 		return ErrNotSupported
@@ -184,17 +179,6 @@ func (s *BasicAPIStruct) AddDecimal(p0 context.Context, p1 decimal.Decimal) erro
 }
 
 func (s *BasicAPIStub) AddDecimal(p0 context.Context, p1 decimal.Decimal) error {
-	return ErrNotSupported
-}
-
-func (s *BasicAPIStruct) AddDecimalPinter(p0 context.Context, p1 *decimal.Decimal) error {
-	if s.Internal.AddDecimalPinter == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddDecimalPinter(p0, p1)
-}
-
-func (s *BasicAPIStub) AddDecimalPinter(p0 context.Context, p1 *decimal.Decimal) error {
 	return ErrNotSupported
 }
 
@@ -209,17 +193,6 @@ func (s *BasicAPIStub) AddFloat(p0 context.Context, p1 float32, p2 float64) erro
 	return ErrNotSupported
 }
 
-func (s *BasicAPIStruct) AddFloatPointer(p0 context.Context, p1 *float32, p2 *float64) error {
-	if s.Internal.AddFloatPointer == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddFloatPointer(p0, p1, p2)
-}
-
-func (s *BasicAPIStub) AddFloatPointer(p0 context.Context, p1 *float32, p2 *float64) error {
-	return ErrNotSupported
-}
-
 func (s *BasicAPIStruct) AddInt(p0 context.Context, p1 int, p2 int8, p3 int16, p4 int32, p5 int64) error {
 	if s.Internal.AddInt == nil {
 		return ErrNotSupported
@@ -231,14 +204,14 @@ func (s *BasicAPIStub) AddInt(p0 context.Context, p1 int, p2 int8, p3 int16, p4 
 	return ErrNotSupported
 }
 
-func (s *BasicAPIStruct) AddIntPointer(p0 context.Context, p1 *int, p2 *int8, p3 *int16, p4 *int32, p5 *int64) error {
-	if s.Internal.AddIntPointer == nil {
+func (s *BasicAPIStruct) AddIntArray(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error {
+	if s.Internal.AddIntArray == nil {
 		return ErrNotSupported
 	}
-	return s.Internal.AddIntPointer(p0, p1, p2, p3, p4, p5)
+	return s.Internal.AddIntArray(p0, p1, p2, p3, p4, p5)
 }
 
-func (s *BasicAPIStub) AddIntPointer(p0 context.Context, p1 *int, p2 *int8, p3 *int16, p4 *int32, p5 *int64) error {
+func (s *BasicAPIStub) AddIntArray(p0 context.Context, p1 []int, p2 []int8, p3 []int16, p4 []int32, p5 []int64) error {
 	return ErrNotSupported
 }
 
@@ -264,17 +237,6 @@ func (s *BasicAPIStub) AddString(p0 context.Context, p1 string) error {
 	return ErrNotSupported
 }
 
-func (s *BasicAPIStruct) AddStringPointer(p0 context.Context, p1 *string) error {
-	if s.Internal.AddStringPointer == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddStringPointer(p0, p1)
-}
-
-func (s *BasicAPIStub) AddStringPointer(p0 context.Context, p1 *string) error {
-	return ErrNotSupported
-}
-
 func (s *BasicAPIStruct) AddTime(p0 context.Context, p1 time.Time) error {
 	if s.Internal.AddTime == nil {
 		return ErrNotSupported
@@ -283,28 +245,6 @@ func (s *BasicAPIStruct) AddTime(p0 context.Context, p1 time.Time) error {
 }
 
 func (s *BasicAPIStub) AddTime(p0 context.Context, p1 time.Time) error {
-	return ErrNotSupported
-}
-
-func (s *BasicAPIStruct) AddTimePointer(p0 context.Context, p1 *time.Time) error {
-	if s.Internal.AddTimePointer == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddTimePointer(p0, p1)
-}
-
-func (s *BasicAPIStub) AddTimePointer(p0 context.Context, p1 *time.Time) error {
-	return ErrNotSupported
-}
-
-func (s *BasicAPIStruct) AddUIntPointer(p0 context.Context, p1 *uint, p2 *uint8, p3 *uint16, p4 *uint32, p5 *int64) error {
-	if s.Internal.AddUIntPointer == nil {
-		return ErrNotSupported
-	}
-	return s.Internal.AddUIntPointer(p0, p1, p2, p3, p4, p5)
-}
-
-func (s *BasicAPIStub) AddUIntPointer(p0 context.Context, p1 *uint, p2 *uint8, p3 *uint16, p4 *uint32, p5 *int64) error {
 	return ErrNotSupported
 }
 
@@ -317,6 +257,105 @@ func (s *BasicAPIStruct) AddUint(p0 context.Context, p1 uint, p2 uint8, p3 uint1
 
 func (s *BasicAPIStub) AddUint(p0 context.Context, p1 uint, p2 uint8, p3 uint16, p4 uint32, p5 uint64) error {
 	return ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetBool(p0 context.Context) (bool, error) {
+	if s.Internal.GetBool == nil {
+		return false, ErrNotSupported
+	}
+	return s.Internal.GetBool(p0)
+}
+
+func (s *BasicAPIStub) GetBool(p0 context.Context) (bool, error) {
+	return false, ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetDecimal(p0 context.Context) (decimal.Decimal, error) {
+	if s.Internal.GetDecimal == nil {
+		return *new(decimal.Decimal), ErrNotSupported
+	}
+	return s.Internal.GetDecimal(p0)
+}
+
+func (s *BasicAPIStub) GetDecimal(p0 context.Context) (decimal.Decimal, error) {
+	return *new(decimal.Decimal), ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetFloat(p0 context.Context) (float32, error) {
+	if s.Internal.GetFloat == nil {
+		return *new(float32), ErrNotSupported
+	}
+	return s.Internal.GetFloat(p0)
+}
+
+func (s *BasicAPIStub) GetFloat(p0 context.Context) (float32, error) {
+	return *new(float32), ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetInt(p0 context.Context) (int, error) {
+	if s.Internal.GetInt == nil {
+		return 0, ErrNotSupported
+	}
+	return s.Internal.GetInt(p0)
+}
+
+func (s *BasicAPIStub) GetInt(p0 context.Context) (int, error) {
+	return 0, ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetIntArray(p0 context.Context) ([]int, error) {
+	if s.Internal.GetIntArray == nil {
+		return *new([]int), ErrNotSupported
+	}
+	return s.Internal.GetIntArray(p0)
+}
+
+func (s *BasicAPIStub) GetIntArray(p0 context.Context) ([]int, error) {
+	return *new([]int), ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetMap(p0 context.Context) (map[string]string, error) {
+	if s.Internal.GetMap == nil {
+		return *new(map[string]string), ErrNotSupported
+	}
+	return s.Internal.GetMap(p0)
+}
+
+func (s *BasicAPIStub) GetMap(p0 context.Context) (map[string]string, error) {
+	return *new(map[string]string), ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetString(p0 context.Context) (string, error) {
+	if s.Internal.GetString == nil {
+		return "", ErrNotSupported
+	}
+	return s.Internal.GetString(p0)
+}
+
+func (s *BasicAPIStub) GetString(p0 context.Context) (string, error) {
+	return "", ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetTime(p0 context.Context) (time.Time, error) {
+	if s.Internal.GetTime == nil {
+		return *new(time.Time), ErrNotSupported
+	}
+	return s.Internal.GetTime(p0)
+}
+
+func (s *BasicAPIStub) GetTime(p0 context.Context) (time.Time, error) {
+	return *new(time.Time), ErrNotSupported
+}
+
+func (s *BasicAPIStruct) GetUint(p0 context.Context) (uint, error) {
+	if s.Internal.GetUint == nil {
+		return 0, ErrNotSupported
+	}
+	return s.Internal.GetUint(p0)
+}
+
+func (s *BasicAPIStub) GetUint(p0 context.Context) (uint, error) {
+	return 0, ErrNotSupported
 }
 
 func (s *FullAPIStruct) Ping(p0 context.Context) (Message, error) {

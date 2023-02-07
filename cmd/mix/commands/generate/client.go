@@ -1,4 +1,4 @@
-package generateCmd
+package cmdGenerate
 
 import (
 	"github.com/gozelle/cobra"

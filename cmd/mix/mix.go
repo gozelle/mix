@@ -56,7 +56,7 @@ func init() {
 func main() {
 	rootCmd.AddCommand(
 		initCmd.InitCmd,
-		generateCmd.GenerateCmd,
+		cmdGenerate.GenerateCmd,
 	)
 	Execute()
 }

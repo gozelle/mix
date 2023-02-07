@@ -97,22 +97,23 @@ func (f *File) Visit(node ast.Node) ast.Visitor {
 		*ast.ArrayType,
 		*ast.StarExpr,
 		*ast.SelectorExpr,
-		*ast.ChanType:
+		*ast.ChanType,
+		*ast.IndexExpr,
+		*ast.IndexListExpr:
 		if !s.Name.IsExported() {
 			return f
 		}
-		_, isStuct := t.(*ast.StructType)
-		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type, IsStrut: isStuct})
+		_, isStruct := t.(*ast.StructType)
+		f.pkg.addDef(s.Name.String(), &Def{Name: s.Name.String(), File: f, Expr: s.Type, IsStrut: isStruct})
 	
 	default:
-		panic(fmt.Errorf("unsupport parse type: %s", reflect.TypeOf(t)))
+		panic(fmt.Errorf("unsupport parse type: %s at: %s", reflect.TypeOf(t), f.set.Position(s.Pos())))
 	}
 	
 	return f
 }
 
 func (f *File) parse(file string) (err error) {
-	//log.Debugf("load file: %s", file)
 	set := token.NewFileSet()
 	af, err := parser.ParseFile(set, file, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
@@ -160,15 +161,19 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	}
 	
 	var err error
+	
+	// 忽略 go.mod 不依赖的包
+	realPath := f.mod.GetPackagePath(r.Path)
+	if realPath == "" {
+		return nil
+	}
+	
 	if r.Alias == "" {
-		r.Alias, err = f.mod.GetPackageRealName(r.Path)
+		r.Alias, err = f.mod.GetPackageRealName(realPath)
 		if err != nil {
 			panic(fmt.Errorf("%s: get %s package name error: %s", f.path, r.Path, err))
 		}
 	}
-	
-	//log.Debugf("load import: %s", r.Path)
-	realPath := f.mod.GetPackagePath(r.Path)
 	
 	if f.mod.packages != nil {
 		if v, ok := f.mod.packages[realPath]; ok {
@@ -182,8 +187,8 @@ func (f *File) parseImport(i *ast.ImportSpec) *Import {
 	
 	err = r.Package.Parse(f.mod, realPath)
 	if err != nil {
-		panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
+		// panic(fmt.Errorf("load package: %s files from: %s error: %s", r.Path, realPath, err))
+		return nil
 	}
-	
 	return r
 }

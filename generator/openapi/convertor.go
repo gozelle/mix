@@ -57,15 +57,14 @@ func convertRenderMethod(m *parser.Method) *Method {
 
 func convertRenderMethodRequest(m *parser.Method) *Def {
 	request := &Def{
-		Field: fmt.Sprintf("%sRequest", m.Name),
-		Type:  parser.TStruct,
+		Type: ArrayParams,
 	}
 	params := m.ExportParams()
 	if len(params) == 1 && params[0].Type.NoPointer().Def != nil && params[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		request.Use = convertRenderDef(params[0].Type.NoPointer().Def)
+		request.ArrayFields = append(request.ArrayFields, convertRenderMethodParam(params[0])[0])
 	} else if len(params) > 0 {
 		for _, v := range params {
-			request.StructFields = append(request.StructFields, convertRenderMethodParam(v)...)
+			request.ArrayFields = append(request.ArrayFields, convertRenderMethodParam(v)...)
 		}
 	} else {
 		request = nil
@@ -75,32 +74,28 @@ func convertRenderMethodRequest(m *parser.Method) *Def {
 }
 
 func convertRenderMethodReply(m *parser.Method) *Def {
-	replay := &Def{
-		Field: fmt.Sprintf("%sReplay", m.Name),
-		Type:  parser.TStruct,
-	}
+	var replay *Def
 	
 	results := m.ExportResults()
 	
-	if len(results) > 0 && results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
-		replay.Use = convertRenderDef(results[0].Type.NoPointer().Def)
-	} else if len(results) > 0 {
-		for _, v := range results {
-			replay.StructFields = append(replay.StructFields, convertRenderMethodParam(v)...)
-		}
-	} else {
-		replay = nil
+	if len(results) == 0 {
+		return nil
 	}
+	
+	if results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
+		replay = &Def{Use: convertRenderDef(results[0].Type.NoPointer().Def)}
+	} else {
+		replay = convertRenderType(results[0].Type)
+	}
+	replay.Name = fmt.Sprintf("%sReply", m.Name)
 	return replay
 }
 
 func convertRenderMethodParam(p *parser.Param) []*Def {
 	r := make([]*Def, 0)
-	//log.Infof("convertRenderMethodParam: %v", p.Names)
-	//spew.Json(p)
 	for _, v := range p.Names {
 		d := convertRenderType(p.Type)
-		d.Field = Title(v)
+		d.Field = v
 		d.Json = v
 		r = append(r, d)
 	}

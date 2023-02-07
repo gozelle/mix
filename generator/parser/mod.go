@@ -85,13 +85,6 @@ func (m *Mod) cachePackage(realPath string, pkg *Package) {
 	m.packages[realPath] = pkg
 }
 
-//func (m Mod) GetPackage(path string) *Package {
-//	if m.packages == nil {
-//		return nil
-//	}
-//	return m.packages[path]
-//}
-
 // GetPackagePath 获取包的真实路径
 // 1. 首先判断是否被本地替换
 // 2. 然后判断是否是直接依赖的包
@@ -100,33 +93,72 @@ func (m Mod) GetPackagePath(pkg string) string {
 	if m.file == nil {
 		return ""
 	}
-	for _, v := range m.file.Replace {
-		if v.New.Path == pkg {
-			return v.Old.Path
+	if m.ModuleName() != "std" {
+		for _, v := range m.file.Require {
+			if v.Mod.Path == pkg {
+				return fs.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s", pkg, v.Mod.Version))
+			} else {
+				c := pkg
+				valid := false
+				for c != "." && c != "/" {
+					if v.Mod.Path == c {
+						valid = true
+						break
+					}
+					c = filepath.Join(c, "../")
+				}
+				if valid {
+					// 如果有根项目定义包版本升级
+					for _, pv := range m.file.Require {
+						if pv.Mod.Path == c {
+							return fs.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s%s", c, pv.Mod.Version, strings.TrimPrefix(pkg, c)))
+						}
+					}
+					return fs.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s%s", c, v.Mod.Version, strings.TrimPrefix(pkg, c)))
+				}
+			}
+		}
+		for _, v := range m.file.Replace {
+			if v.New.Path == pkg {
+				return v.Old.Path
+			} else {
+				c := pkg
+				valid := false
+				for c != "." && c != "/" {
+					if v.New.Path == c {
+						valid = true
+						break
+					}
+					c = filepath.Join(c, "../")
+				}
+				if valid {
+					return fmt.Sprintf("%s%s", v.Old.Path, strings.TrimPrefix(pkg, c))
+				}
+			}
 		}
 	}
-	for _, v := range m.file.Require {
-		if !v.Indirect && v.Mod.Path == pkg {
-			return fs.Join(m.Gopath(), "pkg/mod", fmt.Sprintf("%s@%s", pkg, v.Mod.Version))
-		}
+	
+	path := fs.Join(m.Gopath(), "src", pkg)
+	if fs.Exists(path) {
+		return path
 	}
 	
-	src := fs.Join(m.Gopath(), "src", pkg)
-	if fs.Exists(src) {
-		return src
+	path = fs.Join(m.Gopath(), "src/vendor", pkg)
+	if fs.Exists(path) {
+		return path
 	}
 	
-	src = fs.Join(m.Gopath(), "src/vendor", pkg)
-	if fs.Exists(src) {
-		return src
+	path = fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.file.Module.Mod.Path), "/"))
+	if fs.Exists(path) {
+		return path
 	}
 	
-	return fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.file.Module.Mod.Path), "/"))
+	return ""
 }
 
-func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
+func (m Mod) GetPackageRealName(path string) (name string, err error) {
 	
-	files, err := m.GetPackageFiles(pkg)
+	files, err := m.GetPackageFiles(path)
 	if err != nil {
 		return
 	}
@@ -157,17 +189,16 @@ func (m Mod) GetPackageRealName(pkg string) (name string, err error) {
 	return
 }
 
-func (m Mod) GetPackageFiles(pkg string) (files []string, err error) {
+func (m Mod) GetPackageFiles(path string) (files []string, err error) {
 	
-	var path string
-	if strings.HasPrefix(pkg, m.ModuleName()) {
-		path = fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.ModuleName()), "/"))
-	} else {
-		path = m.GetPackagePath(pkg)
-	}
+	//var path string
+	//if strings.HasPrefix(pkg, m.ModuleName()) {
+	//	path = fs.Join(m.root, strings.TrimPrefix(strings.TrimPrefix(pkg, m.ModuleName()), "/"))
+	//} else {
+	//
+	//}
 	
-	if path == "" {
-		err = fmt.Errorf("can't resolve pkg path: %s", pkg)
+	if !fs.Exists(path) {
 		return
 	}
 	

@@ -10,7 +10,7 @@ func TestGenerate(t *testing.T) {
 	file, err := fs.Lookup("./generator/tests/feature/openapi.json")
 	require.NoError(t, err)
 	
-	files, err := Generate(file)
+	files, err := Generate(file, "")
 	require.NoError(t, err)
 	
 	for _, v := range files {

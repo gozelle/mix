@@ -35,7 +35,7 @@ func (t TestHandler) Error(ctx context.Context) error {
 }
 
 func (t TestHandler) Code(ctx context.Context) error {
-	return &Error{
+	return &Warn{
 		Code:    1000,
 		Message: "自定义错误",
 		Detail:  "一些详情",
@@ -65,8 +65,8 @@ func TestServer(t *testing.T) {
 	server := NewServer()
 	group := server.Group("/api/v1")
 	
-	RegisterRPC(server.Group("/rpc/v1"), "", h)
-	RegisterAPI(group, "", h)
+	server.RegisterRPC(server.Group("/rpc/v1"), "", h)
+	server.RegisterAPI(group, "", h)
 	
 	group.GET("/download", WrapHandler(func(ctx *gin.Context) (data any, err error) {
 		ctx.Header("Content-Type", "text/html; charset=UTF-8")
