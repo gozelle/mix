@@ -15,7 +15,7 @@ const baseTpl = `
  */
 
 // Some imports not used depending on template conditions
-import {AxiosError, AxiosInstance, AxiosResponse} from 'axios';
+import {AxiosError, AxiosInstance, AxiosResponse, AxiosRequestConfig} from 'axios';
 
 export class BaseAPI {
     public client: AxiosInstance;
@@ -30,7 +30,7 @@ export const requestInterceptorExample: any = [function (request: AxiosRequestCo
     if (request.headers) {
         request.headers['Authorization'] = ` + "`Bearer ${localStorage.getItem('access_token')}`" + `;
     }
-    return request;x
+    return request;
 }, function (error: AxiosError) {
     // 对请求错误做些什么
     return Promise.reject(error);
