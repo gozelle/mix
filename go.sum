@@ -86,6 +86,8 @@ github.com/gozelle/isatty v0.0.17 h1:1ka2GcKL1hNwIHIl5JFHfHOAzl+vXRH4Jx3dlFa88nM
 github.com/gozelle/isatty v0.0.17/go.mod h1:u77FICFTx4IXjAoAaYstj8NvStDRVhwe3NNZCKzXVGo=
 github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5 h1:toqzqNK421m/AwzhEhlu+hW3zQo2LAlvjFkOk7m9dqQ=
 github.com/gozelle/jsonrpc v0.1.10-0.20230118174216-0740191286d5/go.mod h1:LI3nXlYirSES3oY9wNtkDyu+IB7MzbPFt5Xspu+JBJE=
+github.com/gozelle/jsonrpc v0.2.0 h1:LsX8iPMD4XT6j4e/yqs9nWCAg8VkF0pDueeDbSOAuT8=
+github.com/gozelle/jsonrpc v0.2.0/go.mod h1:LI3nXlYirSES3oY9wNtkDyu+IB7MzbPFt5Xspu+JBJE=
 github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46 h1:hV0LqMjLl6oDbp4qXvia9pplS95kQtfq92YHvDZFGww=
 github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46/go.mod h1:uYLWg4Ida/VxwbumW4/N6HPAj/3ShN+2x2Kj2hAtD8U=
 github.com/gozelle/multierr v1.9.10 h1:EUU22u5Yx82/mQm55fH1WF6ztp0w4U+cZl9lCzuyUvE=
