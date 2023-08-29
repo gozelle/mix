@@ -2,36 +2,37 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/gozelle/logger/v2"
+
+	"github.com/gozelle/logger"
 	"github.com/gozelle/mix/generator/parser"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-var log = logger.Logger("convertor")
+var log = logger.NewLogger("convertor")
 
 func ConvertAPI(i *parser.Interface) *API {
-	
+
 	r := &API{
 		Name: i.Name,
 	}
-	
+
 	//for _, v := range i.Imports {
 	//	r.Imports = append(r.Imports, &Import{
 	//		Alias: v.Alias,
 	//		Path:  v.Path,
 	//	})
 	//}
-	
+
 	convertDefs(r, i)
 	for _, v := range i.Includes {
 		convertDefs(r, v)
 	}
-	
+
 	for _, v := range i.Methods {
 		r.Methods = append(r.Methods, convertRenderMethod(v))
 	}
-	
+
 	return r
 }
 
@@ -46,7 +47,7 @@ func convertDefs(r *API, i *parser.Interface) {
 }
 
 func convertRenderMethod(m *parser.Method) *Method {
-	
+
 	r := &Method{
 		Name:    m.Name,
 		Request: convertRenderMethodRequest(m),
@@ -69,19 +70,19 @@ func convertRenderMethodRequest(m *parser.Method) *Def {
 	} else {
 		request = nil
 	}
-	
+
 	return request
 }
 
 func convertRenderMethodReply(m *parser.Method) *Def {
 	var replay *Def
-	
+
 	results := m.ExportResults()
-	
+
 	if len(results) == 0 {
 		return nil
 	}
-	
+
 	if results[0].Type.NoPointer().Def != nil && results[0].Type.NoPointer().Def.Type.RealType().IsStruct() {
 		replay = &Def{Use: convertRenderDef(results[0].Type.NoPointer().Def)}
 	} else {
@@ -113,10 +114,10 @@ func convertRenderDef(d *parser.Def) *Def {
 }
 
 func convertRenderType(t *parser.Type) *Def {
-	
+
 	pointer := t.Pointer
 	rt := t.NoPointer().RealType()
-	
+
 	n := &Def{
 		Field:        t.Field,
 		Json:         rt.Json(),
@@ -127,7 +128,7 @@ func convertRenderType(t *parser.Type) *Def {
 		Use:          nil,
 		Tags:         string(rt.Tags),
 	}
-	
+
 	switch rt.Type {
 	case parser.TStruct:
 		for _, v := range rt.StructFields {
@@ -137,7 +138,7 @@ func convertRenderType(t *parser.Type) *Def {
 		n.Type = parser.TSlice
 		n.Elem = convertRenderType(rt.Elem)
 	}
-	
+
 	// 处理引用关系
 	if rt.Def != nil {
 		n.Use = &Def{Name: rt.Def.Name}
@@ -147,6 +148,6 @@ func convertRenderType(t *parser.Type) *Def {
 			n.Use.Type = rt.Def.Type.Type
 		}
 	}
-	
+
 	return n
 }
