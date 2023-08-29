@@ -3,12 +3,12 @@ package mix
 import (
 	"github.com/gozelle/gin"
 	"github.com/gozelle/jsonrpc"
-	"github.com/gozelle/logging"
-	"github.com/gozelle/zap"
+	"github.com/gozelle/logger/v2"
+	"go.uber.org/zap"
 	"time"
 )
 
-var log = logging.Logger("[mix]")
+var log = logger.Logger("[mix]")
 
 const (
 	X_Bearer = "X-Bearer"

@@ -3,22 +3,23 @@ module github.com/gozelle/mix
 go 1.18
 
 require (
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gozelle/cobra v1.6.3
 	github.com/gozelle/color v0.0.0-20230127151334-4cdcf2eb46f1
 	github.com/gozelle/fastjson v1.6.5
 	github.com/gozelle/fs v0.0.0-20230128122319-88641b3c5902
 	github.com/gozelle/gin v0.0.0-20230118140921-403d0ca81bc9
-	github.com/gozelle/jsonrpc v0.2.2
-	github.com/gozelle/logging v0.0.0-20230111081457-6f16f4dd5a46
+	github.com/gozelle/jsonrpc v0.2.3-0.20230829103618-1178cc9f5f26
+	github.com/gozelle/logger/v2 v2.5.0
 	github.com/gozelle/openapi v0.0.0-20230123142901-0d56d92ee1fc
 	github.com/gozelle/pointer v0.0.0-20230124152942-5286d508f8ab
 	github.com/gozelle/pongo2 v0.0.0-20230118082404-b7891e854621
 	github.com/gozelle/spew v1.1.13
 	github.com/gozelle/structs v1.1.0
 	github.com/gozelle/testify v1.8.11
-	github.com/gozelle/zap v1.24.0
 	github.com/invopop/yaml v0.1.0
 	github.com/shopspring/decimal v1.3.1
+	go.uber.org/zap v1.19.1
 	golang.org/x/mod v0.7.0
 	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.5.0
@@ -34,14 +35,11 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
-	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/gozelle/atomic v1.10.10 // indirect
 	github.com/gozelle/go-difflib v1.0.0 // indirect
 	github.com/gozelle/go-spew v1.1.10 // indirect
 	github.com/gozelle/isatty v0.0.17 // indirect
-	github.com/gozelle/multierr v1.9.10 // indirect
 	github.com/gozelle/opencensus v0.24.1 // indirect
 	github.com/gozelle/websocket v1.5.0 // indirect
 	github.com/gozelle/yaml v0.0.0-20230127161149-50ad9e131615 // indirect
@@ -61,6 +59,8 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.8 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15 // indirect
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/net v0.5.0 // indirect

@@ -3,11 +3,8 @@ package parser
 import (
 	"fmt"
 	"github.com/gozelle/fs"
-	"github.com/gozelle/logging"
 	"strings"
 )
-
-var log = logging.Logger("parser")
 
 type Packages map[string]*Package
 
