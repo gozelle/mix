@@ -2,13 +2,13 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/gozelle/logging"
+	"github.com/gozelle/logger/v2"
 	"github.com/gozelle/mix/generator/parser"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-var log = logging.Logger("convertor")
+var log = logger.Logger("convertor")
 
 func ConvertAPI(i *parser.Interface) *API {
 	
